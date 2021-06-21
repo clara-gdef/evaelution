@@ -133,7 +133,7 @@ class StringIndSubDataset(Dataset):
             new_index = -1
         return new_index
 
-    def tokenize_jobs(self, job):
+    def tokenize_job(self, job):
         word_list = []
         for num, word in enumerate(job):
             if num < self.max_len - 3:
