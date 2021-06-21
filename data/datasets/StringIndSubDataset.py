@@ -114,8 +114,8 @@ class StringIndSubDataset(Dataset):
                         raise Exception("exp_type provided not supported. Can only support uniform exp atm.")
                     new_job["words"] = self.tokenize_job(job["job"])
                     tuples.append(new_job)
-            user_lookup[id_p] = [counter, counter + len(sorted_jobs) - 1]
-            counter += len(sorted_jobs)
+                user_lookup[id_p] = [counter, counter + len(sorted_jobs) - 1]
+                counter += len(sorted_jobs)
         return tuples, user_lookup
 
     def get_tgt_file(self, suffix, subsample):
