@@ -27,9 +27,9 @@ class StringIndSubDataset(Dataset):
             ind_file = "20_industry_dict.pkl"
             with open(os.path.join(data_dir, ind_file), 'rb') as f_name:
                 industry_dict = pkl.load(f_name)
-            prev_ind_file = "industry_dict.pkl"
-            with open(os.path.join(data_dir, ind_file), 'rb') as f_name:
-                prev_ind_dict = pkl.load(f_name)
+            prev_ind_file = "ind_class_dict.pkl.pkl"
+            with open(os.path.join(data_dir, prev_ind_file), 'rb') as f_name:
+                self.prev_ind_dict = pkl.load(f_name)
             print("Data files loaded.")
             with open(os.path.join(self.datadir, "ind_map_to_subsampled.pkl"), 'rb') as f:
                 self.ind_map_to_subsampled = pkl.load(f)
