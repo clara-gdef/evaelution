@@ -27,6 +27,9 @@ class StringIndSubDataset(Dataset):
             ind_file = "20_industry_dict.pkl"
             with open(os.path.join(data_dir, ind_file), 'rb') as f_name:
                 industry_dict = pkl.load(f_name)
+            prev_ind_file = "industry_dict.pkl"
+            with open(os.path.join(data_dir, ind_file), 'rb') as f_name:
+                prev_ind_dict = pkl.load(f_name)
             print("Data files loaded.")
             with open(os.path.join(self.datadir, "ind_map_to_subsampled.pkl"), 'rb') as f:
                 self.ind_map_to_subsampled = pkl.load(f)
@@ -93,9 +96,25 @@ class StringIndSubDataset(Dataset):
         counter = 0
         with open(os.path.join(self.datadir, rep_file), 'rb') as f:
             data = pkl.load(f)
-        for item in tqdm(data, desc=f"Building tuple list for {self.split} split..."):
+        for person in tqdm(data, desc=f"Building tuple list for {self.split} split..."):
+            id_p = person[0]
+            if person[1] != "" and person[1] in self.rev_ind_dict.keys():
+                sorted_jobs = sorted(person[-1], key=lambda k: k['from'])
+                if self.exp_type == "uniform":
+                    exp = self.get_uniform_experience(len(sorted_jobs))
+                for num, job in enumerate(sorted_jobs):
+                    new_job = dict()
+                    ind = self.handle_ind(person[1])
+                    new_job["ind_index"] = ind
+                    if self.exp_type == "uniform":
+                        new_job["exp_index"] = exp[num]
+                    else:
+                        raise Exception("exp_type provided not supported. Can only support uniform exp atm.")
+                    new_job["words"] = self.tokenize_job(job["job"])
+                    tuples.append(new_job)
+            user_lookup[id_p] = [counter, counter + len(sorted_jobs) - 1]
+            counter = counter + len(sorted_jobs)
             ipdb.set_trace()
-
         return tuples, user_lookup
 
     def get_tgt_file(self, suffix, subsample):
@@ -104,6 +123,16 @@ class StringIndSubDataset(Dataset):
         else:
             tgt_file = os.path.join(self.datadir, f"{self.name}{suffix}_{subsample}.pkl")
         return tgt_file
+
+    def handle_ind(self, ind_name):
+        ipdb.set_trace()
+
+    def tokenize_jobs(self, job):
+        word_list = []
+        for num, word in enumerate(job):
+            if num < self.max_len - 3:
+                word_list.append(word)
+        return " ".join(word_list)
 
     def get_uniform_experience(self, career_len):
         return [round(i) for i in np.linspace(0, self.exp_levels - 1, career_len)]
