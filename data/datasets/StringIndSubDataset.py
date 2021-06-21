@@ -114,7 +114,6 @@ class StringIndSubDataset(Dataset):
                     tuples.append(new_job)
             user_lookup[id_p] = [counter, counter + len(sorted_jobs) - 1]
             counter = counter + len(sorted_jobs)
-            ipdb.set_trace()
         return tuples, user_lookup
 
     def get_tgt_file(self, suffix, subsample):
