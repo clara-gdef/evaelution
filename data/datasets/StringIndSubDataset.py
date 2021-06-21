@@ -103,6 +103,8 @@ class StringIndSubDataset(Dataset):
                 sorted_jobs = sorted(person[-1], key=lambda k: k['from'])
                 if self.exp_type == "uniform":
                     exp = self.get_uniform_experience(len(sorted_jobs))
+                else:
+                    raise Exception("exp_type provided not supported. Can only support uniform exp atm.")
                 for num, job in enumerate(sorted_jobs):
                     new_job = dict()
                     new_job["ind_index"] = ind
@@ -113,7 +115,7 @@ class StringIndSubDataset(Dataset):
                     new_job["words"] = self.tokenize_job(job["job"])
                     tuples.append(new_job)
             user_lookup[id_p] = [counter, counter + len(sorted_jobs) - 1]
-            counter = counter + len(sorted_jobs)
+            counter += len(sorted_jobs)
         return tuples, user_lookup
 
     def get_tgt_file(self, suffix, subsample):
