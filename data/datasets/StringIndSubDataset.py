@@ -124,13 +124,14 @@ class StringIndSubDataset(Dataset):
         return tgt_file
 
     def handle_ind(self, ind_name):
+        if ind_name == "":
+            return -1
         rev_prev = {v: k for k, v in self.prev_ind_dict.items()}
         old_indexing = rev_prev[ind_name]
         if old_indexing in self.rev_ind_map_to_subsampled.keys():
-            new_index = self.rev_ind_map_to_subsampled[old_indexing]
+            return self.rev_ind_map_to_subsampled[old_indexing]
         else:
-            new_index = -1
-        return new_index
+            return -1
 
     def tokenize_job(self, job):
         word_list = []
