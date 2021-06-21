@@ -88,32 +88,14 @@ class StringIndSubDataset(Dataset):
         print("Dataset load from : " + tgt_file)
 
     def build_ppl_tuples(self, rep_file, split):
-        ipdb.set_trace()
         user_lookup = {}
         tuples = []
         counter = 0
-        for person_id, (start, end) in tqdm(lookup.items(), desc=f"Building tuples for split {self.split} ..."):
-            try:
-                id_person = person_id
-                num_jobs = end - start
-                exp_unif = self.get_uniform_experience(num_jobs)
-                if already_subbed == "False":
-                    end += 1
-                    num_jobs += 1
-                for num, i in enumerate(range(start, end)):
-                    new_job = tuple_list[i].copy()
-                    if already_subbed == "False":
-                        tmp = new_job["ind_index"]
-                        new_job["ind_index"] = self.rev_ind_map_to_subsampled[tmp]
-                        new_job["exp_index"] = exp_unif[num]
-                    tuples.append(new_job.copy())
-                user_lookup[id_person] = [counter, counter + num_jobs]
-                counter = counter + num_jobs
-            except IndexError:
-                if end == 107493:
-                    continue
-                else:
-                    ipdb.set_trace()
+        with open(os.path.join(self.datadir, rep_file), 'rb') as f:
+            data = pkl.load(f)
+        for item in tqdm(data, desc=f"Building tuple list for {self.split} split..."):
+            ipdb.set_trace()
+
         return tuples, user_lookup
 
     def get_tgt_file(self, suffix, subsample):
