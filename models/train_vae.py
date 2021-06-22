@@ -192,7 +192,7 @@ if __name__ == "__main__":
     parser.add_argument("--dec_hs", type=int, default=768)
     parser.add_argument("--mlp_layers", type=int, default=2)
     parser.add_argument("--dec_layers", type=int, default=2)
-    parser.add_argument("--max_len", type=int, default=32)
+    parser.add_argument("--max_len", type=int, default=10)
     parser.add_argument("--model_type", type=str, default="VAE")
     # global hyper params
     parser.add_argument("--alpha", type=float, default=.5)
