@@ -77,13 +77,12 @@ class VAE(pl.LightningModule):
         decoder_outputs = []
         for di in range(max_seq_len - 1):
             resized_in_token = self.text_decoder.lin_att_in_para(previous_token)
-            ipdb.set_trace()
             extended_enc_rep = reconstructed_input_to_decode.repeat(1, self.max_len, 1)
-            tmp = torch.bmm(extended_enc_rep.transpose(-1, 1), resized_in_token)
-            # attn_weights = masked_softmax(tmp, torch.ones(sample_len, 1).cuda(), 1)
+            ipdb.set_trace()
+            tmp = torch.bmm(extended_enc_rep, resized_in_token.transpose(-1, 1))
+            attn_weights = masked_softmax(tmp, torch.ones(sample_len, 1).cuda(), 1)
             # assert attn_weights.shape == torch.Size([sample_len, max_seq_len, 1])
-            attn_weights = torch.softmax(tmp, dim=-1)
-            attn_applied = torch.einsum("bld,bdd->bld", extended_enc_rep, attn_weights)
+            attn_applied = torch.einsum("blh,bld->bdl", extended_enc_rep, attn_weights)
             # output = torch.cat((previous_token, attn_applied.unsqueeze(1)), -1)
             lstm_input = torch.cat(
                 (reconstructed_input_to_decode, previous_token, attn_applied),
