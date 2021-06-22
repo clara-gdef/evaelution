@@ -13,7 +13,7 @@ class LSTMAttentionDecoder(pl.LightningModule):
         self.max_len = hp.max_len
         self.emb_dim = emb_dim
         self.input_size = self.emb_dim
-        self.LSTM = torch.nn.LSTM(self.input_size + self.emb_dim,
+        self.LSTM = torch.nn.LSTM(self.input_size + self.emb_dim * 2,
                                   self.hs,
                                   dropout=self.dpo,
                                   num_layers=self.num_layer,

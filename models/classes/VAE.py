@@ -82,7 +82,7 @@ class VAE(pl.LightningModule):
             tmp = torch.bmm(extended_enc_rep, resized_in_token.transpose(-1, 1))
             attn_weights = masked_softmax(tmp, torch.ones(sample_len, 1).cuda(), 1)
             # assert attn_weights.shape == torch.Size([sample_len, max_seq_len, 1])
-            attn_applied = torch.einsum("blh,bld->bdl", extended_enc_rep, attn_weights)
+            attn_applied = torch.einsum("blh,bld->bdh", extended_enc_rep, attn_weights)
             # output = torch.cat((previous_token, attn_applied.unsqueeze(1)), -1)
             lstm_input = torch.cat(
                 (reconstructed_input_to_decode, previous_token, attn_applied),
