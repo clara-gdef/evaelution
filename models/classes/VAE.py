@@ -66,23 +66,21 @@ class VAE(pl.LightningModule):
         reconstructed_input_to_decode = reconstructed_input.unsqueeze(1).clone()
         tmp = torch.zeros(sample_len, 1).cuda() + self.tokenizer.bos_token_id
         previous_token = self.text_encoder.embeddings(tmp.long().cuda())
-        # prev_hidden_state = (
-        #     torch.zeros(self.text_decoder.num_layer, self.hp.b_size, self.text_decoder.hs).type_as(previous_token),
-        #     torch.zeros(self.text_decoder.num_layer, self.hp.b_size, self.text_decoder.hs).type_as(previous_token))
 
-        prev_hidden_state = (reconstructed_input_to_decode.repeat(1, self.hp.dec_layers, 1).cuda(),
-                             reconstructed_input_to_decode.repeat(1, self.hp.dec_layers, 1).cuda())
+        prev_hidden_state = (reconstructed_input_to_decode.repeat(1, self.hp.dec_layers, 1).transpose(1, 0).contiguous(),
+                             reconstructed_input_to_decode.repeat(1, self.hp.dec_layers, 1).transpose(1, 0).contiguous())
 
         decoded_tokens = []
         decoder_outputs = []
         for di in range(max_seq_len - 1):
             resized_in_token = self.text_decoder.lin_att_in_para(previous_token)
             concat_prev_hs = torch.cat(prev_hidden_state, dim=-1)
-            tmp = torch.bmm(concat_prev_hs[:, 1, :].unsqueeze(1).transpose(-1, 1), resized_in_token)
-            # attn_weights = masked_softmax(tmp, torch.ones(sample_len, 1).cuda(), 1)
+            resized_inp = concat_prev_hs[0, :, :].unsqueeze(0).transpose(1, 0).transpose(-1,1)
+            tmp = torch.bmm(resized_inp, resized_in_token)
+            # attn_weights = masked_softmax(tmp, torch.ones(smple_len, 1).cuda(), 1)
             # assert attn_weights.shape == torch.Size([sample_len, max_seq_len, 1])
             attn_weights = torch.softmax(tmp, dim=-1)
-            attn_applied = torch.einsum("bld,bdd->bld", concat_prev_hs[:, 1, :].unsqueeze(1), attn_weights)
+            attn_applied = torch.einsum("lbd,bdd->bld", concat_prev_hs[0, :, :].unsqueeze(0), attn_weights)
             # output = torch.cat((previous_token, attn_applied.unsqueeze(1)), -1)
             lstm_input = torch.cat(
                 (reconstructed_input_to_decode, previous_token, attn_applied),
