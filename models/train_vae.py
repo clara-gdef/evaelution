@@ -9,7 +9,7 @@ import yaml
 import torch
 from data.datasets import StringIndSubDataset
 from models.classes.VAE import VAE
-from utils import collate_for_VAE
+from utils import collate_for_VAE, get_latest_model
 
 
 def init(hparams):
@@ -53,14 +53,13 @@ def main(hparams):
                                   num_workers=num_workers, drop_last=True, pin_memory=True)
         print("Dataloaders initiated.")
     print("Dataloaders initiated.")
-    arguments = {'emb_size': 768,
+    arguments = {'emb_dim': 768,
                  'hp': hparams,
                  'desc': xp_title,
-                 "vocab_size": 32005,
+                 "num_ind": 20,
                  "model_path": model_path,
-                 "datadir": CFG["gpudatadir"],
-                 "alpha": hparams.alpha,
-                 "beta": hparams.beta}
+                 "num_exp_level": 3,
+                 "datadir": CFG["gpudatadir"]}
     print("Initiating model...")
     model = VAE(**arguments)
     print("Model Loaded.")
@@ -118,8 +117,8 @@ def load_datasets(CFG, hparams, splits):
     datasets = []
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": hparams.load_dataset,
-                 "subsample": -1,
-                 "max_len": 32,
+                 "subsample": hparams.subsample,
+                 "max_len": hparams.max_len,
                  "exp_levels": hparams.exp_levels,
                  "rep_file": None,
                  "exp_type": "uniform",
@@ -160,7 +159,7 @@ def init_lightning(CFG, xp_title, model_name):
 
 
 def make_xp_title(hparams):
-    xp_title = f"{hparams.model_type}_bs{hparams.b_size}_hs{hparams.hidden_size}_lr{hparams.lr}_{hparams.optim}"
+    xp_title = f"{hparams.model_type}_bs{hparams.b_size}_mlphs{hparams.mlp_hs}_lr{hparams.lr}_{hparams.optim}"
     if hparams.alpha != .5:
         xp_title += f"_alpha{hparams.alpha}"
     if hparams.subsample != -1:
@@ -183,22 +182,24 @@ if __name__ == "__main__":
     parser.add_argument("--DEBUG", type=str, default="True")
     parser.add_argument("--TEST", type=str, default="False")
     parser.add_argument("--TRAIN", type=str, default="True")
-    parser.add_argument("--subsample", type=int, default=-1)
+    parser.add_argument("--subsample", type=int, default=100)
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--toy_dataset", type=str, default="False")
     parser.add_argument("--test_b_size", type=int, default=1)
     # model attributes
-    parser.add_argument("--b_size", type=int, default=128)
-    parser.add_argument("--hidden_size", type=int, default=512)
-    parser.add_argument("--num_layer", type=int, default=2)
-    parser.add_argument("--max_len", type=int, default=10)
+    parser.add_argument("--b_size", type=int, default=2)
+    parser.add_argument("--mlp_hs", type=int, default=512)
+    parser.add_argument("--dec_hs", type=int, default=768)
+    parser.add_argument("--mlp_layers", type=int, default=2)
+    parser.add_argument("--dec_layers", type=int, default=2)
+    parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--model_type", type=str, default="VAE")
     # global hyper params
     parser.add_argument("--alpha", type=float, default=.5)
-    parser.add_argument("--beta", type=float, default=.5)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--wd", type=float, default=0.)
     parser.add_argument("--dpo", type=float, default=0.)
     parser.add_argument("--epochs", type=int, default=100)
+    parser.add_argument("--exp_levels", type=int, default=3)
     hparams = parser.parse_args()
     init(hparams)
