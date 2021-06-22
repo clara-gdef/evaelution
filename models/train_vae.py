@@ -187,8 +187,8 @@ if __name__ == "__main__":
     parser.add_argument("--toy_dataset", type=str, default="False")
     parser.add_argument("--test_b_size", type=int, default=1)
     # model attributes
-    parser.add_argument("--b_size", type=int, default=8)
-    parser.add_argument("--mlp_hs", type=int, default=128)
+    parser.add_argument("--b_size", type=int, default=128)
+    parser.add_argument("--mlp_hs", type=int, default=256)
     parser.add_argument("--dec_hs", type=int, default=768)
     parser.add_argument("--mlp_layers", type=int, default=1)
     parser.add_argument("--dec_layers", type=int, default=1)
