@@ -187,6 +187,7 @@ if __name__ == "__main__":
     parser.add_argument("--toy_dataset", type=str, default="False")
     parser.add_argument("--test_b_size", type=int, default=1)
     parser.add_argument("--plot_latent_space", type=str, default="True")
+    parser.add_argument("--proj_type", type=str, default="pca")
     # model attributes
     parser.add_argument("--freeze_decoding", type=str, default="True")
     parser.add_argument("--optim", default="adam")
