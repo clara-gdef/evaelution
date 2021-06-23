@@ -1,4 +1,8 @@
 ipdb
-yaml
 torch
 tqdm
+pytorch_lightning
+matplotlib
+tqdm
+sklearn
+pyyaml
