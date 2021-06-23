@@ -58,7 +58,7 @@ def load_model(xp_title, model_path, model_name):
     model_file = get_latest_model(CFG["modeldir"], model_name)
     try:
         model.load_state_dict(torch.load(model_file)["state_dict"])
-    except KeyError:
+    except RuntimeError:
         model.load_state_dict(torch.load(model_file))
     print(f"Model loaded from checkpoint: {model_file}")
     return model
@@ -100,6 +100,9 @@ def fit_transform_by_tsne(input_data, split):
 
 
 # def plot_tsne(points, inds, exps, split):
+    # NUM_COLORS = 20
+    #
+    # cm = plt.get_cmap('gist_rainbow')
     # fig = plt.figure(figsize=(15, 8))
     # fig.suptitle(f"TSNE of {len(points)} jobs of split {split}", fontsize=14)
     # ax = fig.add_subplot(211)
@@ -133,7 +136,7 @@ if __name__ == "__main__":
     parser.add_argument("--mlp_layers", type=int, default=1)
     parser.add_argument("--dec_layers", type=int, default=1)
     parser.add_argument("--max_len", type=int, default=10)
-    parser.add_argument("--model_type", type=str, default="VAE")
+    parser.add_argument("--model_type", type=str, default="vae_no_dec")
     parser.add_argument("--optim", default="adam")
     # global hyper params
     parser.add_argument("--alpha", type=float, default=.5)
