@@ -6,11 +6,13 @@ import torch
 from tqdm import tqdm
 import pickle as pkl
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import cm
 from models.train_vae import make_xp_title
 from models.classes import VAE
 from sklearn.manifold import TSNE
+import numpy as np
 from utils.models import get_latest_model, index_to_one_hot
-from cycler import cycler
+import matplotlib.lines as mlines
 
 
 def init(args):
@@ -22,17 +24,17 @@ def init(args):
             xp_title = make_xp_title(args)
             model_name = "/".join(xp_title.split('_'))
             model_path = os.path.join(CFG['modeldir'], model_name)
-            model = load_model(xp_title, model_path, model_name)
-            return main(args, model.cuda())
+            model, epoch = load_model(xp_title, model_path, model_name)
+            return main(args, model.cuda(), model_name, epoch)
     else:
         xp_title = make_xp_title(args)
         model_name = "/".join(xp_title.split('_'))
         model_path = os.path.join(CFG['modeldir'], model_name)
-        model = load_model(xp_title, model_path, model_name)
-        return main(args, model.cuda())
+        model, epoch = load_model(xp_title, model_path, model_name)
+        return main(args, model.cuda(), model_name, epoch)
 
 
-def main(args, model):
+def main(args, model, model_name, epoch):
     sub_train = load_sub("train")
     sub_test = load_sub("test")
     ipdb.set_trace()
@@ -40,6 +42,9 @@ def main(args, model):
     test_projections = project_points(sub_test, model, "test")
     trans_points_train, ind_labels_train, exp_labels_train = prep_data_for_viz(train_projections, "train")
     trans_points_test, ind_labels_test, exp_labels_test = prep_data_for_viz(test_projections, "test")
+    plot_tsne(trans_points_train, ind_labels_train, exp_labels_train,
+              trans_points_test, ind_labels_test, exp_labels_test,
+              model_name, epoch)
     ipdb.set_trace()
 
 
@@ -61,7 +66,8 @@ def load_model(xp_title, model_path, model_name):
     except RuntimeError:
         model.load_state_dict(torch.load(model_file))
     print(f"Model loaded from checkpoint: {model_file}")
-    return model
+    ipdb.set_trace()
+    return model, epoch
 
 
 def project_points(data, model, split):
@@ -99,27 +105,54 @@ def fit_transform_by_tsne(input_data, split):
     return data_embedded
 
 
-# def plot_tsne(points, inds, exps, split):
-    # NUM_COLORS = 20
-    #
-    # cm = plt.get_cmap('gist_rainbow')
-    # fig = plt.figure(figsize=(15, 8))
-    # fig.suptitle(f"TSNE of {len(points)} jobs of split {split}", fontsize=14)
-    # ax = fig.add_subplot(211)
-    #
-    # ax.scatter(points[:, 0], points[:, 1],
-    #            c=val_set_labels[:args.subsample], cmap=plt.cm.Spectral)
-    # ax.set_title("PCA over %s points (%.2g sec)" % (args.subsample, t1 - t0))
-    # ax.axis('tight')
-    #
-    # ax = fig.add_subplot(212)
-    #
-    # ax.scatter(val_set_embedded_tsne[:args.subsample, 0], val_set_embedded_tsne[:, 1],
-    #            c=val_set_labels[:args.subsample], cmap=plt.cm.Spectral)
-    # ax.set_title("TSNE over %s points (%.2g sec)" % (args.subsample, t3 - t2))
-    # ax.axis('tight')
-    # plt.savefig('tsne_pca_' + str(args.subsample) + "_" + args.ft_type + "_" + str(iteration) + '.png')
+def plot_tsne(points_train, inds_train, exps_train, points_test, inds_test, exps_test, model_name, epoch):
+    NUM_COLORS = 20
+    shape_per_exp, color_legends = get_dicts_for_plot()
+    color = cm.rainbow(np.linspace(0, 1, NUM_COLORS))
 
+    fig = plt.figure(figsize=(15, 8))
+    fig.suptitle(f"TSNE projection of VAE space", fontsize=14)
+
+    ax = fig.add_subplot(211)
+    for num, i in enumerate(range(len(points_train))):
+        ax.scatter(points_train[num, 0], points_train[num, 1],
+                   color=color[inds_train[num]], cmap=color, marker=shape_per_exp[exps_train[num]])
+        ax.set_title(f"TSNE of {len(points_train)} jobs of split train")
+    ax.axis('tight')
+
+    ax = fig.add_subplot(212)
+    for num, i in enumerate(range(len(points_test))):
+        ax.scatter(points_test[num, 0], points_test[num, 1],
+                   color=color[inds_test[num]], cmap=color, marker=shape_per_exp[exps_test[num]])
+        ax.set_title(f"TSNE of {len(points_test)} jobs of split test")
+    ax.axis('tight')
+
+    handles = []
+    for k, v in color_legends.items():
+        leg = mlines.Line2D([], [], color=color[k], linestyle='None', marker='o',
+                            markersize=10, label=v)
+        handles.append(leg)
+    for k, v in shape_per_exp.items():
+        leg = mlines.Line2D([], [], color='black', marker=shape_per_exp[k], linestyle='None',
+                            markersize=10, label=v)
+        handles.append(leg)
+
+    fig.legend(handles=handles)
+    ipdb.set_trace()
+    plt.show()
+    plt.savefig(f'tsne_{model_name}_ep{epoch}.png')
+
+
+def get_dicts_for_plot():
+    shape_per_exp = {0: "x",
+                     1: "s",
+                     2: 'v'}
+    ind_file = "20_industry_dict.pkl"
+    with open(os.path.join(CFG["gpudatadir"], ind_file), 'rb') as f_name:
+        industry_dict = pkl.load(f_name)
+    ipdb.set_trace()
+    color_legends = {k: v for k, v in industry_dict.items()}
+    return shape_per_exp, color_legends
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
