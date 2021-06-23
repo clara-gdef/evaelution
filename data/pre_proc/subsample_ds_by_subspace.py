@@ -53,7 +53,6 @@ def get_subgroup_for_split(all_groups, ds, split):
                 sub.append(job)
                 cnt += 1
     tgt_file = os.path.join(CFG["gpudatadir"], f"viz_subgroup_{split}.pkl")
-    ipdb.set_trace()
     with open(tgt_file, 'wb') as f:
         pkl.dump(sub, f)
 
