@@ -40,9 +40,9 @@ def main(args, model, model_name, epoch):
     sub_test = load_sub("test")
     train_projections = project_points(sub_train, model, "train")
     test_projections = project_points(sub_test, model, "test")
-    trans_points_train, ind_labels_train, exp_labels_train = prep_data_for_viz(train_projections, "train")
-    trans_points_test, ind_labels_test, exp_labels_test = prep_data_for_viz(test_projections, "test")
-    plot_proj(trans_points_train, ind_labels_train, exp_labels_train,
+    trans_points_train, ind_labels_train, exp_labels_train = prep_data_for_viz(args, train_projections, "train")
+    trans_points_test, ind_labels_test, exp_labels_test = prep_data_for_viz(args, test_projections, "test")
+    plot_proj(args, trans_points_train, ind_labels_train, exp_labels_train,
               trans_points_test, ind_labels_test, exp_labels_test,
               model_name, epoch)
     ipdb.set_trace()
@@ -91,7 +91,7 @@ def load_sub(split):
     return sub
 
 
-def prep_data_for_viz(data_dict, split):
+def prep_data_for_viz(args, data_dict, split):
     points = [i["point"] for i in data_dict]
     ind_labels = [i["ind_index"] for i in data_dict]
     exp_labels = [i["exp_index"] for i in data_dict]
@@ -119,7 +119,7 @@ def fit_transform_by_pca(input_data, split):
     return data_embedded
 
 
-def plot_proj(points_train, inds_train, exps_train, points_test, inds_test, exps_test, model_name, epoch):
+def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test, exps_test, model_name, epoch):
     NUM_COLORS = 20
     shape_per_exp, color_legends = get_dicts_for_plot()
     color = cm.rainbow(np.linspace(0, 1, NUM_COLORS))
