@@ -85,7 +85,7 @@ def project_points(data, model, split):
 
 
 def load_sub(split):
-    tgt_file = os.path.join(CFG["gpudatadir"], f"viz_subgroup_{split}.pkl")
+    tgt_file = f"/local/gainondefor/work/data/evaelution/viz_subgroup_{split}.pkl"
     with open(tgt_file, 'rb') as f:
         sub = pkl.load(f)
     return sub

@@ -177,7 +177,7 @@ if __name__ == "__main__":
     parser.add_argument("--auto_lr_find", type=str, default="False")
     parser.add_argument("--load_from_checkpoint", default="False")
     parser.add_argument("--eval_mode", type=str, default="latest") # can be "spe" or "latest"
-    parser.add_argument("--model_to_test", type=str, default="epoch=3-step=14191.tmp_end.ckpt")
+    parser.add_argument("--model_to_test", type=str, default="")
     parser.add_argument("--checkpoint", type=str, default="01")
     parser.add_argument("--DEBUG", type=str, default="True")
     parser.add_argument("--TEST", type=str, default="False")
