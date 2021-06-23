@@ -155,8 +155,9 @@ class VAE(pl.LightningModule):
 
     def training_step(self, batch, batch_nb):
         sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
+        sample_len = len(ind_indices)
         rec, kl, gen = self.forward(sentences, ind_indices, exp_indices)
-        loss = rec + kl + gen
+        loss = rec / sample_len + kl / sample_len + gen / sample_len
         self.log('train_rec_loss', rec)
         self.log('train_kl_loss', kl)
         self.log('train_gen_loss', gen)
@@ -168,8 +169,9 @@ class VAE(pl.LightningModule):
 
     def validation_step(self, batch, batch_nb):
         sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
+        sample_len = len(ind_indices)
         rec, kl, gen = self.forward(sentences, ind_indices, exp_indices)
-        val_loss = rec + kl + gen
+        val_loss = rec / sample_len + kl / sample_len + gen / sample_len
         self.log('val_rec_loss', rec)
         self.log('val_kl_loss', kl)
         self.log('val_gen_loss', gen)
