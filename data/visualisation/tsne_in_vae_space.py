@@ -96,7 +96,7 @@ def fit_transform_by_tsne(input_data, split):
     return data_embedded
 
 
-def plot_tsne(points, inds, exps, split):
+# def plot_tsne(points, inds, exps, split):
     # fig = plt.figure(figsize=(15, 8))
     # fig.suptitle(f"TSNE of {len(points)} jobs of split {split}", fontsize=14)
     # ax = fig.add_subplot(211)
