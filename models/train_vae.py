@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 import yaml
 import torch
 from data.datasets import StringIndSubDataset
-from models.classes import VAE
+import models
 from utils import collate_for_VAE, get_latest_model
 
 
@@ -62,7 +62,7 @@ def main(hparams):
                  "num_exp_level": 3,
                  "datadir": CFG["gpudatadir"]}
     print("Initiating model...")
-    model = VAE(**arguments)
+    model = models.classes/VAE(**arguments)
     print("Model Loaded.")
     if hparams.TRAIN == "True":
         if hparams.load_from_checkpoint == "True":
