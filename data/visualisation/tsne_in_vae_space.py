@@ -96,23 +96,23 @@ def prep_data_for_viz(args, data_dict, split):
     ind_labels = [i["ind_index"] for i in data_dict]
     exp_labels = [i["exp_index"] for i in data_dict]
     if args.proj_type == "tsne":
-        trans_points = fit_transform_by_tsne(points, split)
+        trans_points = fit_transform_by_tsne(args, points, split)
     elif args.proj_type == "pca":
-        trans_points = fit_transform_by_pca(points, split)
+        trans_points = fit_transform_by_pca(args, points, split)
     else:
         ipdb.set_trace()
         raise Exception()
     return trans_points, ind_labels, exp_labels
 
 
-def fit_transform_by_tsne(input_data, split):
+def fit_transform_by_tsne(args, input_data, split):
     print(f"Fitting TSNE on split {split} for {args.n_comp} components, {len(input_data)} samples...")
     data_embedded = TSNE(n_components=args.n_comp, n_jobs=-1, verbose=1).fit_transform(np.array(input_data).squeeze(1))
     print(f"TSNE fitted!")
     return data_embedded
 
 
-def fit_transform_by_pca(input_data, split):
+def fit_transform_by_pca(args, input_data, split):
     print(f"Fitting PCA on split {split} for {args.n_comp} components, {len(input_data)} samples...")
     data_embedded = PCA(n_components=args.n_comp).fit_transform(np.array(input_data).squeeze(1))
     print(f"PCA fitted!")
