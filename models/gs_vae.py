@@ -33,13 +33,13 @@ def main(hparams):
                 test_results[coef_rec][lr][b_size] = {}
                 print(f"Grid Search for (lr={lr}, coef_rec={coef_rec}, batch_size={b_size})")
                 dico['lr'] = float(lr)
-                dico["coef_rec"] = b_size
+                dico["coef_rec"] = coef_rec
                 dico["coef_kl"] = coef_kl
                 dico["b_size"] = b_size
                 arg = DotDict(dico)
                 if dico["TRAIN"] == "True":
                     train_vae.init(arg)
-                    tsne_in_vae_space.init(hparams)
+                    tsne_in_vae_space.init(arg)
                 if dico["TEST"] == "True":
                     dico["TRAIN"] = "False"
                     test_results[b_size][lr][b_size] = train_vae.init(arg)
