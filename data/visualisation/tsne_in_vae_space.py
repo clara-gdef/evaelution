@@ -145,18 +145,19 @@ def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test
 
     print("Building legends for markers and colors...")
     handles = []
-    for k, v in color_legends.items():
+    for k, v in tqdm(color_legends.items(), desc="Building legends for colors..."):
         leg = mlines.Line2D([], [], color=color[k], linestyle='None', marker='o',
                             markersize=10, label=v)
         handles.append(leg)
-    for k, v in shape_per_exp.items():
+    for k, v in tqdm(shape_per_exp.items(), desc="Building legends for markers..."):
         leg = mlines.Line2D([], [], color='black', marker=shape_per_exp[k], linestyle='None',
                             markersize=10, label=v)
         handles.append(leg)
-
     fig.legend(handles=handles)
-    plt.show()
+    print("Legends for markers and colors done.")
+    # plt.show()
     dest_file = f'{args.proj_type}_{model_name}_ep{epoch}.png'
+    print(f"Saving picture at {dest_file}...")
     plt.savefig()
     print(f"Figure saved at {dest_file}")
 
