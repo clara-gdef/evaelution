@@ -8,7 +8,7 @@ import pickle as pkl
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
 from models.train_vae import make_xp_title
-from models.classes import VAE
+import models.classes
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 import numpy as np
@@ -58,7 +58,7 @@ def load_model(xp_title, model_path, model_name):
                  "num_exp_level": 3,
                  "datadir": CFG["gpudatadir"]}
     print("Initiating model...")
-    model = VAE(**arguments)
+    model = models.classesVAE(**arguments)
     print("Model Loaded.")
     model_file = get_latest_model(CFG["modeldir"], model_name)
     try:
