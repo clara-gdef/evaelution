@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from models.train_vae import make_xp_title
 from models.classes import VAE
 from sklearn.manifold import TSNE
-from utils.models import get_latest_model
+from utils.models import get_latest_model, index_to_one_hot
 from cycler import cycler
 
 
@@ -86,8 +86,8 @@ def load_sub(split):
 
 def prep_data_for_viz(data_dict, split):
     points = [i["point"] for i in data_dict]
-    ind_labels = [i["ind_index"] for i in data_dict]
-    exp_labels = [i["exp_index"] for i in data_dict]
+    ind_labels = [index_to_one_hot(i["ind_index"], 20) for i in data_dict]
+    exp_labels = [index_to_one_hot(i["exp_index"], 3) for i in data_dict]
     trans_points = fit_transform_by_tsne(points, split)
     return trans_points, ind_labels, exp_labels
 
