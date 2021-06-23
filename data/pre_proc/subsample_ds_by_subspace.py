@@ -37,7 +37,7 @@ def main(args):
 
 def get_all_groups(inds, exp_levels):
     all_groups = []
-    for ind_name, ind_index in inds.items():
+    for ind_index, ind_name in inds.items():
         for i in range(exp_levels):
             tmp = (ind_index, i)
             all_groups.append(tmp)
