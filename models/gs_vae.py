@@ -75,7 +75,7 @@ def init_args(hparams):
             # model attributes
             "freeze_decoding": "True",
             "b_size": hparams.b_size,
-            "max_len": hparams.max_len,
+            "max_len": 10,
             "mlp_hs": hparams.mlp_hs,
             "dec_hs": hparams.dec_hs,
             "mlp_layers": hparams.mlp_layers,
