@@ -39,7 +39,8 @@ class VAE(pl.LightningModule):
         self.text_encoder = CamembertModel.from_pretrained('camembert-base')
         for param in self.text_encoder.parameters():
             param.requires_grad = False
-        self.text_decoder = models.classes.LSTMAttentionDecoder(self.hp.dec_hs, self.emb_dim, self.voc_size, hp)
+        if self.hp.freeze_decoding == 'False':
+            self.text_decoder = models.classes.LSTMAttentionDecoder(self.hp.dec_hs, self.emb_dim, self.voc_size, hp)
 
         input_size = emb_dim + num_ind + num_exp_level
         output_size = 2 * hp.mlp_hs
@@ -73,36 +74,38 @@ class VAE(pl.LightningModule):
         # prev_hidden_state = (reconstructed_input_to_decode.repeat(1, self.hp.dec_layers, 1).cuda(),
         #                      reconstructed_input_to_decode.repeat(1, self.hp.dec_layers, 1).cuda())
 
-        decoded_tokens = []
-        decoder_outputs = []
-        for di in range(max_seq_len - 1):
-            resized_in_token = self.text_decoder.lin_att_in_para(previous_token)
-            extended_enc_rep = reconstructed_input_to_decode.repeat(1, self.max_len, 1)
-            tmp = torch.bmm(extended_enc_rep, resized_in_token.transpose(-1, 1))
-            attn_weights = masked_softmax(tmp, torch.ones(sample_len, 1).cuda(), 1)
-            # assert attn_weights.shape == torch.Size([sample_len, max_seq_len, 1])
-            attn_applied = torch.einsum("blh,bld->bdh", extended_enc_rep, attn_weights)
-            # output = torch.cat((previous_token, attn_applied.unsqueeze(1)), -1)
-            lstm_input = torch.cat(
-                (reconstructed_input_to_decode, previous_token, attn_applied),
-                -1)
-            output_lstm, hidden_state = self.text_decoder.LSTM(lstm_input,
-                                                          prev_hidden_state)
-            output_lin = self.text_decoder.lin_lstm_out(output_lstm)
-            decoder_output = output_lin
-            decoder_outputs.append(decoder_output)
-            decoder_tok = torch.argmax(decoder_output, dim=-1)
-            decoded_tokens.append(decoder_tok)
-            previous_token = self.text_encoder.embeddings(decoder_tok)
-            prev_hidden_state = hidden_state
+        if self.hp.freeze_decoding == 'False':
+            decoded_tokens = []
+            decoder_outputs = []
+            for di in range(max_seq_len - 1):
+                resized_in_token = self.text_decoder.lin_att_in_para(previous_token)
+                extended_enc_rep = reconstructed_input_to_decode.repeat(1, self.max_len, 1)
+                tmp = torch.bmm(extended_enc_rep, resized_in_token.transpose(-1, 1))
+                attn_weights = masked_softmax(tmp, torch.ones(sample_len, 1).cuda(), 1)
+                # assert attn_weights.shape == torch.Size([sample_len, max_seq_len, 1])
+                attn_applied = torch.einsum("blh,bld->bdh", extended_enc_rep, attn_weights)
+                # output = torch.cat((previous_token, attn_applied.unsqueeze(1)), -1)
+                lstm_input = torch.cat(
+                    (reconstructed_input_to_decode, previous_token, attn_applied),
+                    -1)
+                output_lstm, hidden_state = self.text_decoder.LSTM(lstm_input,
+                                                              prev_hidden_state)
+                output_lin = self.text_decoder.lin_lstm_out(output_lstm)
+                decoder_output = output_lin
+                decoder_outputs.append(decoder_output)
+                decoder_tok = torch.argmax(decoder_output, dim=-1)
+                decoded_tokens.append(decoder_tok)
+                previous_token = self.text_encoder.embeddings(decoder_tok)
+                prev_hidden_state = hidden_state
 
-        decoded_sent = self.tokenizer.batch_decode(torch.stack(decoded_tokens).squeeze(-1).T,
-                                                   skip_special_tokens=True)
-        # decoded_sent = self.text_decoder(decoder_inputs_embeds=reconstructed_input_to_decode)
-        resized_outs = torch.stack(decoder_outputs).squeeze(-2).transpose(-1, 1).T
-        loss_text_gen = torch.nn.functional.cross_entropy(resized_outs,
-                                                          input_tokenized[:, 1:], reduction="sum", ignore_index=1)
-        loss_text_gen_reduced = loss_text_gen / sum(sum(mask))
+            decoded_sent = self.tokenizer.batch_decode(torch.stack(decoded_tokens).squeeze(-1).T,
+                                                       skip_special_tokens=True)
+            resized_outs = torch.stack(decoder_outputs).squeeze(-2).transpose(-1, 1).T
+            loss_text_gen = torch.nn.functional.cross_entropy(resized_outs,
+                                                              input_tokenized[:, 1:], reduction="sum", ignore_index=1)
+            loss_text_gen_reduced = loss_text_gen / sum(sum(mask))
+        else:
+            loss_text_gen_reduced = 0
 
         # TODO when you're older, use the NLL
         loss_vae_rec = torch.nn.functional.mse_loss(sent_embed[:, -1, :], reconstructed_input)
