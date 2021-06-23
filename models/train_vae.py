@@ -62,7 +62,7 @@ def main(hparams):
                  "num_exp_level": 3,
                  "datadir": CFG["gpudatadir"]}
     print("Initiating model...")
-    model = models.classes/VAE(**arguments)
+    model = models.classes.VAE(**arguments)
     print("Model Loaded.")
     if hparams.TRAIN == "True":
         if hparams.load_from_checkpoint == "True":
