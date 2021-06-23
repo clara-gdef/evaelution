@@ -10,22 +10,25 @@ from models.train_vae import make_xp_title
 from models.classes import VAE
 from sklearn.manifold import TSNE
 from utils.models import get_latest_model
-import seaborn as sns
-
+from cycler import cycler
 
 
 def init(args):
     global CFG
     with open("config.yaml", "r") as ymlfile:
         CFG = yaml.load(ymlfile, Loader=yaml.SafeLoader)
-    xp_title = make_xp_title(args)
-    model_name = "/".join(xp_title.split('_'))
-    model_path = os.path.join(CFG['modeldir'], model_name)
-    model = load_model(xp_title, model_path, model_name)
     if args.DEBUG == "True":
         with ipdb.launch_ipdb_on_exception():
+            xp_title = make_xp_title(args)
+            model_name = "/".join(xp_title.split('_'))
+            model_path = os.path.join(CFG['modeldir'], model_name)
+            model = load_model(xp_title, model_path, model_name)
             return main(args, model)
     else:
+        xp_title = make_xp_title(args)
+        model_name = "/".join(xp_title.split('_'))
+        model_path = os.path.join(CFG['modeldir'], model_name)
+        model = load_model(xp_title, model_path, model_name)
         return main(args, model)
 
 
