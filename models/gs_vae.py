@@ -56,7 +56,7 @@ def init_args(hparams):
             "auto_lr_find": "False",
             "load_from_checkpoint": "False",
             "eval_mode": "lastest",
-            "model_to_test":"",
+            "model_to_test": "",
             "fine_tune_word_emb": "False",
             "print_preds": "False",
             "optim": hparams.optim,
@@ -83,6 +83,7 @@ def init_args(hparams):
             "model_type": hparams.model_type,
             "scale": 1.,
             # global hyper params
+            "exp_levels": hparams.exp_levels,
             "coef_gen": 0.,
             "clip_val": 1.,
             "wd": 0.,
