@@ -107,7 +107,7 @@ def main(hparams):
         print(f"Evaluating model : {model_file}.")
         datasets = load_datasets(CFG, hparams, ["TEST"], hparams.load_dataset)
         dataset_test = datasets[0]
-        test_loader = DataLoader(dataset_test, batch_size=hparams.test_b_size, collate_fn=collate_for_delta_bert,
+        test_loader = DataLoader(dataset_test, batch_size=hparams.test_b_size, collate_fn=collate_for_VAE,
                                  num_workers=hparams.num_workers, drop_last=True)
         trainer.test(test_dataloaders=test_loader, model=model)
         return model.metrics
