@@ -54,7 +54,7 @@ def get_subgroup_for_split(all_groups, ds, split):
                 cnt += 1
     tgt_file = os.path.join(CFG["gpudatadir"], f"viz_subgroup_{split}.pkl")
     with open(tgt_file, 'wb') as f:
-        pkl.dump(sub, tgt_file)
+        pkl.dump(sub, f)
 
 
 if __name__ == "__main__":
