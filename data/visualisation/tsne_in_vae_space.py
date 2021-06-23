@@ -66,7 +66,7 @@ def load_model(xp_title, model_path, model_name):
     except RuntimeError:
         model.load_state_dict(torch.load(model_file))
     print(f"Model loaded from checkpoint: {model_file}")
-    ipdb.set_trace()
+    epoch = model_file.split('/')[-1].split('=')[1].split('-')[0]
     return model, epoch
 
 
@@ -153,6 +153,7 @@ def get_dicts_for_plot():
     ipdb.set_trace()
     color_legends = {k: v for k, v in industry_dict.items()}
     return shape_per_exp, color_legends
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
