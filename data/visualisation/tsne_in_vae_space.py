@@ -23,13 +23,13 @@ def init(args):
             model_name = "/".join(xp_title.split('_'))
             model_path = os.path.join(CFG['modeldir'], model_name)
             model = load_model(xp_title, model_path, model_name)
-            return main(args, model)
+            return main(args, model.cuda())
     else:
         xp_title = make_xp_title(args)
         model_name = "/".join(xp_title.split('_'))
         model_path = os.path.join(CFG['modeldir'], model_name)
         model = load_model(xp_title, model_path, model_name)
-        return main(args, model)
+        return main(args, model.cuda())
 
 
 def main(args, model):
