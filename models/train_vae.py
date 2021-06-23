@@ -58,6 +58,7 @@ def main(hparams):
                  'desc': xp_title,
                  "num_ind": 20,
                  "model_path": model_path,
+                 "epoch": 0,
                  "num_exp_level": 3,
                  "datadir": CFG["gpudatadir"]}
     print("Initiating model...")
@@ -185,6 +186,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--toy_dataset", type=str, default="False")
     parser.add_argument("--test_b_size", type=int, default=1)
+    parser.add_argument("--plot_latent_space", type=str, default="True")
     # model attributes
     parser.add_argument("--freeze_decoding", type=str, default="True")
     parser.add_argument("--optim", default="adam")

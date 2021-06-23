@@ -3,6 +3,7 @@ import torch
 import pytorch_lightning as pl
 from utils.models import masked_softmax
 import models.classes
+from data.visualisation import tsne_in_vae_space
 from models.classes import MLP, LSTMAttentionDecoder
 from torch.distributions.normal import Normal
 from torch.distributions.kl import kl_divergence
@@ -11,7 +12,7 @@ from transformers import MBart50Tokenizer, MBartForConditionalGeneration, MBartM
 
 
 class VAE(pl.LightningModule):
-    def __init__(self, datadir, emb_dim, desc, model_path, num_ind, num_exp_level, hp):
+    def __init__(self, datadir, emb_dim, desc, model_path, num_ind, num_exp_level, epoch, hp):
         super().__init__()
         self.datadir = datadir
         self.hp = hp
@@ -22,7 +23,7 @@ class VAE(pl.LightningModule):
         self.num_ind = num_ind
         self.num_exp_level = num_exp_level
         self.max_len = hp.max_len
-
+        self.epoch = epoch
         # self.tokenizer = MBart50Tokenizer.from_pretrained("facebook/mbart-large-50-many-to-many-mmt")
         # self.tokenizer.src_lang = "fr_XX"
         #
@@ -170,6 +171,12 @@ class VAE(pl.LightningModule):
         self.log('val_loss', val_loss)
         return {"val_loss": val_loss}
 
+    def validation_epoch_end(self, validation_step_outputs):
+        self.epoch += 1
+        if self.hp.plot_latent_space == "True":
+            tsne_in_vae_space.main(self.hp, self, self.desc, self.epoch)
+
+
     def test_epoch_start(self):
         ipdb.set_trace()
 
@@ -183,3 +190,6 @@ class VAE(pl.LightningModule):
 
     def test_epoch_end(self):
         ipdb.set_trace()
+
+
+

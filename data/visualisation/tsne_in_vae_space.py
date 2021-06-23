@@ -105,14 +105,14 @@ def prep_data_for_viz(data_dict, split):
 
 
 def fit_transform_by_tsne(input_data, split):
-    print(f"Fitting TSNE on split {split} for {args.n_tsne} components, {len(input_data)} samples...")
+    print(f"Fitting TSNE on split {split} for {args.n_comp} components, {len(input_data)} samples...")
     data_embedded = TSNE(n_components=args.n_comp, n_jobs=-1, verbose=1).fit_transform(np.array(input_data).squeeze(1))
     print(f"TSNE fitted!")
     return data_embedded
 
 
 def fit_transform_by_pca(input_data, split):
-    print(f"Fitting PCA on split {split} for {args.n_tsne} components, {len(input_data)} samples...")
+    print(f"Fitting PCA on split {split} for {args.n_comp} components, {len(input_data)} samples...")
     data_embedded = PCA(n_components=args.n_comp).fit_transform(np.array(input_data).squeeze(1))
     print(f"PCA fitted!")
     return data_embedded
