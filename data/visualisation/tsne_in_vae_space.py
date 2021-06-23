@@ -99,7 +99,7 @@ def prep_data_for_viz(data_dict, split):
 
 def fit_transform_by_tsne(input_data, split):
     print(f"Fitting TSNE on split {split} for {args.n_tsne} components, {len(input_data)} samples...")
-    data_embedded = TSNE(n_components=args.n_tsne).fit_transform(np.array(input_data).squeeze(1))
+    data_embedded = TSNE(n_components=args.n_tsne, n_jobs=-1).fit_transform(np.array(input_data).squeeze(1))
     print(f"TSNE fitted!")
     return data_embedded
 
