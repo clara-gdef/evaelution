@@ -152,7 +152,6 @@ def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test
         handles.append(leg)
 
     fig.legend(handles=handles)
-    ipdb.set_trace()
     plt.show()
     plt.savefig(f'{args.proj_type}_{model_name}_ep{epoch}.png')
 
