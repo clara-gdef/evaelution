@@ -45,7 +45,6 @@ def main(args, model, model_name, epoch):
     plot_proj(args, trans_points_train, ind_labels_train, exp_labels_train,
               trans_points_test, ind_labels_test, exp_labels_test,
               model_name, epoch)
-    ipdb.set_trace()
 
 
 def load_model(xp_title, model_path, model_name):
@@ -151,7 +150,7 @@ def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test
         handles.append(leg)
     for k, v in tqdm(shape_per_exp.items(), desc="Building legends for markers..."):
         leg = mlines.Line2D([], [], color='black', marker=shape_per_exp[k], linestyle='None',
-                            markersize=10, label=v)
+                            markersize=10, label=f'e{k}')
         handles.append(leg)
     fig.legend(handles=handles)
     print("Legends for markers and colors done.")

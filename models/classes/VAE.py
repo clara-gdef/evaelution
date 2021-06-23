@@ -8,7 +8,6 @@ from models.classes import MLP, LSTMAttentionDecoder
 from torch.distributions.normal import Normal
 from torch.distributions.kl import kl_divergence
 from transformers import CamembertTokenizer, CamembertModel
-from transformers import MBart50Tokenizer, MBartForConditionalGeneration, MBartModel
 
 
 class VAE(pl.LightningModule):
@@ -87,7 +86,7 @@ class VAE(pl.LightningModule):
                     (reconstructed_input_to_decode, previous_token, attn_applied),
                     -1)
                 output_lstm, hidden_state = self.text_decoder.LSTM(lstm_input,
-                                                              prev_hidden_state)
+                                                                   prev_hidden_state)
                 output_lin = self.text_decoder.lin_lstm_out(output_lstm)
                 decoder_output = output_lin
                 decoder_outputs.append(decoder_output)
@@ -107,10 +106,10 @@ class VAE(pl.LightningModule):
 
         # TODO when you're older, use the NLL
 
-        #loss_vae_rec = torch.nn.functional.mse_loss(sent_embed[:, -1, :], reconstructed_input, reduction="sum")
+        # loss_vae_rec = torch.nn.functional.mse_loss(sent_embed[:, -1, :], reconstructed_input, reduction="sum")
 
         obs_distrib = Normal(reconstructed_input, self.hp.scale)
-        loss_vae_rec = - torch.sum(obs_distrib.log_prob(sent_embed[:, -1, :]))
+        loss_vae_rec = (-obs_distrib.log_prob(sent_embed[:, -1, :])).sum()
 
         ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]).cuda(),
                           torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())
@@ -130,7 +129,8 @@ class VAE(pl.LightningModule):
         z_dist = Normal(mu_enc, torch.nn.functional.softplus(sig_enc) + 1e-10)
         dec_input = z_dist.rsample()
         reconstructed_input = self.vae_decoder(dec_input)
-        ref_dist = Normal(0, 1)
+        ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]).cuda(),
+                          torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())
         return reconstructed_input, sent_embed[:, -1, :], z_dist, ref_dist
 
     def get_projection(self, sent, ind, exp):
@@ -157,12 +157,15 @@ class VAE(pl.LightningModule):
         sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
         sample_len = len(ind_indices)
         rec, kl, gen = self.forward(sentences, ind_indices, exp_indices)
-        loss = rec / sample_len + kl / sample_len + gen / sample_len
+        loss = self.hp.coef_rec * rec / sample_len + \
+               self.hp.coef_kl * kl / sample_len + \
+               self.hp.coef_gen * gen / sample_len
         self.log('train_rec_loss', rec)
         self.log('train_kl_loss', kl)
         self.log('train_gen_loss', gen)
         self.log('train_loss', loss)
         return {"loss": loss}
+
     #
     # def training_step_end(self, training_step_outputs):
     #     return {'loss': training_step_outputs['loss'].mean()}
@@ -171,7 +174,9 @@ class VAE(pl.LightningModule):
         sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
         sample_len = len(ind_indices)
         rec, kl, gen = self.forward(sentences, ind_indices, exp_indices)
-        val_loss = rec / sample_len + kl / sample_len + gen / sample_len
+        val_loss = self.hp.coef_rec * rec / sample_len + \
+                   self.hp.coef_kl * kl / sample_len + \
+                   self.hp.coef_gen * gen / sample_len
         self.log('val_rec_loss', rec)
         self.log('val_kl_loss', kl)
         self.log('val_gen_loss', gen)
@@ -182,7 +187,6 @@ class VAE(pl.LightningModule):
         self.epoch += 1
         if self.hp.plot_latent_space == "True":
             tsne_in_vae_space.main(self.hp, self, self.desc, self.epoch)
-
 
     def test_epoch_start(self):
         ipdb.set_trace()
@@ -197,6 +201,3 @@ class VAE(pl.LightningModule):
 
     def test_epoch_end(self):
         ipdb.set_trace()
-
-
-
