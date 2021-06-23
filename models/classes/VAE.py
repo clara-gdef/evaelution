@@ -112,7 +112,8 @@ class VAE(pl.LightningModule):
         obs_distrib = Normal(reconstructed_input, self.hp.scale)
         loss_vae_rec = - torch.sum(obs_distrib.log_prob(sent_embed[:, -1, :]))
 
-        ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]), torch.ones(mu_enc.shape[0], mu_enc.shape[-1]))
+        ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]).cuda(),
+                          torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())
         loss_vae_kl = torch.sum(kl_divergence(z_dist, ref_dist))
 
         return loss_vae_rec, loss_vae_kl, loss_text_gen_reduced
