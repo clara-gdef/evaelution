@@ -37,7 +37,6 @@ def init(args):
 def main(args, model, model_name, epoch):
     sub_train = load_sub("train")
     sub_test = load_sub("test")
-    ipdb.set_trace()
     train_projections = project_points(sub_train, model, "train")
     test_projections = project_points(sub_test, model, "test")
     trans_points_train, ind_labels_train, exp_labels_train = prep_data_for_viz(train_projections, "train")
@@ -74,7 +73,7 @@ def project_points(data, model, split):
     projections = []
     for i in tqdm(data, desc=f"projecting points of split {split}..."):
         sentence = i["words"]
-        ind_index = index_to_one_hot(index_to_one_hot([i["ind_index"]], 20), 20)
+        ind_index = index_to_one_hot([i["ind_index"]], 20)
         exp_index = index_to_one_hot([i["exp_index"]], 3)
         projection = model.get_projection(sentence, ind_index, exp_index)
         projections.append({'point': projection,
