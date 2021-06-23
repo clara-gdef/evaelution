@@ -120,13 +120,14 @@ def fit_transform_by_pca(args, input_data, split):
 
 
 def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test, exps_test, model_name, epoch):
+    print("Initiating dicts and lists for colors...")
     NUM_COLORS = 20
     shape_per_exp, color_legends = get_dicts_for_plot()
     color = cm.rainbow(np.linspace(0, 1, NUM_COLORS))
 
     fig = plt.figure(figsize=(15, 8))
     fig.suptitle(f"{args.proj_type.upper()} projection of VAE space", fontsize=14)
-
+    print("Scattering points of train split...")
     ax = fig.add_subplot(211)
     for num, i in enumerate(range(len(points_train))):
         ax.scatter(points_train[num, 0], points_train[num, 1],
@@ -134,6 +135,7 @@ def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test
         ax.set_title(f"{args.proj_type.upper()} of {len(points_train)} jobs of split train")
     ax.axis('tight')
 
+    print("Scattering points of test split...")
     ax = fig.add_subplot(212)
     for num, i in enumerate(range(len(points_test))):
         ax.scatter(points_test[num, 0], points_test[num, 1],
@@ -141,6 +143,7 @@ def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test
         ax.set_title(f"{args.proj_type.upper()} of {len(points_test)} jobs of split test")
     ax.axis('tight')
 
+    print("Building legends for markers and colors...")
     handles = []
     for k, v in color_legends.items():
         leg = mlines.Line2D([], [], color=color[k], linestyle='None', marker='o',
@@ -153,7 +156,9 @@ def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test
 
     fig.legend(handles=handles)
     plt.show()
-    plt.savefig(f'{args.proj_type}_{model_name}_ep{epoch}.png')
+    dest_file = f'{args.proj_type}_{model_name}_ep{epoch}.png'
+    plt.savefig()
+    print(f"Figure saved at {dest_file}")
 
 
 def get_dicts_for_plot():
