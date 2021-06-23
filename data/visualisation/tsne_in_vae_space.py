@@ -56,6 +56,7 @@ def load_model(xp_title, model_path, model_name):
                  "num_ind": 20,
                  "model_path": model_path,
                  "num_exp_level": 3,
+                 "epoch": 0,
                  "datadir": CFG["gpudatadir"]}
     print("Initiating model...")
     model = models.classes.VAE(**arguments)
