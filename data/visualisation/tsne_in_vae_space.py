@@ -161,8 +161,8 @@ def get_dicts_for_plot():
     shape_per_exp = {0: "x",
                      1: "s",
                      2: 'v'}
-    ind_file = "20_industry_dict.pkl"
-    with open(os.path.join(CFG["gpudatadir"], ind_file), 'rb') as f_name:
+    ind_file = "/local/gainondefor/work/data/evaelution/20_industry_dict.pkl"
+    with open(ind_file, 'rb') as f_name:
         industry_dict = pkl.load(f_name)
     color_legends = {k: v for k, v in industry_dict.items()}
     return shape_per_exp, color_legends
