@@ -63,18 +63,18 @@ class VAE(pl.LightningModule):
         dec_input = z_dist.rsample()
         reconstructed_input = self.vae_decoder(dec_input)
 
-        # we train the text decoder independently from the vae
-        reconstructed_input_to_decode = reconstructed_input.unsqueeze(1).clone()
-        tmp = torch.zeros(sample_len, 1).cuda() + self.tokenizer.bos_token_id
-        previous_token = self.text_encoder.embeddings(tmp.long().cuda())
-        prev_hidden_state = (
-            torch.zeros(self.text_decoder.num_layer, self.hp.b_size, self.text_decoder.hs).type_as(previous_token),
-            torch.zeros(self.text_decoder.num_layer, self.hp.b_size, self.text_decoder.hs).type_as(previous_token))
-
         # prev_hidden_state = (reconstructed_input_to_decode.repeat(1, self.hp.dec_layers, 1).cuda(),
         #                      reconstructed_input_to_decode.repeat(1, self.hp.dec_layers, 1).cuda())
 
         if self.hp.freeze_decoding == 'False':
+            # we train the text decoder independently from the vae
+            reconstructed_input_to_decode = reconstructed_input.unsqueeze(1).clone()
+            tmp = torch.zeros(sample_len, 1).cuda() + self.tokenizer.bos_token_id
+            previous_token = self.text_encoder.embeddings(tmp.long().cuda())
+            prev_hidden_state = (
+                torch.zeros(self.text_decoder.num_layer, self.hp.b_size, self.text_decoder.hs).type_as(previous_token),
+                torch.zeros(self.text_decoder.num_layer, self.hp.b_size, self.text_decoder.hs).type_as(previous_token))
+
             decoded_tokens = []
             decoder_outputs = []
             for di in range(max_seq_len - 1):
