@@ -96,22 +96,23 @@ def fit_transform_by_tsne(input_data, split):
     return data_embedded
 
 
-# def plot_tsne(points, inds, exps):
-#     fig = plt.figure(figsize=(15, 8))
-#     fig.suptitle(f"TSNE of %s profiles (%s) with %i points"
-#                  % (args.prof_type, args.ft_type, args.subsample), fontsize=14)
-#     ax = fig.add_subplot(211)
-#     ax.scatter(reduced_val_set[:args.subsample, 0], reduced_val_set[:args.subsample, 1],
-#                c=val_set_labels[:args.subsample], cmap=plt.cm.Spectral)
-#     ax.set_title("PCA over %s points (%.2g sec)" % (args.subsample, t1 - t0))
-#     ax.axis('tight')
-#
-#     ax = fig.add_subplot(212)
-#     ax.scatter(val_set_embedded_tsne[:args.subsample, 0], val_set_embedded_tsne[:, 1],
-#                c=val_set_labels[:args.subsample], cmap=plt.cm.Spectral)
-#     ax.set_title("TSNE over %s points (%.2g sec)" % (args.subsample, t3 - t2))
-#     ax.axis('tight')
-#     plt.savefig('tsne_pca_' + str(args.subsample) + "_" + args.ft_type + "_" + str(iteration) + '.png')
+def plot_tsne(points, inds, exps, split):
+    # fig = plt.figure(figsize=(15, 8))
+    # fig.suptitle(f"TSNE of {len(points)} jobs of split {split}", fontsize=14)
+    # ax = fig.add_subplot(211)
+    #
+    # ax.scatter(points[:, 0], points[:, 1],
+    #            c=val_set_labels[:args.subsample], cmap=plt.cm.Spectral)
+    # ax.set_title("PCA over %s points (%.2g sec)" % (args.subsample, t1 - t0))
+    # ax.axis('tight')
+    #
+    # ax = fig.add_subplot(212)
+    #
+    # ax.scatter(val_set_embedded_tsne[:args.subsample, 0], val_set_embedded_tsne[:, 1],
+    #            c=val_set_labels[:args.subsample], cmap=plt.cm.Spectral)
+    # ax.set_title("TSNE over %s points (%.2g sec)" % (args.subsample, t3 - t2))
+    # ax.axis('tight')
+    # plt.savefig('tsne_pca_' + str(args.subsample) + "_" + args.ft_type + "_" + str(iteration) + '.png')
 
 
 if __name__ == "__main__":
@@ -122,6 +123,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_point_per_group", type=int, default=5)
     parser.add_argument("--n_tsne", type=int, default=2)
     # model attributes
+    parser.add_argument("--freeze_decoding", type=str, default="True")
     parser.add_argument("--b_size", type=int, default=128)
     parser.add_argument("--mlp_hs", type=int, default=256)
     parser.add_argument("--dec_hs", type=int, default=768)
