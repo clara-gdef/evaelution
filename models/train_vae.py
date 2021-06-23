@@ -161,8 +161,8 @@ def init_lightning(CFG, xp_title, model_name):
 
 def make_xp_title(hparams):
     xp_title = f"{hparams.model_type}_bs{hparams.b_size}_mlphs{hparams.mlp_hs}_lr{hparams.lr}_{hparams.optim}"
-    if hparams.alpha != .5:
-        xp_title += f"_alpha{hparams.alpha}"
+    if hparams.coef_rec != .5:
+        xp_title += f"_coef_rec{hparams.coef_rec}"
     if hparams.subsample != -1:
         xp_title += f"sub{hparams.subsample}"
     print("xp_title = " + xp_title)
