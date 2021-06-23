@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 import yaml
 import torch
 from data.datasets import StringIndSubDataset
-from models.classes import VAE
+from models.classes.VAE import VAE
 from utils import collate_for_VAE, get_latest_model
 
 

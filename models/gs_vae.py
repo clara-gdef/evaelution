@@ -7,8 +7,6 @@ from models import train_vae
 from utils import DotDict
 from data.visualisation import tsne_in_vae_space
 
-
-
 def grid_search(hparams):
     global CFG
     with open("config.yaml", "r") as ymlfile:
