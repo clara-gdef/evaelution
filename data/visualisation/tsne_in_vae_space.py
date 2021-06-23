@@ -158,7 +158,7 @@ def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test
     # plt.show()
     dest_file = f'{args.proj_type}_{model_name}_ep{epoch}.png'
     print(f"Saving picture at {dest_file}...")
-    plt.savefig()
+    plt.savefig(dest_file)
     print(f"Figure saved at {dest_file}")
 
 
