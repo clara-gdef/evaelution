@@ -75,7 +75,7 @@ def project_points(data, model, split):
         sentence = i["words"]
         ind_index = index_to_one_hot([i["ind_index"]], 20)
         exp_index = index_to_one_hot([i["exp_index"]], 3)
-        projection = model.get_projection(sentence, ind_index, exp_index)
+        projection = model.get_projection(sentence, ind_index.cuda(), exp_index.cuda())
         projections.append({'point': projection,
                             "ind_index": i["ind_index"],
                             "exp_index": i["exp_index"]})
