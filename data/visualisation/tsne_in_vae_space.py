@@ -68,8 +68,8 @@ def project_points(data, model, split):
     projections = []
     for i in tqdm(data, desc=f"projecting points of split {split}..."):
         sentence = i["words"]
-        ind_index = i["ind_index"]
-        exp_index = i["exp_index"]
+        ind_index = index_to_one_hot(index_to_one_hot(i["ind_index"], 20), 20)
+        exp_index = index_to_one_hot(i["exp_index"], 3)
         projection = model.get_projection(sentence, ind_index, exp_index)
         projections.append({'point': projection,
                             "ind_index": i["ind_index"],
@@ -86,8 +86,8 @@ def load_sub(split):
 
 def prep_data_for_viz(data_dict, split):
     points = [i["point"] for i in data_dict]
-    ind_labels = [index_to_one_hot(i["ind_index"], 20) for i in data_dict]
-    exp_labels = [index_to_one_hot(i["exp_index"], 3) for i in data_dict]
+    ind_labels = [i["ind_index"] for i in data_dict]
+    exp_labels = [i["exp_index"] for i in data_dict]
     trans_points = fit_transform_by_tsne(points, split)
     return trans_points, ind_labels, exp_labels
 
