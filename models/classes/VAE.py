@@ -63,9 +63,6 @@ class VAE(pl.LightningModule):
         dec_input = z_dist.rsample()
         reconstructed_input = self.vae_decoder(dec_input)
 
-        # prev_hidden_state = (reconstructed_input_to_decode.repeat(1, self.hp.dec_layers, 1).cuda(),
-        #                      reconstructed_input_to_decode.repeat(1, self.hp.dec_layers, 1).cuda())
-
         if self.hp.freeze_decoding == 'False':
             # we train the text decoder independently from the vae
             reconstructed_input_to_decode = reconstructed_input.unsqueeze(1).clone()
@@ -115,8 +112,33 @@ class VAE(pl.LightningModule):
 
         return loss_vae_rec, loss_vae_kl, loss_text_gen_reduced
 
-    def inference(self, ):
-        ipdb.set_trace()
+    def inference(self, sent, ind, exp):
+        inputs = self.tokenizer(sent, truncation=True, padding="max_length", max_length=self.max_len,
+                                return_tensors="pt")
+        input_tokenized, mask = inputs["input_ids"].cuda(), inputs["attention_mask"].cuda()
+        sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
+
+        inputs = torch.cat([sent_embed[:, -1, :], ind, exp], dim=-1)
+        params = self.vae_encoder(inputs)
+        mu_enc, sig_enc = params[:, :self.hp.mlp_hs], params[:, self.hp.mlp_hs:]
+        z_dist = Normal(mu_enc, torch.nn.functional.softplus(sig_enc) + 1e-10)
+        dec_input = z_dist.rsample()
+        reconstructed_input = self.vae_decoder(dec_input)
+        ref_dist = Normal(0, 1)
+        return reconstructed_input, sent_embed[:, -1, :], z_dist, ref_dist
+
+    def get_projection(self, sent, ind, exp):
+        inputs = self.tokenizer(sent, truncation=True, padding="max_length", max_length=self.max_len,
+                                return_tensors="pt")
+        input_tokenized, mask = inputs["input_ids"].cuda(), inputs["attention_mask"].cuda()
+        sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
+
+        inputs = torch.cat([sent_embed[:, -1, :], ind, exp], dim=-1)
+        params = self.vae_encoder(inputs)
+        mu_enc, sig_enc = params[:, :self.hp.mlp_hs], params[:, self.hp.mlp_hs:]
+        z_dist = Normal(mu_enc, torch.nn.functional.softplus(sig_enc) + 1e-10)
+        dec_input = z_dist.rsample()
+        return dec_input
 
     def configure_optimizers(self):
         params = filter(lambda p: p.requires_grad, self.parameters())
@@ -151,8 +173,13 @@ class VAE(pl.LightningModule):
     def test_epoch_start(self):
         ipdb.set_trace()
 
-    def test_step(self):
+    def test_step(self, batch, batch_nb):
+        sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
+        reconstructed_input, tgt_input, z_dist, ref_dist = self.inference(sentences, ind_indices, exp_indices)
+        loss_vae_rec = torch.nn.functional.mse_loss(tgt_input, reconstructed_input)
+        loss_vae_kl = torch.mean(kl_divergence(z_dist, ref_dist))
         ipdb.set_trace()
+        return {"kl_div": loss_vae_kl, "mse_loss": loss_vae_rec}
 
     def test_epoch_end(self):
         ipdb.set_trace()

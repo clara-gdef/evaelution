@@ -177,7 +177,6 @@ if __name__ == "__main__":
     parser.add_argument("--load_from_checkpoint", default="False")
     parser.add_argument("--eval_mode", type=str, default="latest") # can be "spe" or "latest"
     parser.add_argument("--model_to_test", type=str, default="epoch=3-step=14191.tmp_end.ckpt")
-    parser.add_argument("--optim", default="adam")
     parser.add_argument("--checkpoint", type=str, default="01")
     parser.add_argument("--DEBUG", type=str, default="True")
     parser.add_argument("--TEST", type=str, default="False")
@@ -185,9 +184,10 @@ if __name__ == "__main__":
     parser.add_argument("--subsample", type=int, default=-1)
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--toy_dataset", type=str, default="False")
-    parser.add_argument("--freeze_decoding", type=str, default="True")
     parser.add_argument("--test_b_size", type=int, default=1)
     # model attributes
+    parser.add_argument("--freeze_decoding", type=str, default="True")
+    parser.add_argument("--optim", default="adam")
     parser.add_argument("--b_size", type=int, default=128)
     parser.add_argument("--mlp_hs", type=int, default=256)
     parser.add_argument("--dec_hs", type=int, default=768)
