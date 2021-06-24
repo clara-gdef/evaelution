@@ -35,7 +35,7 @@ def load_dataset(hparams, split):
                  "max_len": hparams.max_len,
                  "exp_levels": hparams.exp_levels,
                  "rep_file": None,
-                 "exp_type": "uniforme",
+                 "exp_type": "uniform",
                  "is_toy": "False"}
     return StringIndSubDataset(**arguments, split=split)
 
