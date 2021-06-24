@@ -48,4 +48,4 @@ def get_metrics(preds, labels, num_classes, handle):
 
 
 def handle_fb_preds(pred):
-    return [int(i.split("__label__")[-1]) for i in pred[0]]
+    return [int(float(i.split("__label__")[-1])) for i in pred[0]]
