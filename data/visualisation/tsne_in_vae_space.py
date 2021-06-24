@@ -25,13 +25,13 @@ def init(args):
             xp_title = make_xp_title(args)
             model_name = "/".join(xp_title.split('_'))
             model_path = os.path.join(CFG['modeldir'], model_name)
-            model, epoch = load_model(xp_title, model_path, model_name)
+            model, epoch = load_model(args, xp_title, model_path, model_name)
             return main(args, model.cuda(), xp_title, epoch)
     else:
         xp_title = make_xp_title(args)
         model_name = "/".join(xp_title.split('_'))
         model_path = os.path.join(CFG['modeldir'], model_name)
-        model, epoch = load_model(xp_title, model_path, model_name)
+        model, epoch = load_model(args, xp_title, model_path, model_name)
         return main(args, model.cuda(), xp_title, epoch)
 
 
@@ -47,7 +47,7 @@ def main(args, model, model_name, epoch):
               model_name, epoch)
 
 
-def load_model(xp_title, model_path, model_name):
+def load_model(args, xp_title, model_path, model_name):
     print("Loading model from checkpoint.")
     arguments = {'emb_dim': 768,
                  'hp': args,
