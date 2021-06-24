@@ -31,7 +31,7 @@ def main(args):
 def load_dataset(hparams, split):
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": hparams.load_dataset,
-                 "subsample": hparams.subsample,
+                 "subsample": -1,
                  "max_len": hparams.max_len,
                  "exp_levels": hparams.exp_levels,
                  "rep_file": None,
