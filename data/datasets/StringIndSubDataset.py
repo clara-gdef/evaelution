@@ -144,6 +144,7 @@ class StringIndSubDataset(Dataset):
         return new_index
 
     def tokenize_job(self, job):
+        ipdb.set_trace()
         word_list = []
         for num, word in enumerate(job):
             if num < self.max_len - 3:
