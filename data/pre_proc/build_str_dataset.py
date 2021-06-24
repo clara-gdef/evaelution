@@ -16,7 +16,7 @@ def init(args):
 
 
 def main(args):
-    json_file = CFG["ppl_rep"]
+    ppl_file = CFG["ppl_rep"]
     datasets = []
     splits = ["TRAIN", "VALID", "TEST"]
     arguments = {'data_dir': CFG["gpudatadir"],
@@ -24,7 +24,7 @@ def main(args):
                  "subsample": -1,
                  "max_len": 32,
                  "exp_levels": args.exp_levels,
-                 "rep_file": json_file,
+                 "rep_file": ppl_file,
                  "exp_type": args.exp_type,
                  "is_toy": "False"}
     for split in splits:

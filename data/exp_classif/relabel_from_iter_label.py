@@ -34,7 +34,7 @@ def load_dataset(hparams, split):
                  "subsample": hparams.subsample,
                  "max_len": hparams.max_len,
                  "exp_levels": hparams.exp_levels,
-                 "rep_file": None,
+                 "rep_file": CFG["ppl_rep"],
                  "exp_type": "uniform",
                  "is_toy": "False"}
     return StringIndSubDataset(**arguments, split=split)
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--DEBUG", type=str, default="True")
     parser.add_argument("--subsample", type=int, default=-1)
-    parser.add_argument("--load_dataset", type=str, default="True")
+    parser.add_argument("--load_dataset", type=str, default="False")
     parser.add_argument("--max_len", type=int, default=10)
     parser.add_argument("--exp_type", type=str, default="uniform")
     parser.add_argument("--exp_levels", type=int, default=3)
