@@ -59,8 +59,7 @@ def build_new_person(person, language_classifier):
         tstmp = pd.Timestamp.fromtimestamp(job["from_ts"])
         start = round(datetime.timestamp(tstmp.round("D").to_pydatetime()))
         if (end > 0) and (start > 0):  # corresponds to the timestamp of 01/01/1970
-            ipdb.set_trace()
-            job = word_seq_into_list(job["position"])
+            new_j = job["position"] + " " + job["description"]
             predicted_lang = identify_language(job, language_classifier)
             if (predicted_lang[0][0][0] == "__label__fr" or predicted_lang[0][0][0] == "__label__en") and (predicted_lang[1][0][0] > .6) and (len(job) >= args.min_len):
                 delta = round(
@@ -68,26 +67,12 @@ def build_new_person(person, language_classifier):
                 if delta >= 0:
                     j = {'from': start,
                          'to': end,
-                         'job': job,
+                         'job': new_j,
                          'delta_years': delta}
                     jobs.append(j)
     if len(jobs) >= args.MIN_JOB_COUNT:
         new_p.append(jobs)
     return new_p
-
-
-def word_seq_into_list(position):
-    number_regex = re.compile(r'\d+(,\d+)?')
-    new_tup = []
-    job = word_tokenize(position.lower())
-    for tok in job:
-        if re.match(number_regex, tok):
-            new_tup.append("NUM")
-        else:
-            new_tup.append(tok.lower())
-    cleaned_tup = [item for item in new_tup if item != ""]
-    return cleaned_tup
-
 
 def handle_date(job):
     if job["to"] == "Present":
