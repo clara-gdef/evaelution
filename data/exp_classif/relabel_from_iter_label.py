@@ -52,7 +52,6 @@ if __name__ == "__main__":
     parser.add_argument("--start_iter", type=int, default=0)
     parser.add_argument("--f1_threshold", type=int, default=80)
     parser.add_argument("--exp_type", type=str, default="uniform")
-    parser.add_argument("--exp_type", type=str, default="uniform")
     parser.add_argument("--ind_sub", type=str, default="True")
     parser.add_argument("--initial_check", type=str, default="False")
     parser.add_argument("--kernel", type=str, default="linear")
