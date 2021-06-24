@@ -75,7 +75,7 @@ def init_args(hparams):
             # model attributes
             "freeze_decoding": "True",
             "b_size": hparams.b_size,
-            "max_len": 10,
+            "max_len": hparams.max_len,
             "mlp_hs": hparams.mlp_hs,
             "dec_hs": hparams.dec_hs,
             "mlp_layers": hparams.mlp_layers,
@@ -113,6 +113,7 @@ if __name__ == "__main__":
     parser.add_argument("--dec_layers", type=int, default=1)
     parser.add_argument("--model_type", type=str, default="VAE")
     # global hyper params
+    parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--coef_gen", type=float, default=0)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--wd", type=float, default=0.)

@@ -155,7 +155,7 @@ def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test
     fig.legend(handles=handles)
     print("Legends for markers and colors done.")
     # plt.show()
-    dest_file = f'{args.proj_type}_{model_name}_ep{epoch}.png'
+    dest_file = f'img/{args.proj_type}_{model_name}_ep{epoch}.png'
     print(f"Saving picture at {dest_file}...")
     plt.savefig(dest_file)
     print(f"Figure saved at {dest_file}")
