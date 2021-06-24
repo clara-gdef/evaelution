@@ -216,6 +216,7 @@ if __name__ == "__main__":
     parser.add_argument("--plot_latent_space", type=str, default="True")
     parser.add_argument("--proj_type", type=str, default="pca")
     parser.add_argument("--n_comp", type=int, default=2)
+    parser.add_argument("--print_preds", type=str, default="True")
     # model attributes
     parser.add_argument("--freeze_decoding", type=str, default="True")
     parser.add_argument("--mlp_hs", type=int, default=256)
