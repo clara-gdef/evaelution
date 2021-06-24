@@ -31,7 +31,7 @@ def main(args):
 def load_dataset(hparams, split):
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": hparams.load_dataset,
-                 "subsample": -1,
+                 "subsample": hparams.subsample,
                  "max_len": hparams.max_len,
                  "exp_levels": hparams.exp_levels,
                  "rep_file": None,
@@ -43,19 +43,10 @@ def load_dataset(hparams, split):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--DEBUG", type=str, default="True")
-    parser.add_argument("--subsample_users", type=int, default=-1)
+    parser.add_argument("--subsample", type=int, default=-1)
     parser.add_argument("--load_dataset", type=str, default="True")
-    parser.add_argument("--subsample_jobs", type=int, default=-1)
-    parser.add_argument("--train_user_len", type=int, default=1000)
-    parser.add_argument("--max_iter", type=int, default=50)
-    parser.add_argument("--user_step", type=int, default=10)
-    parser.add_argument("--start_iter", type=int, default=0)
-    parser.add_argument("--f1_threshold", type=int, default=80)
+    parser.add_argument("--max_len", type=int, default=10)
     parser.add_argument("--exp_type", type=str, default="uniform")
-    parser.add_argument("--ind_sub", type=str, default="True")
-    parser.add_argument("--initial_check", type=str, default="False")
-    parser.add_argument("--kernel", type=str, default="linear")
-    parser.add_argument("--tfidf", type=str, default="True")
     parser.add_argument("--exp_levels", type=int, default=3)
     args = parser.parse_args()
     init(args)
