@@ -5,6 +5,7 @@ import ipdb
 import numpy as np
 from tqdm import tqdm
 from torch.utils.data import Dataset
+from nltk.tokenize import word_tokenize
 
 
 class StringIndSubDataset(Dataset):
@@ -36,7 +37,7 @@ class StringIndSubDataset(Dataset):
             self.rev_ind_map_to_subsampled = {v: k for k, v in self.ind_map_to_subsampled.items()}
             self.ind_dict = industry_dict
             self.rev_ind_dict = {v: k for k, v in industry_dict.items()}
-            rep_file += f"_{split.upper()}_100.pkl"
+            rep_file += f"_{split.upper()}.pkl"
             self.tuples, self.user_lookup = self.build_ppl_tuples(rep_file, split)
             if self.exp_type == "uniform" or self.exp_type == "iter":
                 self.check_monotonicity()
@@ -144,9 +145,8 @@ class StringIndSubDataset(Dataset):
         return new_index
 
     def tokenize_job(self, job):
-        ipdb.set_trace()
         word_list = []
-        for num, word in enumerate(job):
+        for num, word in enumerate(word_tokenize(job)):
             if num < self.max_len - 3:
                 word_list.append(word)
         return " ".join(word_list)
