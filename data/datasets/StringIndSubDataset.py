@@ -17,7 +17,7 @@ class StringIndSubDataset(Dataset):
         self.datadir = data_dir
         self.exp_levels = exp_levels
         self.exp_type = exp_type
-        self.name = f"StringIndSubDataset_{self.exp_levels}exp_{self.exp_type}_no_unk_{split}{suffix}"
+        self.name = f"StringIndSubDataset_{self.exp_levels}exp_{self.exp_type}_reloaded_{split}{suffix}"
         if load == "True":
             print("Loading previously saved dataset...")
             self.load_dataset(subsample, split, "")
