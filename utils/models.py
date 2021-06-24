@@ -2,6 +2,7 @@ import ipdb
 import torch
 import os
 import glob
+from sklearn.metrics import f1_score, accuracy_score
 
 
 def collate_for_VAE(batch):
@@ -36,3 +37,15 @@ def masked_softmax(logits, mask, seq_len):
         weights = torch.exp(logits) * mask.unsqueeze(-1)
     denominator = 1e-7 + torch.sum(weights, dim=1, keepdim=True)
     return weights / denominator
+
+
+def get_metrics(preds, labels, num_classes, handle):
+    num_c = range(num_classes)
+    res_dict = {
+        "acc_" + handle: accuracy_score(labels, preds) * 100,
+        "f1_" + handle: f1_score(labels, preds, average='weighted', labels=num_c, zero_division=0) * 100}
+    return res_dict
+
+
+def handle_fb_preds(pred):
+    return [i.split("__label__")[-1] for i in pred[0]]

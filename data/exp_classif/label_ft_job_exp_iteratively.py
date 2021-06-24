@@ -6,9 +6,8 @@ import fasttext
 import numpy as np
 from collections import Counter
 from tqdm import tqdm
-from data.datasets import StringIndSubDataset, StringDataset
+from data.datasets import StringIndSubDataset
 from utils import get_metrics, handle_fb_preds
-from utils.baselines import train_svm, pre_proc_data
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
 
@@ -325,34 +324,23 @@ def get_class_dist(class_list):
 def load_datasets(args):
     datasets = []
     splits = ["TRAIN", "VALID", "TEST"]
-    if args.ind_sub == "True":
-        if args.start_iter == 0:
-            suffix = ""
-        else:
-            suffix = f"_it{args.start_iter}"
-        arguments = {'data_dir': CFG["gpudatadir"],
-                     "load": args.load_dataset,
-                     "subsample": args.subsample_jobs,
-                     "max_len": 10,
-                     "exp_levels": args.exp_levels,
-                     "tuple_list": None,
-                     "already_subbed": "True",
-                     'lookup': None,
-                     "suffix": suffix,
-                     "exp_type": args.exp_type,
-                     "is_toy": "False"}
-        for split in splits:
-            datasets.append(StringIndSubDataset(**arguments, split=split))
+    if args.start_iter == 0:
+        suffix = ""
     else:
-        arguments = {'data_dir': CFG["gpudatadir"],
-                     "load": args.load_dataset,
-                     "subsample": args.subsample_jobs,
-                     "max_len": 10,
-                     "exp_levels": args.exp_levels,
-                     "exp_type": args.exp_type,
-                     "is_toy": "False"}
-        for split in splits:
-            datasets.append(StringDataset(**arguments, split=split))
+        suffix = f"_it{args.start_iter}"
+    arguments = {'data_dir': CFG["gpudatadir"],
+                 "load": args.load_dataset,
+                 "subsample": args.subsample_jobs,
+                 "max_len": args.max_len,
+                 "exp_levels": args.exp_levels,
+                 "tuple_list": None,
+                 "already_subbed": "True",
+                 'lookup': None,
+                 "suffix": suffix,
+                 "exp_type": args.exp_type,
+                 "is_toy": "False"}
+    for split in splits:
+        datasets.append(StringIndSubDataset(**arguments, split=split))
     len_train = len(datasets[0])
     len_valid = len(datasets[1])
     init_train_lookup = datasets[0].user_lookup
@@ -432,6 +420,7 @@ if __name__ == "__main__":
     parser.add_argument("--load_dataset", type=str, default="True")
     parser.add_argument("--subsample_jobs", type=int, default=-1)
     parser.add_argument("--train_user_len", type=int, default=1000)
+    parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--max_iter", type=int, default=50)
     parser.add_argument("--user_step", type=int, default=10)
     parser.add_argument("--start_iter", type=int, default=0)
