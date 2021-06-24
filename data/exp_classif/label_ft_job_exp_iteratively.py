@@ -122,6 +122,7 @@ def get_all_tuples(data_train_valid, data_test):
         all_tuples.append(i["words"])
     return all_tuples
 
+
 def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
     user_id_as_list = [i for i, _ in user_lookup.items()]
     user_train = []
@@ -288,29 +289,14 @@ def save_new_tuples_per_split(tuple_list, lookup, split, iteration):
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": "False",
                  "subsample": -1,
-                 "max_len": 10,
+                 "max_len": args.max_len,
                  "exp_levels": args.exp_levels,
-                 "tuple_list": tuple_list,
-                 'lookup': lookup,
-                 "already_subbed": "True",
-                 "exp_type": args.exp_type,
-                 "suffix": f"_new2_it{iteration}",
+                 "exp_type": "iter",
+                 "suffix": f"_it{iteration}",
                  "split": split,
                  "is_toy": "False"}
-    StringIndSubDataset(**arguments)
-
-
-def test_model_on_all_test_data(args, model, vectorizer):
-    args.subsample_jobs = 10000
-    data_train, data_test, (len_train, len_valid) = load_datasets(args)
-    cleaned_profiles_test, labels_exp_test, _ = pre_proc_data(data_test)
-    test_features = vectorizer.transform(cleaned_profiles_test)
-    preds = model.predict(test_features.toarray())
-    assert len(preds) == len(labels_exp_test)
-    metrics = get_metrics(preds, labels_exp_test, args.exp_levels, f"whole")
-    print(metrics)
-    ipdb.set_trace()
-    return metrics
+    tmp = StringIndSubDataset(**arguments)
+    tmp.save_new_tuples(tuple_list, lookup)
 
 
 def get_class_dist(class_list):
@@ -330,14 +316,12 @@ def load_datasets(args):
         suffix = f"_it{args.start_iter}"
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": args.load_dataset,
-                 "subsample": args.subsample_jobs,
+                 "subsample": -1,
                  "max_len": args.max_len,
                  "exp_levels": args.exp_levels,
-                 "tuple_list": None,
-                 "already_subbed": "True",
-                 'lookup': None,
-                 "suffix": suffix,
+                 "rep_file": CFG['ppl_file'],
                  "exp_type": args.exp_type,
+                 "suffix": suffix,
                  "is_toy": "False"}
     for split in splits:
         datasets.append(StringIndSubDataset(**arguments, split=split))

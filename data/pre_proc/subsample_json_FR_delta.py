@@ -7,7 +7,6 @@ from tqdm import tqdm
 import re
 import pandas as pd
 import fasttext
-from nltk.tokenize import word_tokenize
 import json
 from datetime import datetime
 

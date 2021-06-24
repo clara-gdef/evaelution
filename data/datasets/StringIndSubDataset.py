@@ -59,6 +59,9 @@ class StringIndSubDataset(Dataset):
             self.tuples[idx]["ind_index"], \
             self.tuples[idx]["exp_index"]
 
+    def save_new_tuples(self, tuple_list, lookup):
+        ipdb.set_trace()
+
     def save_dataset(self, suffix, subsample):
         if self.is_toy == "True":
             print("Subsampling dataset...")
@@ -107,7 +110,8 @@ class StringIndSubDataset(Dataset):
                 elif self.exp_type == "iter":
                     ipdb.set_trace()
                 else:
-                    raise Exception("exp_type provided not supported. Can only support uniform or iteratively labelled exp atm.")
+                    raise Exception("exp_type provided not supported. "
+                                    "Can only support uniform or iteratively labelled exp atm.")
                 for num, job in enumerate(sorted_jobs):
                     new_job = dict()
                     new_job["ind_index"] = ind
@@ -116,7 +120,8 @@ class StringIndSubDataset(Dataset):
                     elif self.exp_type == "iter":
                         ipdb.set_trace()
                     else:
-                        raise Exception("exp_type provided not supported. Can only support uniform or iteratively labelled exp atm.")
+                        raise Exception("exp_type provided not supported. "
+                                        "Can only support uniform or iteratively labelled exp atm.")
                     new_job["words"] = self.tokenize_job(job["job"])
                     tuples.append(new_job)
                 user_lookup[id_p] = [counter, counter + len(sorted_jobs) - 1]
@@ -163,3 +168,5 @@ class StringIndSubDataset(Dataset):
                 exp_seq_init.append(all_labels[job])
             assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
         print("all experience are monotonic")
+
+
