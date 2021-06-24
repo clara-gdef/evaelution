@@ -45,7 +45,8 @@ def main(hparams):
                              )
         num_workers = hparams.num_workers
     if hparams.TRAIN == "True":
-        datasets = load_datasets(CFG, hparams, ["TRAIN", "VALID"])
+        # todo : remove after debug
+        datasets = load_datasets(CFG, hparams, ["VALID", "VALID"])
         dataset_train, dataset_valid = datasets[0], datasets[1]
         train_loader = DataLoader(dataset_train, batch_size=hparams.b_size, collate_fn=collate_for_VAE,
                                   num_workers=num_workers, shuffle=True, drop_last=True, pin_memory=True)
@@ -108,7 +109,8 @@ def main(hparams):
             except KeyError:
                 model.load_state_dict(torch.load(model_file))
         print(f"Evaluating model : {model_file}.")
-        datasets = load_datasets(CFG, hparams, ["TEST"], hparams.load_dataset)
+        # todo : remove after debug
+        datasets = load_datasets(CFG, hparams, ["VALID"], hparams.load_dataset)
         dataset_test = datasets[0]
         test_loader = DataLoader(dataset_test, batch_size=hparams.test_b_size, collate_fn=collate_for_VAE,
                                  num_workers=hparams.num_workers, drop_last=True)
