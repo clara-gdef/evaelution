@@ -25,7 +25,7 @@ def main(args):
         with open(os.path.join(CFG["gpudatadir"], f"StringIndSubDataset_3exp_uniform_no_unk_{split}_new2_it30.pkl"), 'rb') as f:
             iterative_ds = pkl.load(f)
         ipdb.set_trace()
-        assert len(new_ds) == len(iterative_ds)
+        assert len(new_ds) == len(iterative_ds["tuples"])
 
 
 def load_dataset(hparams, split):
