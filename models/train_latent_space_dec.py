@@ -64,7 +64,7 @@ def main(hparams):
                  "num_exp_level": 3,
                  "datadir": CFG["gpudatadir"]}
     print("Initiating model...")
-    model = models.classes.LatentSpaceDecoder(**arguments)
+    model = models.classes.LatentSpaceDec(**arguments)
     print("Model Loaded.")
     if hparams.TRAIN == "True":
         if hparams.load_from_checkpoint == "True":
