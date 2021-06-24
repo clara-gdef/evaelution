@@ -208,7 +208,7 @@ if __name__ == "__main__":
     parser.add_argument("--DEBUG", type=str, default="True")
     parser.add_argument("--TEST", type=str, default="False")
     parser.add_argument("--TRAIN", type=str, default="True")
-    parser.add_argument("--subsample", type=int, default=-1)
+    parser.add_argument("--subsample", type=int, default=100)
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--toy_dataset", type=str, default="False")
     parser.add_argument("--test_b_size", type=int, default=1)
@@ -217,7 +217,7 @@ if __name__ == "__main__":
     parser.add_argument("--n_comp", type=int, default=2)
     # model attributes
     parser.add_argument("--optim", default="adam")
-    parser.add_argument("--b_size", type=int, default=128)
+    parser.add_argument("--b_size", type=int, default=10)
     parser.add_argument("--dec_hs", type=int, default=768)
     parser.add_argument("--dec_layers", type=int, default=1)
     parser.add_argument("--max_len", type=int, default=10)
