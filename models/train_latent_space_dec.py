@@ -166,7 +166,6 @@ def load_vae_model(hparams):
     xp_title = hparams.vae_title
     model_name = "/".join(xp_title.split('_'))
     model_path = os.path.join(CFG['modeldir'], model_name)
-    hparams.freezz_decoding = "True"
     arguments = {'emb_dim': 768,
                  'hp': hparams,
                  'desc': "",
@@ -218,6 +217,9 @@ if __name__ == "__main__":
     parser.add_argument("--proj_type", type=str, default="pca")
     parser.add_argument("--n_comp", type=int, default=2)
     # model attributes
+    parser.add_argument("--freeze_decoding", type=str, default="True")
+    parser.add_argument("--mlp_hs", type=int, default=256)
+    parser.add_argument("--mlp_layers", type=int, default=1)
     parser.add_argument("--optim", default="adam")
     parser.add_argument("--b_size", type=int, default=10)
     parser.add_argument("--dec_hs", type=int, default=768)
@@ -226,6 +228,8 @@ if __name__ == "__main__":
     parser.add_argument("--scale", type=float, default=1.)
     parser.add_argument("--model_type", type=str, default="lsd")
     # global hyper params
+    parser.add_argument("--coef_rec", type=float, default=.3)
+    parser.add_argument("--coef_kl", type=float, default=.7)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--wd", type=float, default=0.)
     parser.add_argument("--dpo", type=float, default=0.)
