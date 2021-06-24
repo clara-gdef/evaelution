@@ -166,6 +166,7 @@ def load_vae_model(hparams):
     xp_title = hparams.vae_title
     model_name = "/".join(xp_title.split('_'))
     model_path = os.path.join(CFG['modeldir'], model_name)
+    hparams.freezz_decoding = "True"
     arguments = {'emb_dim': 768,
                  'hp': hparams,
                  'desc': "",
