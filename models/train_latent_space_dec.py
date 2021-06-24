@@ -184,7 +184,7 @@ def load_vae_model(hparams):
 
 
 def make_xp_title(hparams):
-    xp_title = f"{hparams.model_type}_bs{hparams.b_size}_mlphs{hparams.mlp_hs}_lr{hparams.lr}_{hparams.optim}"
+    xp_title = f"{hparams.model_type}_bs{hparams.b_size}_dechs{hparams.dec_hs}_lr{hparams.lr}_{hparams.optim}"
     if hparams.coef_rec != .5:
         xp_title += f"_coef_rec{hparams.coef_rec}"
     if hparams.subsample != -1:
