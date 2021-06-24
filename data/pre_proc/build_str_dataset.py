@@ -20,7 +20,7 @@ def main(args):
     splits = ["TRAIN", "VALID", "TEST"]
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": "False",
-                 "subsample": -1,
+                 "subsample": args.subsample,
                  "max_len": args.max_len,
                  "exp_levels": args.exp_levels,
                  "rep_file": ppl_file,
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     parser.add_argument("--DEBUG", type=str, default="True")
     parser.add_argument("--subsample", type=int, default=-1)
     parser.add_argument("--exp_type", type=str, default="uniform")
-    parser.add_argument("--toy_dataset", type=str, default="Faels")
+    parser.add_argument("--toy_dataset", type=str, default="False")
     parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--exp_levels", type=int, default=3)
     args = parser.parse_args()
