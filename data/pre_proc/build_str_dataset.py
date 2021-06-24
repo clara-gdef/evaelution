@@ -17,12 +17,11 @@ def init(args):
 
 def main(args):
     ppl_file = CFG["ppl_rep"]
-    datasets = []
     splits = ["TRAIN", "VALID", "TEST"]
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": "False",
                  "subsample": -1,
-                 "max_len": 32,
+                 "max_len": args.max_len,
                  "exp_levels": args.exp_levels,
                  "rep_file": ppl_file,
                  "exp_type": args.exp_type,

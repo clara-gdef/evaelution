@@ -36,7 +36,7 @@ class StringIndSubDataset(Dataset):
             self.rev_ind_map_to_subsampled = {v: k for k, v in self.ind_map_to_subsampled.items()}
             self.ind_dict = industry_dict
             self.rev_ind_dict = {v: k for k, v in industry_dict.items()}
-            rep_file += f"_{split.upper()}.pkl"
+            rep_file += f"_{split.upper()}_100.pkl"
             self.tuples, self.user_lookup = self.build_ppl_tuples(rep_file, split)
             if self.exp_type == "uniform" or self.exp_type == "iter":
                 self.check_monotonicity()
