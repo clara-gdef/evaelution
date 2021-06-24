@@ -1,4 +1,4 @@
-datadir: /local/gainondefor/work/lip6/data/evaelution
+datadir: /local/gainondefor/work/lip6/evaelution
 prevdatadir: /local/gainondefor/work/lip6/data/companies
 gpudatadir: /local/gainondefor/work/data/evaelution
 modeldir: /data/gainondefor/evaelution/
