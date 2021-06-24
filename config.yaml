@@ -4,4 +4,5 @@ gpudatadir: /local/gainondefor/work/data/evaelution
 modeldir: /data/gainondefor/evaelution/
 label_dict:
   ind: 20_industry_dict.pkl
-ppl_rep: profiles_jobs_skills_edu_fr_only
+ppl_rep: profiles_jobs_ind_title
+ppl_rep_sk: profiles_jobs_skills_edu_fr_only
