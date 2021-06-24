@@ -38,7 +38,7 @@ class StringIndSubDataset(Dataset):
             self.rev_ind_dict = {v: k for k, v in industry_dict.items()}
             rep_file += f"_{split.upper()}.pkl"
             self.tuples, self.user_lookup = self.build_ppl_tuples(rep_file, split)
-            if self.exp_type == "uniform":
+            if self.exp_type == "uniform" or self.exp_type == "iter":
                 self.check_monotonicity()
             self.save_dataset("", subsample)
 
@@ -103,15 +103,19 @@ class StringIndSubDataset(Dataset):
                 sorted_jobs = sorted(person[-1], key=lambda k: k['from'])
                 if self.exp_type == "uniform":
                     exp = self.get_uniform_experience(len(sorted_jobs))
+                elif self.exp_type == "iter":
+                    ipdb.set_trace()
                 else:
-                    raise Exception("exp_type provided not supported. Can only support uniform exp atm.")
+                    raise Exception("exp_type provided not supported. Can only support uniform or iteratively labelled exp atm.")
                 for num, job in enumerate(sorted_jobs):
                     new_job = dict()
                     new_job["ind_index"] = ind
                     if self.exp_type == "uniform":
                         new_job["exp_index"] = exp[num]
+                    elif self.exp_type == "iter":
+                        ipdb.set_trace()
                     else:
-                        raise Exception("exp_type provided not supported. Can only support uniform exp atm.")
+                        raise Exception("exp_type provided not supported. Can only support uniform or iteratively labelled exp atm.")
                     new_job["words"] = self.tokenize_job(job["job"])
                     tuples.append(new_job)
                 user_lookup[id_p] = [counter, counter + len(sorted_jobs) - 1]
