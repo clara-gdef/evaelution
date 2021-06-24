@@ -292,6 +292,7 @@ def save_new_tuples_per_split(tuple_list, lookup, split, iteration):
                  "max_len": args.max_len,
                  "exp_levels": args.exp_levels,
                  "exp_type": "iter",
+                 "rep_file": CFG['ppl_rep'],
                  "suffix": f"_it{iteration}",
                  "split": split,
                  "is_toy": "False"}
@@ -319,7 +320,7 @@ def load_datasets(args):
                  "subsample": -1,
                  "max_len": args.max_len,
                  "exp_levels": args.exp_levels,
-                 "rep_file": CFG['ppl_file'],
+                 "rep_file": CFG['ppl_rep'],
                  "exp_type": args.exp_type,
                  "suffix": suffix,
                  "is_toy": "False"}
