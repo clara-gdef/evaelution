@@ -52,6 +52,7 @@ def main(hparams):
         valid_loader = DataLoader(dataset_valid, batch_size=hparams.b_size, collate_fn=collate_for_VAE,
                                   num_workers=num_workers, drop_last=True, pin_memory=True)
         print("Dataloaders initiated.")
+    vae_model = load_vae_model(hparams)
     print("Dataloaders initiated.")
     arguments = {'emb_dim': 768,
                  'hp': hparams,
@@ -161,6 +162,7 @@ def init_lightning(CFG, xp_title, model_name):
 
 
 def load_vae_model(hparams):
+    print("Loading VAE model...")
     xp_title = hparams.vae_title
     model_name = "/".join(xp_title.split('_'))
     model_path = os.path.join(CFG['modeldir'], model_name)
@@ -180,6 +182,7 @@ def load_vae_model(hparams):
         model.load_state_dict(torch.load(model_file)["state_dict"])
     except KeyError:
         model.load_state_dict(torch.load(model_file))
+    print("VAE model loaded.")
     return model
 
 
