@@ -7,8 +7,8 @@ from sklearn.metrics import f1_score, accuracy_score
 
 def collate_for_VAE(batch):
     jobs = [i[0] for i in batch]
-    ind = [i[1] for i in batch]
-    exp = [i[2] for i in batch]
+    ind = [int(i[1]) for i in batch]
+    exp = [int(i[2]) for i in batch]
     return jobs, index_to_one_hot(ind, 20), index_to_one_hot(exp, 3)
 
 
