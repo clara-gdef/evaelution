@@ -153,8 +153,8 @@ def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test
             leg = mlines.Line2D([], [], color=color[k], linestyle='None', marker='o',
                                 markersize=10, label=v)
             handles.append(leg)
-    tmp = [v for k, v in shape_per_exp.values()]
-    if tmp != ["x","x","x"]:
+    tmp = [v for v in shape_per_exp.values()]
+    if tmp != ["x", "x", "x"]:
         for k, v in tqdm(shape_per_exp.items(), desc="Building legends for markers..."):
             leg = mlines.Line2D([], [], color='black', marker=shape_per_exp[k], linestyle='None',
                                 markersize=10, label=f'e{k}')
