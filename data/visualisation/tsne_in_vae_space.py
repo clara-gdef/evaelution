@@ -185,6 +185,7 @@ def get_dicts_for_plot(att_type):
                          2: 'v'}
         color_legends = None
         unique_color = [0., 1., 0., 0.]
+        ipdb.set_trace()
         color = np.array([unique_color] * 20)
     elif att_type == "ind":
         shape_per_exp = {0: "x",
