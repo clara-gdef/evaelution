@@ -124,6 +124,7 @@ def load_datasets(CFG, hparams, splits):
                  "exp_levels": hparams.exp_levels,
                  "rep_file": None,
                  "exp_type": "uniform",
+                 "suffix": hparams.suffix,
                  "is_toy": hparams.toy_dataset}
     for split in splits:
         datasets.append(StringIndSubDataset(**arguments, split=split))
@@ -175,6 +176,7 @@ if __name__ == "__main__":
     # running params
     parser.add_argument("--gpus", type=int, default=3)
     parser.add_argument("--load_dataset", default="True")
+    parser.add_argument("--suffix", type=str, default="") # "" or "_sub_by_subspace"
     parser.add_argument("--auto_lr_find", type=str, default="False")
     parser.add_argument("--load_from_checkpoint", default="False")
     parser.add_argument("--eval_mode", type=str, default="latest") # can be "spe" or "latest"

@@ -34,6 +34,8 @@ def main(args):
     sub_train = get_subgroup_for_split(all_groups, ds_train, "train")
     sub_test = get_subgroup_for_split(all_groups, ds_test, "test")
     ipdb.set_trace()
+    ds_train.tuples = sub_train
+    ds_train.save_dataset(suffix="_sub_by_subspace", subsample=-1)
 
 
 def get_all_groups(inds, exp_levels):
