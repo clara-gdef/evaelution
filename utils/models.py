@@ -15,7 +15,7 @@ def collate_for_VAE(batch):
 def index_to_one_hot(indices, max_features):
     tnsr = torch.zeros(len(indices), max_features)
     for num, i in enumerate(indices):
-        tnsr[num, i] = 1.
+        tnsr[num, int(i)] = 1.
     return tnsr
 
 
