@@ -202,8 +202,8 @@ if __name__ == "__main__":
     parser.add_argument("--scale", type=float, default=1.)
     parser.add_argument("--model_type", type=str, default="VAE")
     # global hyper params
-    parser.add_argument("--coef_rec", type=float, default=.5)
-    parser.add_argument("--coef_kl", type=float, default=.5)
+    parser.add_argument("--coef_rec", type=float, default=.7)
+    parser.add_argument("--coef_kl", type=float, default=.3)
     parser.add_argument("--coef_gen", type=float, default=.5)
     parser.add_argument("--lr", type=float, default=1e-2)
     parser.add_argument("--wd", type=float, default=0.)
