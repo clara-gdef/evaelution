@@ -45,7 +45,8 @@ def main(hparams):
                              )
         num_workers = hparams.num_workers
     if hparams.TRAIN == "True":
-        datasets = load_datasets(CFG, hparams, ["TRAIN", "VALID"])
+        # todo : remove after debug
+        datasets = load_datasets(CFG, hparams, ["VALID", "VALID"])
         dataset_train, dataset_valid = datasets[0], datasets[1]
         train_loader = DataLoader(dataset_train, batch_size=hparams.b_size, collate_fn=collate_for_VAE,
                                   num_workers=num_workers, shuffle=True, drop_last=True, pin_memory=True)
