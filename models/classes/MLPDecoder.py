@@ -17,6 +17,6 @@ class MLPDecoder(pl.LightningModule):
 
     def forward(self, inputs):
         outs = self.leaky_relu(self.in_layer(inputs))
-        outs_2 = self.leaky_relu(self.out_layer(outs))
+        outs_2 = self.leaky_relu(self.hidden_layer(outs))
         return torch.sigmoid(self.out_layer(outs_2))
 
