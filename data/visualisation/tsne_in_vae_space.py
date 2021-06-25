@@ -11,9 +11,11 @@ from models.train_vae import make_xp_title
 import models.classes
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import normalize
 import numpy as np
 from utils.models import get_latest_model, index_to_one_hot
 import matplotlib.lines as mlines
+
 
 
 def init(args):
@@ -106,14 +108,15 @@ def prep_data_for_viz(args, data_dict, split):
 
 def fit_transform_by_tsne(args, input_data, split):
     print(f"Fitting TSNE on split {split} for {args.n_comp} components, {len(input_data)} samples...")
-    data_embedded = TSNE(n_components=args.n_comp, n_jobs=-1, verbose=1).fit_transform(np.array(input_data).squeeze(1))
+    data_embedded = TSNE(n_components=args.n_comp, n_jobs=-1, verbose=1).fit_transform(normed_data)
     print(f"TSNE fitted!")
     return data_embedded
 
 
 def fit_transform_by_pca(args, input_data, split):
     print(f"Fitting PCA on split {split} for {args.n_comp} components, {len(input_data)} samples...")
-    data_embedded = PCA(n_components=args.n_comp).fit_transform(np.array(input_data).squeeze(1))
+    normed_data = normalize(np.array(input_data).squeeze(1))
+    data_embedded = PCA(n_components=args.n_comp).fit_transform(normed_data)
     print(f"PCA fitted!")
     return data_embedded
 
