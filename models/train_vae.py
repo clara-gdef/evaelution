@@ -198,7 +198,6 @@ if __name__ == "__main__":
     parser.add_argument("--b_size", type=int, default=256)
     parser.add_argument("--mlp_hs", type=int, default=256)
     parser.add_argument("--dec_hs", type=int, default=768)
-    parser.add_argument("--mlp_layers", type=int, default=1)
     parser.add_argument("--dec_layers", type=int, default=1)
     parser.add_argument("--max_len", type=int, default=10)
     parser.add_argument("--scale", type=float, default=1.)

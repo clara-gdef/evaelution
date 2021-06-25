@@ -159,6 +159,7 @@ def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test
     print(f"Saving picture at {dest_file}...")
     plt.savefig(dest_file)
     print(f"Figure saved at {dest_file}")
+    plt.close()
 
 
 def get_dicts_for_plot():

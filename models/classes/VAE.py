@@ -4,7 +4,7 @@ import pytorch_lightning as pl
 from utils.models import masked_softmax
 import models.classes
 from data.visualisation import tsne_in_vae_space
-from models.classes import MLP, LSTMAttentionDecoder
+from models.classes import MLPEncoder, MLPDecoder
 from torch.distributions.normal import Normal
 from torch.distributions.kl import kl_divergence
 from transformers import CamembertTokenizer, CamembertModel
@@ -43,10 +43,9 @@ class VAE(pl.LightningModule):
             self.text_decoder = models.classes.LSTMAttentionDecoder(self.hp.dec_hs, self.emb_dim, self.voc_size, hp)
 
         input_size = emb_dim + num_ind + num_exp_level
-        output_size = 2 * hp.mlp_hs
 
-        self.vae_encoder = MLP(input_size, output_size, hp.mlp_layers, hp)
-        self.vae_decoder = MLP(hp.mlp_hs, emb_dim, hp.mlp_layers, hp)
+        self.vae_encoder = MLPEncoder(input_size, hp.mlp_hs, hp.latent_size, hp)
+        self.vae_decoder = MLPDecoder(hp.latent_size, hp.mlp_hs, emb_dim, hp)
 
     def forward(self, sent, ind, exp):
         sample_len = len(ind)
@@ -55,10 +54,10 @@ class VAE(pl.LightningModule):
         input_tokenized, mask = inputs["input_ids"].cuda(), inputs["attention_mask"].cuda()
         max_seq_len = input_tokenized.shape[-1]
         sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
-
+        assert torch.max(sent_embed.max()) <= 1.
+        assert torch.min(sent_embed.min()) >= 0.
         inputs = torch.cat([sent_embed[:, -1, :], ind, exp], dim=-1)
-        params = self.vae_encoder(inputs)
-        mu_enc, sig_enc = params[:, :self.hp.mlp_hs], params[:, self.hp.mlp_hs:]
+        mu_enc, sig_enc = self.vae_encoder(inputs)
         z_dist = Normal(mu_enc, torch.nn.functional.softplus(sig_enc) + 1e-10)
         dec_input = z_dist.rsample()
         reconstructed_input = self.vae_decoder(dec_input)
@@ -122,8 +121,7 @@ class VAE(pl.LightningModule):
         sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
 
         inputs = torch.cat([sent_embed[:, -1, :], ind, exp], dim=-1)
-        params = self.vae_encoder(inputs)
-        mu_enc, sig_enc = params[:, :self.hp.mlp_hs], params[:, self.hp.mlp_hs:]
+        mu_enc, sig_enc = self.vae_encoder(inputs)
         z_dist = Normal(mu_enc, torch.nn.functional.softplus(sig_enc) + 1e-10)
         dec_input = z_dist.rsample()
         reconstructed_input = self.vae_decoder(dec_input)
@@ -138,8 +136,7 @@ class VAE(pl.LightningModule):
         sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
 
         inputs = torch.cat([sent_embed[:, -1, :], ind, exp], dim=-1)
-        params = self.vae_encoder(inputs)
-        mu_enc, sig_enc = params[:, :self.hp.mlp_hs], params[:, self.hp.mlp_hs:]
+        mu_enc, sig_enc = self.vae_encoder(inputs)
         z_dist = Normal(mu_enc, torch.nn.functional.softplus(sig_enc) + 1e-10)
         dec_input = z_dist.rsample()
         return dec_input
@@ -158,15 +155,11 @@ class VAE(pl.LightningModule):
         loss = self.hp.coef_rec * rec / sample_len + \
                self.hp.coef_kl * kl / sample_len + \
                self.hp.coef_gen * gen / sample_len
-        self.log('train_rec_loss', rec)
-        self.log('train_kl_loss', kl)
-        self.log('train_gen_loss', gen)
-        self.log('train_loss', loss)
+        self.log('train_rec_loss', rec, on_step=True, on_epoch=False)
+        self.log('train_kl_loss', kl, on_step=True, on_epoch=False)
+        # self.log('train_gen_loss', gen, on_step=True, on_epoch=False)
+        self.log('train_loss', loss, on_step=True, on_epoch=False)
         return {"loss": loss}
-
-    #
-    # def training_step_end(self, training_step_outputs):
-    #     return {'loss': training_step_outputs['loss'].mean()}
 
     def validation_step(self, batch, batch_nb):
         sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
@@ -175,10 +168,10 @@ class VAE(pl.LightningModule):
         val_loss = self.hp.coef_rec * rec / sample_len + \
                    self.hp.coef_kl * kl / sample_len + \
                    self.hp.coef_gen * gen / sample_len
-        self.log('val_rec_loss', rec)
-        self.log('val_kl_loss', kl)
-        self.log('val_gen_loss', gen)
-        self.log('val_loss', val_loss)
+        self.log('val_rec_loss', rec, on_step=False, on_epoch=True)
+        self.log('val_kl_loss', kl, on_step=False, on_epoch=True)
+        # self.log('val_gen_loss', gen, on_step=False, on_epoch=True)
+        self.log('val_loss', val_loss, on_step=False, on_epoch=True)
         return {"val_loss": val_loss}
 
     def validation_epoch_end(self, validation_step_outputs):
