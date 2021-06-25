@@ -123,7 +123,7 @@ def load_datasets(CFG, hparams, splits):
                  "exp_levels": hparams.exp_levels,
                  "rep_file": None,
                  "exp_type": "uniform",
-                 "is_toy": "False"}
+                 "is_toy": hparams.toy_dataset}
     for split in splits:
         datasets.append(StringIndSubDataset(**arguments, split=split))
     return datasets
