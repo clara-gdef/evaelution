@@ -114,7 +114,7 @@ class VAE(pl.LightningModule):
         ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]).cuda(),
                           torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())
         loss_vae_kl = torch.sum(kl_divergence(z_dist, ref_dist))
-
+        ipdb.set_trace()
         return loss_vae_rec, loss_vae_kl, loss_text_gen_reduced
 
     def inference(self, sent, ind, exp):
