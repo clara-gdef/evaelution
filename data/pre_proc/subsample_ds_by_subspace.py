@@ -31,8 +31,9 @@ def main(args):
     ds_test = StringIndSubDataset(**arguments, split="TEST")
     industries = ds_train.ind_dict
     all_groups = get_all_groups(industries, args.exp_levels)
-    get_subgroup_for_split(all_groups, ds_train, "train")
-    get_subgroup_for_split(all_groups, ds_test, "test")
+    sub_train = get_subgroup_for_split(all_groups, ds_train, "train")
+    sub_test = get_subgroup_for_split(all_groups, ds_test, "test")
+    ipdb.set_trace()
 
 
 def get_all_groups(inds, exp_levels):
@@ -55,6 +56,7 @@ def get_subgroup_for_split(all_groups, ds, split):
     tgt_file = os.path.join(CFG["gpudatadir"], f"viz_subgroup_{split}.pkl")
     with open(tgt_file, 'wb') as f:
         pkl.dump(sub, f)
+    return sub
 
 
 if __name__ == "__main__":
