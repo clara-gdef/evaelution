@@ -184,8 +184,8 @@ def get_dicts_for_plot(att_type):
                          1: "s",
                          2: 'v'}
         color_legends = None
-        colors = [(0, 1, 0)]
-        color = LinearSegmentedColormap.from_list("col", colors, N=20)
+        unique_color = [0., 1., 0., 0.]
+        color = np.array([unique_color] * 20)
     elif att_type == "ind":
         shape_per_exp = {0: "x",
                          1: "x",
