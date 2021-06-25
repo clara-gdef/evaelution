@@ -205,7 +205,7 @@ if __name__ == "__main__":
     parser.add_argument("--coef_rec", type=float, default=.3)
     parser.add_argument("--coef_kl", type=float, default=.7)
     parser.add_argument("--coef_gen", type=float, default=.5)
-    parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument("--lr", type=float, default=1e-2)
     parser.add_argument("--wd", type=float, default=0.)
     parser.add_argument("--dpo", type=float, default=0.)
     parser.add_argument("--epochs", type=int, default=100)
