@@ -23,15 +23,6 @@ class VAE(pl.LightningModule):
         self.num_exp_level = num_exp_level
         self.max_len = hp.max_len
         self.epoch = epoch
-        # self.tokenizer = MBart50Tokenizer.from_pretrained("facebook/mbart-large-50-many-to-many-mmt")
-        # self.tokenizer.src_lang = "fr_XX"
-        #
-        # tmp = MBartForConditionalGeneration.from_pretrained('facebook/mbart-large-50-many-to-many-mmt')
-        # self.text_encoder = tmp.model.encoder
-        # for param in self.text_encoder.parameters():
-        #     param.requires_grad = False
-        # self.text_decoder = MBartModel.from_pretrained('facebook/mbart-large-50-many-to-many-mmt')
-        # self.text_decoder.is_decoder = True
 
         self.tokenizer = CamembertTokenizer.from_pretrained("camembert-base")
         self.voc_size = self.tokenizer.vocab_size
@@ -54,9 +45,8 @@ class VAE(pl.LightningModule):
         input_tokenized, mask = inputs["input_ids"].cuda(), inputs["attention_mask"].cuda()
         max_seq_len = input_tokenized.shape[-1]
         sent_embed = torch.sigmoid(self.text_encoder(input_tokenized, mask)['last_hidden_state'])
-        assert torch.max(sent_embed.max()) <= 1.
-        assert torch.min(sent_embed.min()) >= -1.
-        inputs = torch.cat([sent_embed[:, -1, :], ind, exp], dim=-1)
+
+        inputs = self.get_vae_encoder_input(sent_embed, ind, exp)
         mu_enc, sig_enc = self.vae_encoder(inputs)
         z_dist = Normal(mu_enc, torch.nn.functional.softplus(sig_enc) + 1e-10)
         dec_input = z_dist.rsample()
@@ -120,7 +110,7 @@ class VAE(pl.LightningModule):
         input_tokenized, mask = inputs["input_ids"].cuda(), inputs["attention_mask"].cuda()
         sent_embed = torch.sigmoid(self.text_encoder(input_tokenized, mask)['last_hidden_state'])
 
-        inputs = torch.cat([sent_embed[:, -1, :], ind, exp], dim=-1)
+        inputs = self.get_vae_encoder_input(sent_embed, ind, exp)
         mu_enc, sig_enc = self.vae_encoder(inputs)
         z_dist = Normal(mu_enc, torch.nn.functional.softplus(sig_enc) + 1e-10)
         dec_input = z_dist.rsample()
@@ -135,7 +125,7 @@ class VAE(pl.LightningModule):
         input_tokenized, mask = inputs["input_ids"].cuda(), inputs["attention_mask"].cuda()
         sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
 
-        inputs = torch.cat([sent_embed[:, -1, :], ind, exp], dim=-1)
+        inputs = self.get_vae_encoder_input(sent_embed, ind, exp)
         mu_enc, sig_enc = self.vae_encoder(inputs)
         z_dist = Normal(mu_enc, torch.nn.functional.softplus(sig_enc) + 1e-10)
         dec_input = z_dist.rsample()
@@ -154,8 +144,8 @@ class VAE(pl.LightningModule):
         rec, kl, gen = self.forward(sentences, ind_indices, exp_indices)
         loss = self.hp.coef_rec * rec / sample_len + \
                self.hp.coef_kl * kl / sample_len
-        self.log('train_rec_loss', rec, on_step=True, on_epoch=False)
-        self.log('train_kl_loss', kl, on_step=True, on_epoch=False)
+        self.log('train_rec_loss', rec / sample_len, on_step=True, on_epoch=False)
+        self.log('train_kl_loss', kl / sample_len, on_step=True, on_epoch=False)
         # self.log('train_gen_loss', gen, on_step=True, on_epoch=False)
         self.log('train_loss', loss, on_step=True, on_epoch=False)
         return {"loss": loss}
@@ -164,10 +154,10 @@ class VAE(pl.LightningModule):
         sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
         sample_len = len(ind_indices)
         rec, kl, gen = self.forward(sentences, ind_indices, exp_indices)
-        val_loss = self.hp.coef_rec * rec / sample_len+ \
+        val_loss = self.hp.coef_rec * rec / sample_len + \
                    self.hp.coef_kl * kl / sample_len
-        self.log('val_rec_loss', rec, on_step=False, on_epoch=True)
-        self.log('val_kl_loss', kl, on_step=False, on_epoch=True)
+        self.log('val_rec_loss', rec / sample_len, on_step=False, on_epoch=True)
+        self.log('val_kl_loss', kl / sample_len, on_step=False, on_epoch=True)
         # self.log('val_gen_loss', gen, on_step=False, on_epoch=True)
         self.log('val_loss', val_loss, on_step=False, on_epoch=True)
         return {"val_loss": val_loss}
@@ -175,7 +165,7 @@ class VAE(pl.LightningModule):
     def validation_epoch_end(self, validation_step_outputs):
         self.epoch += 1
         if self.hp.plot_latent_space == "True":
-            tsne_in_vae_space.main(self.hp, self, self.desc, self.epoch)
+            tsne_in_vae_space.main(self.hp, self, self.desc, self.epoch, self.hp.att_type)
 
     def test_epoch_start(self):
         ipdb.set_trace()
@@ -190,3 +180,14 @@ class VAE(pl.LightningModule):
 
     def test_epoch_end(self):
         ipdb.set_trace()
+
+    def get_vae_encoder_input(self, sent_embed, ind, exp):
+        if self.hp.att_type == "both":
+            inpt = torch.cat([sent_embed[:, -1, :], ind, exp], dim=-1)
+        elif self.hp.att_type == "exp":
+            inpt = torch.cat([sent_embed[:, -1, :], exp], dim=-1)
+        elif self.hp.att_type == "ind":
+            inpt = torch.cat([sent_embed[:, -1, :], ind], dim=-1)
+        else:
+            raise Exception(f"Wrong att_type specified. Can be exp or ind, got: {self.hp.att_type}")
+        return inpt

@@ -37,7 +37,7 @@ def init(args):
         return main(args, model.cuda(), xp_title, epoch)
 
 
-def main(args, model, model_name, epoch):
+def main(args, model, model_name, epoch, att_type):
     sub_train = load_sub("train")
     sub_test = load_sub("test")
     train_projections = project_points(sub_train, model, "train")
@@ -46,7 +46,7 @@ def main(args, model, model_name, epoch):
     trans_points_test, ind_labels_test, exp_labels_test = prep_data_for_viz(args, test_projections, "test")
     plot_proj(args, trans_points_train, ind_labels_train, exp_labels_train,
               trans_points_test, ind_labels_test, exp_labels_test,
-              model_name, epoch)
+              model_name, epoch, att_type)
 
 
 def load_model(args, xp_title, model_path, model_name):
@@ -122,10 +122,10 @@ def fit_transform_by_pca(args, input_data, split):
     return data_embedded
 
 
-def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test, exps_test, model_name, epoch):
+def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test, exps_test, model_name, epoch, att_type):
     print("Initiating dicts and lists for colors...")
     NUM_COLORS = 20
-    shape_per_exp, color_legends = get_dicts_for_plot()
+    shape_per_exp, color_legends = get_dicts_for_plot(att_type)
     color = cm.rainbow(np.linspace(0, 1, NUM_COLORS))
 
     fig = plt.figure(figsize=(15, 8))
@@ -159,21 +159,37 @@ def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test
     fig.legend(handles=handles)
     print("Legends for markers and colors done.")
     # plt.show()
-    dest_file = f'img/{args.proj_type}_{model_name}_ep{epoch}.png'
+    dest_file = f'img/{args.proj_type}_{model_name}_ep{epoch}_att_{att_type}.png'
     print(f"Saving picture at {dest_file}...")
     plt.savefig(dest_file)
     print(f"Figure saved at {dest_file}")
     plt.close()
 
 
-def get_dicts_for_plot():
-    shape_per_exp = {0: "x",
-                     1: "s",
-                     2: 'v'}
-    ind_file = "/local/gainondefor/work/data/evaelution/20_industry_dict.pkl"
-    with open(ind_file, 'rb') as f_name:
-        industry_dict = pkl.load(f_name)
-    color_legends = {k: v for k, v in industry_dict.items()}
+def get_dicts_for_plot(att_type):
+    if att_type == "both":
+        shape_per_exp = {0: "x",
+                         1: "s",
+                         2: 'v'}
+        ind_file = "/local/gainondefor/work/data/evaelution/20_industry_dict.pkl"
+        with open(ind_file, 'rb') as f_name:
+            industry_dict = pkl.load(f_name)
+        color_legends = {k: v for k, v in industry_dict.items()}
+    elif att_type == "exp":
+        shape_per_exp = {0: "x",
+                         1: "s",
+                         2: 'v'}
+        color_legends = {k: "pink" for k in range(20)}
+    elif att_type == "ind":
+        shape_per_exp = {0: "x",
+                         1: "x",
+                         2: 'x'}
+        ind_file = "/local/gainondefor/work/data/evaelution/20_industry_dict.pkl"
+        with open(ind_file, 'rb') as f_name:
+            industry_dict = pkl.load(f_name)
+        color_legends = {k: v for k, v in industry_dict.items()}
+    else:
+        raise Exception(f"Wrong att_type specified. Can be exp or ind, got: {att_type}")
     return shape_per_exp, color_legends
 
 

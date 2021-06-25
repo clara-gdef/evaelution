@@ -12,6 +12,18 @@ def collate_for_VAE(batch):
     return jobs, index_to_one_hot(ind, 20), index_to_one_hot(exp, 3)
 
 
+def collate_for_VAE_exp(batch):
+    jobs = [i[0] for i in batch]
+    exp = [int(i[2]) for i in batch]
+    return jobs, None, index_to_one_hot(exp, 3)
+
+
+def collate_for_VAE_ind(batch):
+    jobs = [i[0] for i in batch]
+    ind = [int(i[1]) for i in batch]
+    return jobs, index_to_one_hot(ind, 20), None
+
+
 def index_to_one_hot(indices, max_features):
     tnsr = torch.zeros(len(indices), max_features)
     for num, i in enumerate(indices):

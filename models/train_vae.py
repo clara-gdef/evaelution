@@ -9,7 +9,7 @@ import yaml
 import torch
 from data.datasets import StringIndSubDataset
 import models
-from utils import collate_for_VAE, get_latest_model
+from utils import collate_for_VAE, get_latest_model, collate_for_VAE_exp, collate_for_VAE_ind
 
 
 def init(hparams):
@@ -28,6 +28,7 @@ def main(hparams):
     model_name = "/".join(xp_title.split('_'))
     logger, checkpoint_callback, early_stop_callback, model_path = init_lightning(CFG, xp_title, model_name)
     call_back_list = [checkpoint_callback, early_stop_callback]
+    collate_fn, num_ind, num_exp = get_collate_fn_and_class_nums(hparams)
 
     if hparams.DEBUG == "True":
         trainer = pl.Trainer(gpus=1,
@@ -48,19 +49,19 @@ def main(hparams):
         # todo : remove after debug
         datasets = load_datasets(CFG, hparams, ["TRAIN", "TRAIN"])
         dataset_train, dataset_valid = datasets[0], datasets[1]
-        train_loader = DataLoader(dataset_train, batch_size=hparams.b_size, collate_fn=collate_for_VAE,
+        train_loader = DataLoader(dataset_train, batch_size=hparams.b_size, collate_fn=collate_fn,
                                   num_workers=num_workers, shuffle=True, drop_last=True, pin_memory=True)
-        valid_loader = DataLoader(dataset_valid, batch_size=hparams.b_size, collate_fn=collate_for_VAE,
+        valid_loader = DataLoader(dataset_valid, batch_size=hparams.b_size, collate_fn=collate_fn,
                                   num_workers=num_workers, drop_last=True, pin_memory=True)
         print("Dataloaders initiated.")
     print("Dataloaders initiated.")
     arguments = {'emb_dim': 768,
                  'hp': hparams,
                  'desc': xp_title,
-                 "num_ind": 20,
+                 "num_ind": num_ind,
                  "model_path": model_path,
                  "epoch": 0,
-                 "num_exp_level": 3,
+                 "num_exp_level": num_exp,
                  "datadir": CFG["gpudatadir"]}
     print("Initiating model...")
     model = models.classes.VAE(**arguments)
@@ -109,7 +110,7 @@ def main(hparams):
         print(f"Evaluating model : {model_file}.")
         datasets = load_datasets(CFG, hparams, ["TEST"], hparams.load_dataset)
         dataset_test = datasets[0]
-        test_loader = DataLoader(dataset_test, batch_size=hparams.test_b_size, collate_fn=collate_for_VAE,
+        test_loader = DataLoader(dataset_test, batch_size=hparams.test_b_size, collate_fn=collate_fn,
                                  num_workers=hparams.num_workers, drop_last=True)
         trainer.test(test_dataloaders=test_loader, model=model)
         return model.metrics
@@ -165,10 +166,23 @@ def make_xp_title(hparams):
     xp_title = f"{hparams.model_type}_bs{hparams.b_size}_mlphs{hparams.mlp_hs}_lr{hparams.lr}_{hparams.optim}"
     if hparams.coef_rec != .5:
         xp_title += f"_coef_rec{hparams.coef_rec}"
+    if hparams.att_type != "both":
+        xp_title += f"_{hparams.att_type}Only"
     if hparams.subsample != -1:
         xp_title += f"sub{hparams.subsample}"
     print("xp_title = " + xp_title)
     return xp_title
+
+
+def get_collate_fn_and_class_nums(hparams):
+    if hparams.att_type == "both":
+        return collate_for_VAE, 20, 3
+    elif hparams.att_type == "exp":
+        return collate_for_VAE_exp, 0, 3
+    elif hparams.att_type == "ind":
+        return collate_for_VAE_ind, 20, 0
+    else:
+        raise Exception(f"Wrong att_type specified. Can be exp or ind, got: {hparams.att_type}")
 
 
 if __name__ == "__main__":
@@ -192,6 +206,7 @@ if __name__ == "__main__":
     parser.add_argument("--plot_latent_space", type=str, default="True")
     parser.add_argument("--proj_type", type=str, default="tsne")
     parser.add_argument("--n_comp", type=int, default=2)
+    parser.add_argument("--att_type", type=str, default="both") # can be both, exp or ind
     # model attributes
     parser.add_argument("--freeze_decoding", type=str, default="True")
     parser.add_argument("--optim", default="adam")
