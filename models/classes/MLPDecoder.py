@@ -3,13 +3,12 @@ import pytorch_lightning as pl
 
 
 class MLPDecoder(pl.LightningModule):
-    def __init__(self, latent_size, hidden_size, output_size, num_layers, hp):
+    def __init__(self, latent_size, hidden_size, output_size, hp):
         super().__init__()
         self.hp = hp
         self.latent_size = latent_size
         self.hidden_size = hidden_size
         self.output_size = output_size
-        self.num_layer = num_layers
         self.leaky_relu = torch.nn.LeakyReLU(0.2)
 
         self.in_layer = torch.nn.Linear(latent_size, hidden_size)
