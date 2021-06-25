@@ -53,9 +53,9 @@ class VAE(pl.LightningModule):
                                 return_tensors="pt")
         input_tokenized, mask = inputs["input_ids"].cuda(), inputs["attention_mask"].cuda()
         max_seq_len = input_tokenized.shape[-1]
-        sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
+        sent_embed = torch.sigmoid(self.text_encoder(input_tokenized, mask)['last_hidden_state'])
         assert torch.max(sent_embed.max()) <= 1.
-        assert torch.min(sent_embed.min()) >= 0.
+        assert torch.min(sent_embed.min()) >= -1.
         inputs = torch.cat([sent_embed[:, -1, :], ind, exp], dim=-1)
         mu_enc, sig_enc = self.vae_encoder(inputs)
         z_dist = Normal(mu_enc, torch.nn.functional.softplus(sig_enc) + 1e-10)
@@ -118,7 +118,7 @@ class VAE(pl.LightningModule):
         inputs = self.tokenizer(sent, truncation=True, padding="max_length", max_length=self.max_len,
                                 return_tensors="pt")
         input_tokenized, mask = inputs["input_ids"].cuda(), inputs["attention_mask"].cuda()
-        sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
+        sent_embed = torch.sigmoid(self.text_encoder(input_tokenized, mask)['last_hidden_state'])
 
         inputs = torch.cat([sent_embed[:, -1, :], ind, exp], dim=-1)
         mu_enc, sig_enc = self.vae_encoder(inputs)
