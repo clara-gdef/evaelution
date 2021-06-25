@@ -15,6 +15,7 @@ from sklearn.preprocessing import normalize
 import numpy as np
 from utils.models import get_latest_model, index_to_one_hot
 import matplotlib.lines as mlines
+from matplotlib.colors import LinearSegmentedColormap
 
 
 
@@ -28,13 +29,13 @@ def init(args):
             model_name = "/".join(xp_title.split('_'))
             model_path = os.path.join(CFG['modeldir'], model_name)
             model, epoch = load_model(args, xp_title, model_path, model_name)
-            return main(args, model.cuda(), xp_title, epoch)
+            return main(args, model.cuda(), xp_title, epoch, args.att_type)
     else:
         xp_title = make_xp_title(args)
         model_name = "/".join(xp_title.split('_'))
         model_path = os.path.join(CFG['modeldir'], model_name)
         model, epoch = load_model(args, xp_title, model_path, model_name)
-        return main(args, model.cuda(), xp_title, epoch)
+        return main(args, model.cuda(), xp_title, epoch, args.att_type)
 
 
 def main(args, model, model_name, epoch, att_type):
@@ -125,8 +126,7 @@ def fit_transform_by_pca(args, input_data, split):
 def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test, exps_test, model_name, epoch, att_type):
     print("Initiating dicts and lists for colors...")
     NUM_COLORS = 20
-    shape_per_exp, color_legends = get_dicts_for_plot(att_type)
-    color = cm.rainbow(np.linspace(0, 1, NUM_COLORS))
+    shape_per_exp, color_legends, color = get_dicts_for_plot(att_type)
 
     fig = plt.figure(figsize=(15, 8))
     fig.suptitle(f"{args.proj_type.upper()} projection of VAE space", fontsize=14)
@@ -148,18 +148,21 @@ def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test
 
     print("Building legends for markers and colors...")
     handles = []
-    for k, v in tqdm(color_legends.items(), desc="Building legends for colors..."):
-        leg = mlines.Line2D([], [], color=color[k], linestyle='None', marker='o',
-                            markersize=10, label=v)
-        handles.append(leg)
-    for k, v in tqdm(shape_per_exp.items(), desc="Building legends for markers..."):
-        leg = mlines.Line2D([], [], color='black', marker=shape_per_exp[k], linestyle='None',
-                            markersize=10, label=f'e{k}')
-        handles.append(leg)
+    if color_legends is not None:
+        for k, v in tqdm(color_legends.items(), desc="Building legends for colors..."):
+            leg = mlines.Line2D([], [], color=color[k], linestyle='None', marker='o',
+                                markersize=10, label=v)
+            handles.append(leg)
+    tmp = [v for k, v in shape_per_exp.values()]
+    if tmp != ["x","x","x"]:
+        for k, v in tqdm(shape_per_exp.items(), desc="Building legends for markers..."):
+            leg = mlines.Line2D([], [], color='black', marker=shape_per_exp[k], linestyle='None',
+                                markersize=10, label=f'e{k}')
+            handles.append(leg)
     fig.legend(handles=handles)
     print("Legends for markers and colors done.")
     # plt.show()
-    dest_file = f'img/{args.proj_type}_{model_name}_ep{epoch}_att_{att_type}.png'
+    dest_file = f'img/{args.proj_type}_{model_name}_ep{epoch}.png'
     print(f"Saving picture at {dest_file}...")
     plt.savefig(dest_file)
     print(f"Figure saved at {dest_file}")
@@ -175,11 +178,14 @@ def get_dicts_for_plot(att_type):
         with open(ind_file, 'rb') as f_name:
             industry_dict = pkl.load(f_name)
         color_legends = {k: v for k, v in industry_dict.items()}
+        color = cm.rainbow(np.linspace(0, 1, 20))
     elif att_type == "exp":
         shape_per_exp = {0: "x",
                          1: "s",
                          2: 'v'}
-        color_legends = {k: "pink" for k in range(20)}
+        color_legends = None
+        colors = [(0, 1, 0)]
+        color = LinearSegmentedColormap.from_list("col", colors, N=20)
     elif att_type == "ind":
         shape_per_exp = {0: "x",
                          1: "x",
@@ -188,9 +194,10 @@ def get_dicts_for_plot(att_type):
         with open(ind_file, 'rb') as f_name:
             industry_dict = pkl.load(f_name)
         color_legends = {k: v for k, v in industry_dict.items()}
+        color = cm.rainbow(np.linspace(0, 1, 20))
     else:
         raise Exception(f"Wrong att_type specified. Can be exp or ind, got: {att_type}")
-    return shape_per_exp, color_legends
+    return shape_per_exp, color_legends, color
 
 
 if __name__ == "__main__":
@@ -201,6 +208,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_point_per_group", type=int, default=5)
     parser.add_argument("--n_comp", type=int, default=2)
     parser.add_argument("--proj_type", type=str, default="pca") # pca or tsne
+    parser.add_argument("--att_type", type=str, default="both") # both or exp or ind
     # model attributes
     parser.add_argument("--freeze_decoding", type=str, default="True")
     parser.add_argument("--b_size", type=int, default=128)
