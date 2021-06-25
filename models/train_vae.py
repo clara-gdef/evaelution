@@ -180,7 +180,7 @@ if __name__ == "__main__":
     parser.add_argument("--eval_mode", type=str, default="latest") # can be "spe" or "latest"
     parser.add_argument("--model_to_test", type=str, default="")
     parser.add_argument("--checkpoint", type=str, default="01")
-    parser.add_argument("--DEBUG", type=str, default="True")
+    parser.add_argument("--DEBUG", type=str, default="False")
     parser.add_argument("--TEST", type=str, default="False")
     parser.add_argument("--TRAIN", type=str, default="True")
     parser.add_argument("--subsample", type=int, default=-1)
