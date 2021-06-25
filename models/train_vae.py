@@ -34,7 +34,8 @@ def main(hparams):
         trainer = pl.Trainer(gpus=1,
                              max_epochs=hparams.epochs,
                              callbacks=call_back_list,
-                             logger=logger
+                             logger=logger,
+                             gradient_clip_val=hparams.clip_val
                              )
         num_workers = 0
     else:
@@ -42,7 +43,8 @@ def main(hparams):
                              max_epochs=hparams.epochs,
                              callbacks=call_back_list,
                              logger=logger,
-                             accelerator='ddp_spawn'
+                             accelerator='ddp_spawn',
+                             gradient_clip_val=hparams.clip_val
                              )
         num_workers = hparams.num_workers
     if hparams.TRAIN == "True":
@@ -203,6 +205,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--toy_dataset", type=str, default="False")
     parser.add_argument("--test_b_size", type=int, default=1)
+    parser.add_argument("--clip_val", type=float, default=.5)
     parser.add_argument("--plot_latent_space", type=str, default="True")
     parser.add_argument("--proj_type", type=str, default="tsne")
     parser.add_argument("--n_comp", type=int, default=2)
