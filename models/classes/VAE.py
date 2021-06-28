@@ -47,8 +47,9 @@ class VAE(pl.LightningModule):
         sent_embed = torch.sigmoid(self.text_encoder(input_tokenized, mask)['last_hidden_state'])
 
         inputs = self.get_vae_encoder_input(sent_embed, ind, exp)
-        mu_enc, sig_enc = self.vae_encoder(inputs)
-        z_dist = Normal(mu_enc, torch.nn.functional.softplus(sig_enc) + 1e-10)
+        mu_enc, log_var_enc = self.vae_encoder(inputs)
+        std = torch.exp(log_var_enc / 2)
+        z_dist = Normal(mu_enc, std + 1e-10)
         dec_input = z_dist.rsample()
         reconstructed_input = self.vae_decoder(dec_input)
 
@@ -96,8 +97,8 @@ class VAE(pl.LightningModule):
         # TODO when you're older, use the NLL
 
         # loss_vae_rec = torch.nn.functional.mse_loss(sent_embed[:, -1, :], reconstructed_input, reduction="sum")
-        obs_distrib = Normal(reconstructed_input, self.hp.scale)
-        loss_vae_rec = (-obs_distrib.log_prob(sent_embed[:, -1, :])).sum()
+        obs_distrib = Normal(reconstructed_input, torch.exp(self.hp.logscale))
+        loss_vae_rec = - obs_distrib.log_prob(sent_embed[:, -1, :]).sum()
 
         ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]).cuda(),
                           torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())
@@ -111,8 +112,9 @@ class VAE(pl.LightningModule):
         sent_embed = torch.sigmoid(self.text_encoder(input_tokenized, mask)['last_hidden_state'])
 
         inputs = self.get_vae_encoder_input(sent_embed, ind, exp)
-        mu_enc, sig_enc = self.vae_encoder(inputs)
-        z_dist = Normal(mu_enc, torch.nn.functional.softplus(sig_enc) + 1e-10)
+        mu_enc, log_var_enc = self.vae_encoder(inputs)
+        std = torch.exp(log_var_enc / 2)
+        z_dist = Normal(mu_enc, std + 1e-10)
         dec_input = z_dist.rsample()
         reconstructed_input = self.vae_decoder(dec_input)
         ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]).cuda(),
