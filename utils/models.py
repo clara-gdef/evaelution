@@ -3,6 +3,9 @@ import torch
 import os
 import glob
 from sklearn.metrics import f1_score, accuracy_score
+import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.lines import Line2D
 
 
 def collate_for_VAE(batch):
@@ -61,3 +64,33 @@ def get_metrics(preds, labels, num_classes, handle):
 
 def handle_fb_preds(pred):
     return [int(float(i.split("__label__")[-1])) for i in pred[0]]
+
+
+def plot_grad_flow(named_parameters, desc):
+    '''Plots the gradients flowing through different layers in the net during training.
+    Can be used for checking for possible gradient vanishing / exploding problems.
+
+    Usage: Plug this function in Trainer class after loss.backwards() as
+    "plot_grad_flow(self.model.named_parameters())" to visualize the gradient flow'''
+    ave_grads = []
+    max_grads = []
+    layers = []
+    for name, param in named_parameters:
+        if (param.requires_grad) and ("bias" not in name):
+            layers.append(name)
+            ave_grads.append(param.grad.abs().mean())
+            max_grads.append(param.grad.abs().max())
+    plt.bar(np.arange(len(max_grads)), torch.stack(max_grads).cpu().numpy(), alpha=0.1, lw=1, color="c")
+    plt.bar(np.arange(len(max_grads)), torch.stack(ave_grads).cpu().numpy(), alpha=0.1, lw=1, color="b")
+    plt.hlines(0, 0, len(ave_grads) + 1, lw=2, color="k")
+    plt.xticks(range(0, len(ave_grads), 1), layers, rotation="vertical")
+    plt.xlim(left=0, right=len(ave_grads))
+    plt.ylim(bottom=-0.001, top=0.02)  # zoom in on the lower gradient regions
+    plt.xlabel("Layers")
+    plt.ylabel("average gradient")
+    plt.title("Gradient flow")
+    plt.grid(True)
+    plt.legend([Line2D([0], [0], color="c", lw=4),
+                Line2D([0], [0], color="b", lw=4),
+                Line2D([0], [0], color="k", lw=4)], ['max-gradient', 'mean-gradient', 'zero-gradient'])
+    plt.savefig(f"img/plot_grad_flow_{desc}.png")

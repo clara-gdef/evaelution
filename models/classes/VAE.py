@@ -1,7 +1,7 @@
 import ipdb
 import torch
 import pytorch_lightning as pl
-from utils.models import masked_softmax
+from utils.models import masked_softmax, plot_grad_flow
 import models.classes
 from data.visualisation import tsne_in_vae_space
 from models.classes import MLPEncoder, MLPDecoder
@@ -11,7 +11,7 @@ from transformers import CamembertTokenizer, CamembertModel
 
 
 class VAE(pl.LightningModule):
-    def __init__(self, datadir, emb_dim, desc, model_path, num_ind, num_exp_level, epoch, train_ds_len, valid_ds_len, hp):
+    def __init__(self, datadir, emb_dim, desc, model_path, num_ind, num_exp_level, epoch, hp):
         super().__init__()
         self.datadir = datadir
         self.hp = hp
@@ -22,8 +22,6 @@ class VAE(pl.LightningModule):
         self.num_ind = num_ind
         self.num_exp_level = num_exp_level
         self.max_len = hp.max_len
-        self.train_len = train_ds_len
-        self.valid_len = valid_ds_len
         self.epoch = epoch
 
         self.tokenizer = CamembertTokenizer.from_pretrained("camembert-base")
@@ -150,6 +148,10 @@ class VAE(pl.LightningModule):
         self.log('train_rec_loss', train_rec_loss, on_step=True, on_epoch=False)
         self.log('train_kl_loss', train_kl_loss, on_step=True, on_epoch=False)
         self.log('train_loss', train_loss, on_step=True, on_epoch=False)
+        if self.hp.plot_grad == "True":
+            train_loss.backward()
+        plot_grad_flow(self.named_parameters(), self.desc)
+
         return {"loss": train_loss}
 
     def validation_step(self, batch, batch_nb):
