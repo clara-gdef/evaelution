@@ -51,6 +51,7 @@ def main(hparams):
         # todo : remove after debug
         datasets = load_datasets(CFG, hparams, ["TRAIN", "TRAIN"])
         dataset_train, dataset_valid = datasets[0], datasets[1]
+        ipdb.set_trace()
         train_loader = DataLoader(dataset_train, batch_size=hparams.b_size, collate_fn=collate_fn,
                                   num_workers=num_workers, shuffle=True, drop_last=True, pin_memory=True)
         valid_loader = DataLoader(dataset_valid, batch_size=hparams.b_size, collate_fn=collate_fn,
@@ -64,7 +65,10 @@ def main(hparams):
                  "model_path": model_path,
                  "epoch": 0,
                  "num_exp_level": num_exp,
-                 "datadir": CFG["gpudatadir"]}
+                 "datadir": CFG["gpudatadir"],
+                 "valid_ds_len": len(dataset_valid),
+                 "train_ds_len": len(dataset_train),
+                 }
     print("Initiating model...")
     model = models.classes.VAE(**arguments)
     print("Model Loaded.")
@@ -218,7 +222,7 @@ if __name__ == "__main__":
     parser.add_argument("--latent_size", type=int, default=512)
     parser.add_argument("--max_len", type=int, default=10)
     parser.add_argument("--scale", type=float, default=1.)
-    parser.add_argument("--model_type", type=str, default="VAE")
+    parser.add_argument("--model_type", type=str, default="VAE_rebalanced")
     # global hyper params
     parser.add_argument("--coef_rec", type=float, default=.5)
     parser.add_argument("--coef_kl", type=float, default=.5)
