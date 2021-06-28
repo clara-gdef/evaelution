@@ -7,8 +7,8 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
 import yaml
 import torch
-from data.datasets import StringIndSubDataset
-from models.classes import VAE
+from data.datasets.StringIndSubDataset import StringIndSubDataset
+from models.classes.VAE import VAE
 from utils.models import collate_for_VAE, get_latest_model, collate_for_VAE_exp, collate_for_VAE_ind
 
 
