@@ -144,10 +144,11 @@ class VAE(pl.LightningModule):
         sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
         sample_len = len(sentences)
         rec, kl, gen = self.forward(sentences, ind_indices, exp_indices)
-        train_loss = self.hp.coef_rec * rec / sample_len + \
-               self.hp.coef_kl * self.train_len * kl / sample_len
-        self.log('train_rec_loss', rec / sample_len, on_step=True, on_epoch=False)
-        self.log('train_kl_loss', kl / sample_len, on_step=True, on_epoch=False)
+        train_kl_loss = self.hp.coef_kl * self.train_len * kl / sample_len
+        train_rec_loss = self.hp.coef_rec * rec / sample_len
+        train_loss = train_rec_loss + train_kl_loss
+        self.log('train_rec_loss', train_rec_loss, on_step=True, on_epoch=False)
+        self.log('train_kl_loss', train_kl_loss, on_step=True, on_epoch=False)
         self.log('train_loss', train_loss, on_step=True, on_epoch=False)
         ipdb.set_trace()
         return {"train_loss": train_loss}
@@ -156,10 +157,11 @@ class VAE(pl.LightningModule):
         sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
         sample_len = len(sentences)
         rec, kl, gen = self.forward(sentences, ind_indices, exp_indices)
-        val_loss = self.hp.coef_rec * rec / sample_len + \
-                   self.hp.coef_kl * self.valid_len * kl / sample_len
-        self.log('val_rec_loss', rec / sample_len, on_step=False, on_epoch=True)
-        self.log('val_kl_loss', kl / sample_len, on_step=False, on_epoch=True)
+        val_kl_loss = self.hp.coef_kl * self.valid_len * kl / sample_len
+        val_rec_loss = self.hp.coef_rec * rec / sample_len
+        val_loss = val_rec_loss + val_kl_loss
+        self.log('val_rec_loss', val_rec_loss, on_step=False, on_epoch=True)
+        self.log('val_kl_loss', val_kl_loss, on_step=False, on_epoch=True)
         self.log('val_loss', val_loss, on_step=False, on_epoch=True)
         return {"val_loss": val_loss}
 
