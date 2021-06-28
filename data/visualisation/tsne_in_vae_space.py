@@ -112,7 +112,7 @@ def fit_transform_by_tsne(args, input_data, split):
     normed_data = normalize(np.array(input_data).squeeze(1))
     data_embedded = TSNE(n_components=args.n_comp, n_jobs=-1, verbose=1).fit_transform(normed_data)
     print(f"TSNE fitted!")
-    return normalize(data_embedded)
+    return data_embedded
 
 
 def fit_transform_by_pca(args, input_data, split):
@@ -120,7 +120,7 @@ def fit_transform_by_pca(args, input_data, split):
     normed_data = normalize(np.array(input_data).squeeze(1))
     data_embedded = PCA(n_components=args.n_comp).fit_transform(normed_data)
     print(f"PCA fitted!")
-    return normalize(data_embedded)
+    return data_embedded
 
 
 def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test, exps_test, model_name, epoch, att_type):
