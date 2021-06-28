@@ -219,7 +219,7 @@ if __name__ == "__main__":
     parser.add_argument("--mlp_hs", type=int, default=512)
     parser.add_argument("--latent_size", type=int, default=512)
     parser.add_argument("--max_len", type=int, default=10)
-    parser.add_argument("--logscale", type=float, default=0.)
+    parser.add_argument("--logscale", type=float, default=1.)
     parser.add_argument("--model_type", type=str, default="VAE300")
     # global hyper params
     parser.add_argument("--coef_rec", type=float, default=.5)
