@@ -1,13 +1,13 @@
 import ipdb
 import torch
 import pytorch_lightning as pl
-from utils.models import masked_softmax, plot_grad_flow
-import models.classes
 from data.visualisation import tsne_in_vae_space
-from models.classes import MLPEncoder, MLPDecoder
 from torch.distributions.normal import Normal
 from torch.distributions.kl import kl_divergence
 from transformers import CamembertTokenizer, CamembertModel
+from models.classes import MLPEncoder, MLPDecoder
+from utils.models import masked_softmax, plot_grad_flow
+import models.classes
 
 
 class VAE(pl.LightningModule):
