@@ -150,7 +150,9 @@ class VAE(pl.LightningModule):
         self.log('train_loss', train_loss, on_step=True, on_epoch=False)
         if self.hp.plot_grad == "True":
             train_loss.backward()
-        plot_grad_flow(self.named_parameters(), self.desc)
+            plot_grad_flow(self.vae_encoder.named_parameters(), self.desc + "enc")
+            plot_grad_flow(self.vae_decoder.named_parameters(), self.desc + "dec")
+            ipdb.set_trace()
 
         return {"loss": train_loss}
 
