@@ -144,7 +144,7 @@ class VAE(pl.LightningModule):
         sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
         sample_len = len(sentences)
         rec, kl, gen = self.forward(sentences, ind_indices, exp_indices)
-        train_kl_loss = self.hp.coef_kl * self.train_len * kl / sample_len
+        train_kl_loss = self.hp.coef_kl * kl / sample_len
         train_rec_loss = self.hp.coef_rec * rec / sample_len
         train_loss = train_rec_loss + train_kl_loss
         self.log('train_rec_loss', train_rec_loss, on_step=True, on_epoch=False)
@@ -156,7 +156,7 @@ class VAE(pl.LightningModule):
         sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
         sample_len = len(sentences)
         rec, kl, gen = self.forward(sentences, ind_indices, exp_indices)
-        val_kl_loss = self.hp.coef_kl * self.valid_len * kl / sample_len
+        val_kl_loss = self.hp.coef_kl * kl / sample_len
         val_rec_loss = self.hp.coef_rec * rec / sample_len
         val_loss = val_rec_loss + val_kl_loss
         self.log('val_rec_loss', val_rec_loss, on_step=False, on_epoch=True)

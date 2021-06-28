@@ -62,7 +62,7 @@ def main(hparams):
                  'desc': xp_title,
                  "num_ind": num_ind,
                  "model_path": model_path,
-                 "epoch": 0,
+                 "epoch": -1,
                  "num_exp_level": num_exp,
                  "datadir": CFG["gpudatadir"],
                  "valid_ds_len": len(dataset_valid),
