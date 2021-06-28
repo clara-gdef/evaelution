@@ -147,11 +147,10 @@ class VAE(pl.LightningModule):
         train_kl_loss = self.hp.coef_kl * self.train_len * kl / sample_len
         train_rec_loss = self.hp.coef_rec * rec / sample_len
         train_loss = train_rec_loss + train_kl_loss
-        ipdb.set_trace()
         self.log('train_rec_loss', train_rec_loss, on_step=True, on_epoch=False)
         self.log('train_kl_loss', train_kl_loss, on_step=True, on_epoch=False)
         self.log('train_loss', train_loss, on_step=True, on_epoch=False)
-        return {"train_loss": train_loss}
+        return {"loss": train_loss}
 
     def validation_step(self, batch, batch_nb):
         sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
