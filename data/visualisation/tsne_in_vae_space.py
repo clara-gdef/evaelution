@@ -3,20 +3,19 @@ import argparse
 import yaml
 import os
 import torch
+
+import matplotlib.lines as mlines
 from tqdm import tqdm
 import pickle as pkl
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import cm
-from models.train_vae import make_xp_title
-import models.classes
 from sklearn.manifold import TSNE
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import normalize
 import numpy as np
-from utils.models import get_latest_model, index_to_one_hot
-import matplotlib.lines as mlines
-from matplotlib.colors import LinearSegmentedColormap
 
+from models.classes.VAE import VAE
+from utils.models import get_latest_model, index_to_one_hot
 
 
 def init(args):
@@ -61,7 +60,7 @@ def load_model(args, xp_title, model_path, model_name):
                  "epoch": 0,
                  "datadir": CFG["gpudatadir"]}
     print("Initiating model...")
-    model = models.classes.VAE(**arguments)
+    model = VAE(**arguments)
     print("Model Loaded.")
     model_file = get_latest_model(CFG["modeldir"], model_name)
     try:
@@ -198,6 +197,17 @@ def get_dicts_for_plot(att_type):
     else:
         raise Exception(f"Wrong att_type specified. Can be exp or ind, got: {att_type}")
     return shape_per_exp, color_legends, color
+
+def make_xp_title(hparams):
+    xp_title = f"{hparams.model_type}_bs{hparams.b_size}_mlphs{hparams.mlp_hs}_lr{hparams.lr}_{hparams.optim}"
+    if hparams.coef_rec != .5:
+        xp_title += f"_coef_rec{hparams.coef_rec}"
+    if hparams.att_type != "both":
+        xp_title += f"_{hparams.att_type}Only"
+    if hparams.subsample != -1:
+        xp_title += f"sub{hparams.subsample}"
+    print("xp_title = " + xp_title)
+    return xp_title
 
 
 if __name__ == "__main__":
