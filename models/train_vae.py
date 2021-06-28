@@ -208,7 +208,7 @@ if __name__ == "__main__":
     parser.add_argument("--test_b_size", type=int, default=1)
     parser.add_argument("--clip_val", type=float, default=.5)
     parser.add_argument("--plot_latent_space", type=str, default="True")
-    parser.add_argument("--plot_grad", type=str, default="True")
+    parser.add_argument("--plot_grad", type=str, default="False")
     parser.add_argument("--proj_type", type=str, default="tsne")
     parser.add_argument("--n_comp", type=int, default=2)
     parser.add_argument("--att_type", type=str, default="both") # can be both, exp or ind
