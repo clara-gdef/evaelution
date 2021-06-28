@@ -14,7 +14,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import normalize
 import numpy as np
 
-from models.classes.VAE import VAE
+import models
 from utils.models import get_latest_model, index_to_one_hot
 
 
@@ -60,7 +60,7 @@ def load_model(args, xp_title, model_path, model_name):
                  "epoch": 0,
                  "datadir": CFG["gpudatadir"]}
     print("Initiating model...")
-    model = VAE(**arguments)
+    model = models.classes.VAE(**arguments)
     print("Model Loaded.")
     model_file = get_latest_model(CFG["modeldir"], model_name)
     try:
