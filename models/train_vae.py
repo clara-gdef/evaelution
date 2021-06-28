@@ -51,7 +51,6 @@ def main(hparams):
         # todo : remove after debug
         datasets = load_datasets(CFG, hparams, ["TRAIN", "TRAIN"])
         dataset_train, dataset_valid = datasets[0], datasets[1]
-        ipdb.set_trace()
         train_loader = DataLoader(dataset_train, batch_size=hparams.b_size, collate_fn=collate_fn,
                                   num_workers=num_workers, shuffle=True, drop_last=True, pin_memory=True)
         valid_loader = DataLoader(dataset_valid, batch_size=hparams.b_size, collate_fn=collate_fn,
