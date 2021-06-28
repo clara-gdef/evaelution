@@ -8,8 +8,8 @@ from torch.utils.data import DataLoader
 import yaml
 import torch
 from data.datasets import StringIndSubDataset
-import models
-from utils import collate_for_VAE, get_latest_model, collate_for_VAE_exp, collate_for_VAE_ind
+from models.classes import VAE
+from utils.models import collate_for_VAE, get_latest_model, collate_for_VAE_exp, collate_for_VAE_ind
 
 
 def init(hparams):
@@ -67,7 +67,7 @@ def main(hparams):
                  "datadir": CFG["gpudatadir"]
                  }
     print("Initiating model...")
-    model = models.classes.VAE(**arguments)
+    model = VAE(**arguments)
     print("Model Loaded.")
     if hparams.TRAIN == "True":
         if hparams.load_from_checkpoint == "True":
