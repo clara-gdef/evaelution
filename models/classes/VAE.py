@@ -150,7 +150,6 @@ class VAE(pl.LightningModule):
         self.log('train_rec_loss', train_rec_loss, on_step=True, on_epoch=False)
         self.log('train_kl_loss', train_kl_loss, on_step=True, on_epoch=False)
         self.log('train_loss', train_loss, on_step=True, on_epoch=False)
-        ipdb.set_trace()
         return {"train_loss": train_loss}
 
     def validation_step(self, batch, batch_nb):
