@@ -39,7 +39,7 @@ class VAEMnist(pl.LightningModule):
         ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]).cuda(),
                           torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())
         other_kl = torch.sum(kl_divergence(z_dist, ref_dist))
-        assert round(loss_vae_kl.item(), 3) == round(other_kl.item(), 3)
+        assert round(loss_vae_kl.item(), 1) == round(other_kl.item(), 1)
         # loss_vae_rec = torch.nn.functional.mse_loss(sent_embed[:, -1, :], reconstruc  ted_input, reduction="sum")
         # obs_distrib = Normal(reconstructed_input, torch.exp(self.log_scale))
         # loss_vae_rec = - obs_distrib.log_prob(sent_embed[:, -1, :]).sum()
