@@ -44,8 +44,8 @@ def main(args, model, model_name, epoch, att_type):
     sub_test = load_sub("test", att_type)
     train_projections = project_points(sub_train, model, "train", att_type)
     test_projections = project_points(sub_test, model, "test", att_type)
-    trans_points_train, ind_labels_train, exp_labels_train = prep_data_for_viz(args, train_projections, "train")
-    trans_points_test, ind_labels_test, exp_labels_test = prep_data_for_viz(args, test_projections, "test")
+    trans_points_train, ind_labels_train, exp_labels_train = prep_data_for_viz(args, train_projections, "train", att_type)
+    trans_points_test, ind_labels_test, exp_labels_test = prep_data_for_viz(args, test_projections, "test", att_type)
     plot_proj(args, trans_points_train, ind_labels_train, exp_labels_train,
               trans_points_test, ind_labels_test, exp_labels_test,
               model_name, epoch, att_type)
@@ -123,10 +123,8 @@ def load_sub(split, att_type):
     return sub
 
 
-def prep_data_for_viz(args, data_dict, split):
+def prep_data_for_viz(args, data_dict, split, att_type):
     points = [i["point"] for i in data_dict]
-    ind_labels = [i["ind_index"] for i in data_dict]
-    exp_labels = [i["exp_index"] for i in data_dict]
     if args.proj_type == "tsne":
         trans_points = fit_transform_by_tsne(args, points, split)
     elif args.proj_type == "pca":
@@ -134,7 +132,13 @@ def prep_data_for_viz(args, data_dict, split):
     else:
         ipdb.set_trace()
         raise Exception()
-    return trans_points, ind_labels, exp_labels
+    if att_type == "mnsit":
+        labels = [i["label"] for i in data_dict]
+        return trans_points, labels, None
+    else:
+        ind_labels = [i["ind_index"] for i in data_dict]
+        exp_labels = [i["exp_index"] for i in data_dict]
+        return trans_points, ind_labels, exp_labels
 
 
 def fit_transform_by_tsne(args, input_data, split):
@@ -156,7 +160,6 @@ def fit_transform_by_pca(args, input_data, split):
 def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test, exps_test, model_name, epoch,
               att_type):
     print("Initiating dicts and lists for colors...")
-    NUM_COLORS = 20
     shape_per_exp, color_legends, color = get_dicts_for_plot(att_type)
 
     fig = plt.figure(figsize=(15, 8))
