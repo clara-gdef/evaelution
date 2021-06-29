@@ -74,6 +74,7 @@ def load_model(args, xp_title, model_path, model_name, att_type):
                      "datadir": CFG["gpudatadir"]}
         print("Initiating model...")
         model = models.classes.VAE(**arguments)
+        model.hp.b_size=1
     print("Model Loaded.")
     model_file = get_latest_model(CFG["modeldir"], model_name)
     try:
