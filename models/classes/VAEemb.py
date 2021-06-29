@@ -3,7 +3,7 @@ import torch
 import os
 import pytorch_lightning as pl
 import pickle as pkl
-from data.visualisation import tsne_in_vae_space
+from data.visualisation import tsne_in_vae_emb_space
 from torch.distributions.normal import Normal
 from torch.distributions.kl import kl_divergence
 from transformers import CamembertTokenizer, CamembertModel
