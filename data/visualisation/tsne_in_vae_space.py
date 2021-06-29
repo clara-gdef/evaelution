@@ -74,7 +74,6 @@ def load_model(args, xp_title, model_path, model_name, att_type):
                      "datadir": CFG["gpudatadir"]}
         print("Initiating model...")
         model = models.classes.VAE(**arguments)
-        model.hp.b_size=1
     print("Model Loaded.")
     model_file = get_latest_model(CFG["modeldir"], model_name)
     try:
@@ -83,6 +82,7 @@ def load_model(args, xp_title, model_path, model_name, att_type):
         model.load_state_dict(torch.load(model_file))
     print(f"Model loaded from checkpoint: {model_file}")
     epoch = model_file.split('/')[-1].split('=')[1].split('-')[0]
+    model.hp.b_size = 1
     return model, epoch
 
 
@@ -92,13 +92,11 @@ def project_points(data, model, split, att_type):
     for i in tqdm(data, desc=f"projecting points of split {split}..."):
         if att_type == "mnist":
             if cnt < 300:
-                ipdb.set_trace()
                 images = i[0].view(1, -1)
                 labels = index_to_one_hot([i[1]], 10)
                 projection = model.get_projection(images.cuda(), labels.cuda())
                 projections.append({'point': projection.detach().cpu().numpy(),
-                                    "ind_index": i["ind_index"],
-                                    "exp_index": i["exp_index"]})
+                                    "label": i[1]})
                 cnt += 1
         else:
             sentence = i["words"]
