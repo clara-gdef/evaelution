@@ -85,7 +85,7 @@ def project_points(data, model, split, att_type):
             projections.append({'point': projection.detach().cpu().numpy(),
                                 "ind_index": i["ind_index"],
                                 "exp_index": i["exp_index"]})
-        else
+        else:
             sentence = i["words"]
             ind_index = index_to_one_hot([i["ind_index"]], 20)
             exp_index = index_to_one_hot([i["exp_index"]], 3)
