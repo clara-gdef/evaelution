@@ -31,19 +31,19 @@ def collate_for_VAE_emb(batch):
     jobs = [i[0] for i in batch]
     ind = [int(i[1]) for i in batch]
     exp = [int(i[2]) for i in batch]
-    return jobs, torch.stack(ind).long(), torch.stack(exp).long()
+    return jobs, torch.LongTensor(ind), torch.LongTensor(exp)
 
 
 def collate_for_VAE_emb_exp(batch):
     jobs = [i[0] for i in batch]
     exp = [int(i[2]) for i in batch]
-    return jobs, None, torch.stack(exp).long()
+    return jobs, None, torch.LongTensor(exp)
 
 
 def collate_for_VAE_emb_ind(batch):
     jobs = [i[0] for i in batch]
     ind = [int(i[1]) for i in batch]
-    return jobs, torch.stack(ind).long(), None
+    return jobs, torch.LongTensor(ind), None
 
 
 def collate_for_VAE_no_att(batch):
