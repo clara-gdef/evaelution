@@ -132,7 +132,7 @@ def prep_data_for_viz(args, data_dict, split, att_type):
     else:
         ipdb.set_trace()
         raise Exception()
-    if att_type == "mnsit":
+    if att_type == "mnist":
         labels = [i["label"] for i in data_dict]
         return trans_points, labels, None
     else:
