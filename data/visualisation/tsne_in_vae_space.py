@@ -1,20 +1,20 @@
-import ipdb
 import argparse
-import yaml
 import os
-
-import urllib
-import torchvision
-import torch
-import matplotlib.lines as mlines
-from tqdm import tqdm
 import pickle as pkl
+import urllib
+
+import ipdb
+import matplotlib.lines as mlines
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import cm
-from sklearn.manifold import TSNE
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import normalize
 import numpy as np
+import torch
+import torchvision
+import yaml
+from matplotlib.pyplot import cm
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+from sklearn.preprocessing import normalize
+from tqdm import tqdm
 
 import models
 from utils.models import get_latest_model, index_to_one_hot
@@ -76,15 +76,18 @@ def load_model(args, xp_title, model_path, model_name):
 
 def project_points(data, model, split, att_type):
     projections = []
+    cnt = 0
     for i in tqdm(data, desc=f"projecting points of split {split}..."):
         if att_type == "mnist":
-            ipdb.set_trace()
-            images = i[0]
-            labels = index_to_one_hot(i[1], 10)
-            projection = model.get_projection(sentence, ind_index.cuda(), exp_index.cuda())
-            projections.append({'point': projection.detach().cpu().numpy(),
-                                "ind_index": i["ind_index"],
-                                "exp_index": i["exp_index"]})
+            if cnt < 300:
+                ipdb.set_trace()
+                images = i[0]
+                labels = index_to_one_hot(i[1], 10)
+                projection = model.get_projection(sentence, ind_index.cuda(), exp_index.cuda())
+                projections.append({'point': projection.detach().cpu().numpy(),
+                                    "ind_index": i["ind_index"],
+                                    "exp_index": i["exp_index"]})
+                cnt += 1
         else:
             sentence = i["words"]
             ind_index = index_to_one_hot([i["ind_index"]], 20)
@@ -101,11 +104,9 @@ def load_sub(split, att_type):
         opener = urllib.request.build_opener()
         opener.addheaders = [('User-agent', 'Mozilla/5.0')]
         urllib.request.install_opener(opener)
-        sub = torchvision.datasets.MNIST(CFG["gpudatadir"],
-                                                   train=(split=="train"), transform=torchvision.transforms.ToTensor(),
-                                                   download=False)
-        ipdb.set_trace()
-        sub[:300]
+        sub = torchvision.datasets.MNIST("/local/gainondefor/work/data/evaelution",
+                                         train=(split == "train"), transform=torchvision.transforms.ToTensor(),
+                                         download=False)
     else:
         tgt_file = f"/local/gainondefor/work/data/evaelution/viz_subgroup_{split}.pkl"
         with open(tgt_file, 'rb') as f:
@@ -143,7 +144,8 @@ def fit_transform_by_pca(args, input_data, split):
     return data_embedded
 
 
-def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test, exps_test, model_name, epoch, att_type):
+def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test, exps_test, model_name, epoch,
+              att_type):
     print("Initiating dicts and lists for colors...")
     NUM_COLORS = 20
     shape_per_exp, color_legends, color = get_dicts_for_plot(att_type)
@@ -245,8 +247,8 @@ if __name__ == "__main__":
     parser.add_argument("--exp_type", type=str, default="uniform")
     parser.add_argument("--num_point_per_group", type=int, default=5)
     parser.add_argument("--n_comp", type=int, default=2)
-    parser.add_argument("--proj_type", type=str, default="pca") # pca or tsne
-    parser.add_argument("--att_type", type=str, default="both") # both or exp or ind
+    parser.add_argument("--proj_type", type=str, default="pca")  # pca or tsne
+    parser.add_argument("--att_type", type=str, default="both")  # both or exp or ind
     # model attributes
     parser.add_argument("--freeze_decoding", type=str, default="True")
     parser.add_argument("--b_size", type=int, default=128)
