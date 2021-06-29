@@ -91,7 +91,7 @@ class VAEMnist(pl.LightningModule):
     def training_step(self, batch, batch_nb):
         images, labels = batch[0], batch[1]
         sample_len = len(images)
-        rec, kl, gen = self.forward(images, labels)
+        rec, kl = self.forward(images, labels)
         train_kl_loss = self.hp.coef_kl * kl / sample_len
         train_rec_loss = self.hp.coef_rec * rec / sample_len
         train_loss = train_rec_loss + train_kl_loss
@@ -107,9 +107,9 @@ class VAEMnist(pl.LightningModule):
         return {"loss": train_loss}
 
     def validation_step(self, batch, batch_nb):
-        sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
-        sample_len = len(sentences)
-        rec, kl, gen = self.forward(sentences, ind_indices, exp_indices)
+        images, labels = batch[0], batch[1]
+        sample_len = len(images)
+        rec, kl = self.forward(images, labels)
         val_kl_loss = self.hp.coef_kl * kl / sample_len
         val_rec_loss = self.hp.coef_rec * rec / sample_len
         val_loss = val_rec_loss + val_kl_loss
