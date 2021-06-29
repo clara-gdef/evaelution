@@ -126,10 +126,10 @@ def load_datasets(CFG, hparams):
     opener = urllib.request.build_opener()
     opener.addheaders = [('User-agent', 'Mozilla/5.0')]
     urllib.request.install_opener(opener)
-    dataset_train = torchvision.datasets.MNIST(CFG["datadir"],
+    dataset_train = torchvision.datasets.MNIST(CFG["gpudatadir"],
                                                train=True, transform=transforms.ToTensor(),
                                                download=(hparams.load_dataset == "False"))
-    dataset_test = torchvision.datasets.MNIST(CFG["datadir"],
+    dataset_test = torchvision.datasets.MNIST(CFG["gpudatadir"],
                                               train=False, transform=transforms.ToTensor(),
                                               download=(hparams.load_dataset == "False"))
     ipdb.set_trace()
