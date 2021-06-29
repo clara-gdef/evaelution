@@ -50,7 +50,7 @@ def main(args):
     for num, name in tqdm(dict_fr.items(), desc='parsing ind to embed...'):
         name_tok = tokenizer(name, return_tensors="pt")
         emb = text_encoder(name_tok["input_ids"])
-        ind_embeddings[num, :] = emb["last_hidden_state"]
+        ind_embeddings[num, :] = emb["last_hidden_state"][:, -1, :]
 
     tgt_ind_file = "ind_20_embeddings_fr.pkl"
     with open(os.path.join(CFG["gpudatadir"], tgt_ind_file), 'wb') as f_name:
@@ -60,7 +60,7 @@ def main(args):
     for num, name in tqdm(exps.items(), desc='parsing exp to embed...'):
         name_tok = tokenizer(name, return_tensors="pt")
         emb = text_encoder(name_tok["input_ids"])
-        exp_embeddings[num, :] = emb["last_hidden_state"]
+        exp_embeddings[num, :] = emb["last_hidden_state"][:, -1, :]
 
     tgt_exp_file = "exp_3_embeddings_fr.pkl"
     with open(os.path.join(CFG["gpudatadir"], tgt_exp_file), 'wb') as f_name:
