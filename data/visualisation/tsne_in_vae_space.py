@@ -204,6 +204,7 @@ def get_dicts_for_plot(att_type):
         raise Exception(f"Wrong att_type specified. Can be exp or ind, got: {att_type}")
     return shape_per_exp, color_legends, color
 
+
 def make_xp_title(hparams):
     xp_title = f"{hparams.model_type}_bs{hparams.b_size}_mlphs{hparams.mlp_hs}_lr{hparams.lr}_{hparams.optim}"
     if hparams.coef_rec != .5:

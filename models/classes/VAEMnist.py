@@ -4,7 +4,6 @@ import pytorch_lightning as pl
 from data.visualisation import tsne_in_vae_space
 from torch.distributions.normal import Normal
 from torch.distributions.kl import kl_divergence
-from transformers import CamembertTokenizer, CamembertModel
 from utils.models import masked_softmax, plot_grad_flow
 import models.classes
 
@@ -28,7 +27,6 @@ class VAEMnist(pl.LightningModule):
         self.vae_decoder = models.classes.MLPDecoder(hp.latent_size, hp.mlp_hs, emb_dim, hp)
 
     def forward(self, images, labels):
-        sample_len = len(images)
         inputs = self.get_vae_encoder_input(images, labels)
         mu_enc, log_var_enc = self.vae_encoder(inputs)
         std = torch.exp(log_var_enc / 2)
@@ -38,46 +36,38 @@ class VAEMnist(pl.LightningModule):
 
         loss_vae_rec, loss_vae_kl = self.loss_function(reconstructed_input,
                                                        images, mu_enc, log_var_enc)
-
-        # loss_vae_rec = torch.nn.functional.mse_loss(sent_embed[:, -1, :], reconstructed_input, reduction="sum")
+        ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]).cuda(),
+                          torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())
+        other_kl = torch.sum(kl_divergence(z_dist, ref_dist))
+        ipdb.set_trace()
+        # loss_vae_rec = torch.nn.functional.mse_loss(sent_embed[:, -1, :], reconstruc  ted_input, reduction="sum")
         # obs_distrib = Normal(reconstructed_input, torch.exp(self.log_scale))
         # loss_vae_rec = - obs_distrib.log_prob(sent_embed[:, -1, :]).sum()
 
         # ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]).cuda(),
         #                   torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())
-        # loss_vae_kl = torch.sum(kl_divergence(z_dist, ref_dist))
+        # loss_vae_kl =
         if torch.isnan(loss_vae_kl) or torch.isinf(loss_vae_kl):
             ipdb.set_trace()
         if torch.isnan(loss_vae_rec) or torch.isinf(loss_vae_rec):
             ipdb.set_trace()
         return loss_vae_rec, loss_vae_kl
 
-    def inference(self, sent, ind, exp):
-        inputs = self.tokenizer(sent, truncation=True, padding="max_length", max_length=self.max_len,
-                                return_tensors="pt")
-        input_tokenized, mask = inputs["input_ids"].cuda(), inputs["attention_mask"].cuda()
-        sent_embed = torch.sigmoid(self.text_encoder(input_tokenized, mask)['last_hidden_state'])
-
-        inputs = self.get_vae_encoder_input(sent_embed, ind, exp)
+    def inference(self, images, labels):
+        inputs = self.get_vae_encoder_input(images, labels)
         mu_enc, log_var_enc = self.vae_encoder(inputs)
         std = torch.exp(log_var_enc / 2)
         z_dist = Normal(mu_enc, std + 1e-10)
         dec_input = z_dist.rsample()
         reconstructed_input = self.vae_decoder(dec_input)
+        torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())
+        return reconstructed_input, images, z_dist, ref_dist
 
-        ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]).cuda(),
-                          torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())
-        return reconstructed_input, sent_embed[:, -1, :], z_dist, ref_dist
-
-    def get_projection(self, sent, ind, exp):
-        inputs = self.tokenizer(sent, truncation=True, padding="max_length", max_length=self.max_len,
-                                return_tensors="pt")
-        input_tokenized, mask = inputs["input_ids"].cuda(), inputs["attention_mask"].cuda()
-        sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
-
-        inputs = self.get_vae_encoder_input(sent_embed, ind, exp)
-        mu_enc, sig_enc = self.vae_encoder(inputs)
-        z_dist = Normal(mu_enc, torch.nn.functional.softplus(sig_enc) + 1e-10)
+    def get_projection(self, images, labels):
+        inputs = self.get_vae_encoder_input(images, labels)
+        mu_enc, log_var_enc = self.vae_encoder(inputs)
+        std = torch.exp(log_var_enc / 2)
+        z_dist = Normal(mu_enc, std + 1e-10)
         dec_input = z_dist.rsample()
         return dec_input
 
