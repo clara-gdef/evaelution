@@ -29,13 +29,13 @@ def init(args):
             xp_title = make_xp_title(args)
             model_name = "/".join(xp_title.split('_'))
             model_path = os.path.join(CFG['modeldir'], model_name)
-            model, epoch = load_model(args, xp_title, model_path, model_name)
+            model, epoch = load_model(args, xp_title, model_path, model_name, args.att_type)
             return main(args, model.cuda(), xp_title, epoch, args.att_type)
     else:
         xp_title = make_xp_title(args)
         model_name = "/".join(xp_title.split('_'))
         model_path = os.path.join(CFG['modeldir'], model_name)
-        model, epoch = load_model(args, xp_title, model_path, model_name)
+        model, epoch = load_model(args, xp_title, model_path, model_name, args.att_type)
         return main(args, model.cuda(), xp_title, epoch, args.att_type)
 
 
@@ -51,18 +51,29 @@ def main(args, model, model_name, epoch, att_type):
               model_name, epoch, att_type)
 
 
-def load_model(args, xp_title, model_path, model_name):
+def load_model(args, xp_title, model_path, model_name, att_type):
     print("Loading model from checkpoint.")
-    arguments = {'emb_dim': 768,
-                 'hp': args,
-                 'desc': xp_title,
-                 "num_ind": 20,
-                 "model_path": model_path,
-                 "num_exp_level": 3,
-                 "epoch": 0,
-                 "datadir": CFG["gpudatadir"]}
-    print("Initiating model...")
-    model = models.classes.VAE(**arguments)
+    if att_type == "mnist":
+        arguments = {'emb_dim': 784,
+                     'hp': args,
+                     'desc': xp_title,
+                     "num_classes": 10,  # corresponds to classes
+                     "model_path": model_path,
+                     "datadir": CFG["gpudatadir"]
+                     }
+        print("Initiating model...")
+        model = models.classes.VAEMnist(**arguments)
+    else:
+        arguments = {'emb_dim': 768,
+                     'hp': args,
+                     'desc': xp_title,
+                     "num_ind": 20,
+                     "model_path": model_path,
+                     "num_exp_level": 3,
+                     "epoch": 0,
+                     "datadir": CFG["gpudatadir"]}
+        print("Initiating model...")
+        model = models.classes.VAE(**arguments)
     print("Model Loaded.")
     model_file = get_latest_model(CFG["modeldir"], model_name)
     try:
@@ -81,9 +92,9 @@ def project_points(data, model, split, att_type):
         if att_type == "mnist":
             if cnt < 300:
                 ipdb.set_trace()
-                images = i[0]
-                labels = index_to_one_hot(i[1], 10)
-                projection = model.get_projection(sentence, ind_index.cuda(), exp_index.cuda())
+                images = i[0].view(1, -1)
+                labels = index_to_one_hot([i[1]], 10)
+                projection = model.get_projection(images.cuda(), labels.cuda())
                 projections.append({'point': projection.detach().cpu().numpy(),
                                     "ind_index": i["ind_index"],
                                     "exp_index": i["exp_index"]})
