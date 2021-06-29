@@ -36,8 +36,8 @@ class VAE(pl.LightningModule):
 
         input_size = emb_dim + num_ind + num_exp_level
 
-        self.vae_encoder = MLPEncoder(input_size, hp.mlp_hs, hp.latent_size, hp)
-        self.vae_decoder = MLPDecoder(hp.latent_size, hp.mlp_hs, emb_dim, hp)
+        self.vae_encoder = models.classes.MLPEncoder(input_size, hp.mlp_hs, hp.latent_size, hp)
+        self.vae_decoder = models.classes.MLPDecoder(hp.latent_size, hp.mlp_hs, emb_dim, hp)
 
     def forward(self, sent, ind, exp):
         sample_len = len(sent)
