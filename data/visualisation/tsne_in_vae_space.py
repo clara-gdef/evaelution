@@ -2,8 +2,10 @@ import ipdb
 import argparse
 import yaml
 import os
-import torch
 
+import urllib
+import torchvision
+import torch
 import matplotlib.lines as mlines
 from tqdm import tqdm
 import pickle as pkl
@@ -40,8 +42,8 @@ def init(args):
 def main(args, model, model_name, epoch, att_type):
     sub_train = load_sub("train")
     sub_test = load_sub("test")
-    train_projections = project_points(sub_train, model, "train")
-    test_projections = project_points(sub_test, model, "test")
+    train_projections = project_points(sub_train, model, "train", att_type)
+    test_projections = project_points(sub_test, model, "test", att_type)
     trans_points_train, ind_labels_train, exp_labels_train = prep_data_for_viz(args, train_projections, "train")
     trans_points_test, ind_labels_test, exp_labels_test = prep_data_for_viz(args, test_projections, "test")
     plot_proj(args, trans_points_train, ind_labels_train, exp_labels_train,
@@ -72,23 +74,42 @@ def load_model(args, xp_title, model_path, model_name):
     return model, epoch
 
 
-def project_points(data, model, split):
+def project_points(data, model, split, att_type):
     projections = []
     for i in tqdm(data, desc=f"projecting points of split {split}..."):
-        sentence = i["words"]
-        ind_index = index_to_one_hot([i["ind_index"]], 20)
-        exp_index = index_to_one_hot([i["exp_index"]], 3)
-        projection = model.get_projection(sentence, ind_index.cuda(), exp_index.cuda())
-        projections.append({'point': projection.detach().cpu().numpy(),
-                            "ind_index": i["ind_index"],
-                            "exp_index": i["exp_index"]})
+        if att_type == "mnist":
+            ipdb.set_trace()
+            images =
+            labels =
+            projection = model.get_projection(sentence, ind_index.cuda(), exp_index.cuda())
+            projections.append({'point': projection.detach().cpu().numpy(),
+                                "ind_index": i["ind_index"],
+                                "exp_index": i["exp_index"]})
+        else
+            sentence = i["words"]
+            ind_index = index_to_one_hot([i["ind_index"]], 20)
+            exp_index = index_to_one_hot([i["exp_index"]], 3)
+            projection = model.get_projection(sentence, ind_index.cuda(), exp_index.cuda())
+            projections.append({'point': projection.detach().cpu().numpy(),
+                                "ind_index": i["ind_index"],
+                                "exp_index": i["exp_index"]})
     return projections
 
 
-def load_sub(split):
-    tgt_file = f"/local/gainondefor/work/data/evaelution/viz_subgroup_{split}.pkl"
-    with open(tgt_file, 'rb') as f:
-        sub = pkl.load(f)
+def load_sub(split, att_type):
+    if att_type == "mnist":
+        opener = urllib.request.build_opener()
+        opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+        urllib.request.install_opener(opener)
+        sub = torchvision.datasets.MNIST(CFG["gpudatadir"],
+                                                   train=(split=="train"), transform=torchvision.transforms.ToTensor(),
+                                                   download=False)
+        ipdb.set_trace()
+        sub[:300]
+    else:
+        tgt_file = f"/local/gainondefor/work/data/evaelution/viz_subgroup_{split}.pkl"
+        with open(tgt_file, 'rb') as f:
+            sub = pkl.load(f)
     return sub
 
 
