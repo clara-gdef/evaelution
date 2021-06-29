@@ -60,7 +60,7 @@ class VAEMnist(pl.LightningModule):
         z_dist = Normal(mu_enc, std + 1e-10)
         dec_input = z_dist.rsample()
         reconstructed_input = self.vae_decoder(dec_input)
-        torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())
+        torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda()
         return reconstructed_input, images, z_dist, ref_dist
 
     def get_projection(self, images, labels):
