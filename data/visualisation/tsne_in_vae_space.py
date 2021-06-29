@@ -79,8 +79,8 @@ def project_points(data, model, split, att_type):
     for i in tqdm(data, desc=f"projecting points of split {split}..."):
         if att_type == "mnist":
             ipdb.set_trace()
-            images =
-            labels =
+            images = i[0]
+            labels = index_to_one_hot(i[1], 10)
             projection = model.get_projection(sentence, ind_index.cuda(), exp_index.cuda())
             projections.append({'point': projection.detach().cpu().numpy(),
                                 "ind_index": i["ind_index"],
