@@ -82,7 +82,6 @@ def load_model(args, xp_title, model_path, model_name, att_type):
         model.load_state_dict(torch.load(model_file))
     print(f"Model loaded from checkpoint: {model_file}")
     epoch = model_file.split('/')[-1].split('=')[1].split('-')[0]
-    model.hp.b_size = 1
     return model, epoch
 
 

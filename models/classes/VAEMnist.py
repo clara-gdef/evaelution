@@ -127,7 +127,7 @@ class VAEMnist(pl.LightningModule):
         ipdb.set_trace()
 
     def get_vae_encoder_input(self, img, labels):
-        reshaped_img = img.view(self.hp.b_size, -1)
+        reshaped_img = img.view(-1, 784)
         inpt = torch.cat([reshaped_img, labels], dim=-1)
         return inpt
 
