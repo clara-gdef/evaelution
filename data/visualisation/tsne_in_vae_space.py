@@ -134,7 +134,7 @@ def prep_data_for_viz(args, data_dict, split, att_type):
         raise Exception()
     if att_type == "mnist":
         labels = [i["label"] for i in data_dict]
-        return trans_points, labels, None
+        return trans_points, labels, [0] * len(labels)
     else:
         ind_labels = [i["ind_index"] for i in data_dict]
         exp_labels = [i["exp_index"] for i in data_dict]
