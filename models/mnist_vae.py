@@ -77,10 +77,8 @@ def main(hparams):
             model_file = os.path.join(model_path, "epoch=" + str(hparams.checkpoint) + ".ckpt")
             model.load_state_dict(torch.load(model_file)["state_dict"])
             print("Resuming training from checkpoint : " + model_file + ".")
-            if hparams.divide_lr > 0:
-                new_lr = hparams.lr / hparams.divide_lr
-                model.hp.lr = new_lr
-                print(f"lr updated from {new_lr * hparams.divide_lr} to {new_lr}")
+            ipdb.set_trace()
+            trainer.current_epoch = str(hparams.checkpoint).split["="]
         if hparams.auto_lr_find == "True":
             print("looking for best lr...")
             # Run learning rate finder
