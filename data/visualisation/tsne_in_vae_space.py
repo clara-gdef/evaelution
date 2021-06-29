@@ -40,8 +40,8 @@ def init(args):
 
 
 def main(args, model, model_name, epoch, att_type):
-    sub_train = load_sub("train")
-    sub_test = load_sub("test")
+    sub_train = load_sub("train", att_type)
+    sub_test = load_sub("test", att_type)
     train_projections = project_points(sub_train, model, "train", att_type)
     test_projections = project_points(sub_test, model, "test", att_type)
     trans_points_train, ind_labels_train, exp_labels_train = prep_data_for_viz(args, train_projections, "train")
