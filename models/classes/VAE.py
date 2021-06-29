@@ -174,7 +174,6 @@ class VAE(pl.LightningModule):
         return {"val_loss": val_loss}
 
     def validation_epoch_end(self, validation_step_outputs):
-        self.epoch += 1
         if self.hp.plot_latent_space == "True":
             tsne_in_vae_space.main(self.hp, self, self.desc, self.trainer.current_epoch, self.hp.att_type)
 
