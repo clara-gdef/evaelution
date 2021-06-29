@@ -12,8 +12,8 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
-from models.classes.VAE import VAE
-from utils.models import get_latest_model
+from models.classes.VAEMnist import VAEMnist
+from utils.models import get_latest_model, collate_for_VAE_mnist
 
 
 def init(hparams):
@@ -54,22 +54,21 @@ def main(hparams):
         # todo : remove after debug
         datasets = load_datasets(CFG, hparams)
         dataset_train, dataset_valid = datasets[0], datasets[1]
-        train_loader = DataLoader(dataset_train, batch_size=hparams.b_size,
+        train_loader = DataLoader(dataset_train, batch_size=hparams.b_size, collate_fn=collate_for_VAE_mnist,
                                   num_workers=num_workers, shuffle=True, drop_last=True, pin_memory=True)
-        valid_loader = DataLoader(dataset_valid, batch_size=hparams.b_size,
+        valid_loader = DataLoader(dataset_valid, batch_size=hparams.b_size, collate_fn=collate_for_VAE_mnist,
                                   num_workers=num_workers, drop_last=True, pin_memory=True)
         print("Dataloaders initiated.")
     print("Dataloaders initiated.")
     arguments = {'emb_dim': 784,
                  'hp': hparams,
                  'desc': xp_title,
-                 "num_ind": 0,
+                 "num_classes": 10, # corresponds to classes
                  "model_path": model_path,
-                 "num_exp_level": 0,
                  "datadir": CFG["gpudatadir"]
                  }
     print("Initiating model...")
-    model = VAE(**arguments)
+    model = VAEMnist(**arguments)
     print("Model Loaded.")
     if hparams.TRAIN == "True":
         if hparams.load_from_checkpoint == "True":
@@ -132,7 +131,6 @@ def load_datasets(CFG, hparams):
     dataset_test = torchvision.datasets.MNIST(CFG["gpudatadir"],
                                               train=False, transform=transforms.ToTensor(),
                                               download=(hparams.load_dataset == "False"))
-    ipdb.set_trace()
     return dataset_train, dataset_test
 
 
@@ -201,7 +199,6 @@ if __name__ == "__main__":
     parser.add_argument("--plot_grad", type=str, default="False")
     parser.add_argument("--proj_type", type=str, default="tsne")
     parser.add_argument("--n_comp", type=int, default=2)
-    parser.add_argument("--att_type", type=str, default="both")  # can be both, exp or ind
     # model attributes
     parser.add_argument("--freeze_decoding", type=str, default="True")
     parser.add_argument("--optim", default="adam")
