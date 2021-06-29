@@ -190,7 +190,7 @@ class VAEemb(pl.LightningModule):
 
     def validation_epoch_end(self, validation_step_outputs):
         if self.hp.plot_latent_space == "True":
-            tsne_in_vae_space.main(self.hp, self, self.desc, self.trainer.current_epoch, self.hp.att_type)
+            tsne_in_vae_emb_space.main(self.hp, self, self.desc, self.trainer.current_epoch, self.hp.att_type)
 
     def test_epoch_start(self):
         ipdb.set_trace()
