@@ -32,7 +32,7 @@ def main(args):
               "Commerce de détail", "Relations publiques et communication", "Production alimentaire", "Construction",
               "Automobile", "Formation professionnelle et coaching", "Télécommunications",
               "Énergies renouvelables et environnement", "Aviation et aérospatiale", "Assurances",
-              "Produits pharmaceutiques"].
+              "Produits pharmaceutiques"]
     dict_fr = {num: name for num, name in enumerate(ind_fr)}
     with open(os.path.join(CFG["gpudatadir"], tgt_ind_file), 'wb') as f_name:
         pkl.dump(dict_fr, f_name)
