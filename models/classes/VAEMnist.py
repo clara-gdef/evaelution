@@ -51,7 +51,7 @@ class VAEMnist(pl.LightningModule):
             ipdb.set_trace()
         if torch.isnan(loss_vae_rec) or torch.isinf(loss_vae_rec):
             ipdb.set_trace()
-        return loss_vae_rec, loss_vae_kl
+        return loss_vae_rec, other_kl
 
     def inference(self, images, labels):
         inputs = self.get_vae_encoder_input(images, labels)
