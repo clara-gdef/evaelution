@@ -10,7 +10,7 @@ import models.classes
 
 
 class VAE(pl.LightningModule):
-    def __init__(self, datadir, emb_dim, desc, model_path, num_ind, num_exp_level, epoch, hp):
+    def __init__(self, datadir, emb_dim, desc, model_path, num_ind, num_exp_level, hp):
         super().__init__()
         self.datadir = datadir
         self.hp = hp
@@ -21,7 +21,6 @@ class VAE(pl.LightningModule):
         self.num_ind = num_ind
         self.num_exp_level = num_exp_level
         self.max_len = hp.max_len
-        self.epoch = epoch
         self.log_scale = torch.nn.Parameter(torch.Tensor([self.hp.logscale]))
 
         self.tokenizer = CamembertTokenizer.from_pretrained("camembert-base")
@@ -177,7 +176,7 @@ class VAE(pl.LightningModule):
     def validation_epoch_end(self, validation_step_outputs):
         self.epoch += 1
         if self.hp.plot_latent_space == "True":
-            tsne_in_vae_space.main(self.hp, self, self.desc, self.epoch, self.hp.att_type)
+            tsne_in_vae_space.main(self.hp, self, self.desc, self.trainer.current_epoch, self.hp.att_type)
 
     def test_epoch_start(self):
         ipdb.set_trace()

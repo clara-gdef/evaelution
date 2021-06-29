@@ -51,7 +51,7 @@ def main(hparams):
         num_workers = hparams.num_workers
     if hparams.TRAIN == "True":
         # todo : remove after debug
-        datasets = load_datasets(CFG, hparams, ["TRAIN", "TRAIN"])
+        datasets = load_datasets(CFG, hparams, ["TRAIN", "VALID"])
         dataset_train, dataset_valid = datasets[0], datasets[1]
         train_loader = DataLoader(dataset_train, batch_size=hparams.b_size, collate_fn=collate_fn,
                                   num_workers=num_workers, shuffle=True, drop_last=True, pin_memory=True)
@@ -64,7 +64,6 @@ def main(hparams):
                  'desc': xp_title,
                  "num_ind": num_ind,
                  "model_path": model_path,
-                 "epoch": -1,
                  "num_exp_level": num_exp,
                  "datadir": CFG["gpudatadir"]
                  }
@@ -222,7 +221,7 @@ if __name__ == "__main__":
     parser.add_argument("--latent_size", type=int, default=512)
     parser.add_argument("--max_len", type=int, default=10)
     parser.add_argument("--logscale", type=float, default=1.)
-    parser.add_argument("--model_type", type=str, default="VAE300")
+    parser.add_argument("--model_type", type=str, default="VAE")
     # global hyper params
     parser.add_argument("--coef_rec", type=float, default=.5)
     parser.add_argument("--coef_kl", type=float, default=.5)
