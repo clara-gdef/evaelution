@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 
 from data.datasets.StringIndSubDataset import StringIndSubDataset
 from models.classes.VAEemb import VAEemb
-from utils.models import collate_for_VAE_emb, get_latest_model, collate_for_VAE_emb_exp, collate_for_VAE_emb_ind,
+from utils.models import collate_for_VAE_emb, get_latest_model, collate_for_VAE_emb_exp, collate_for_VAE_emb_ind
 
 
 def init(hparams):
