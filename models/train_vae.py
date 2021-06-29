@@ -76,11 +76,8 @@ def main(hparams):
             model_path = os.path.join(CFG['modeldir'], model_name)
             model_file = os.path.join(model_path, "epoch=" + str(hparams.checkpoint) + ".ckpt")
             model.load_state_dict(torch.load(model_file)["state_dict"])
+            trainer.current_epoch = int(str(hparams.checkpoint).split("=")[0].split("-")[0])
             print("Resuming training from checkpoint : " + model_file + ".")
-            if hparams.divide_lr > 0:
-                new_lr = hparams.lr / hparams.divide_lr
-                model.hp.lr = new_lr
-                print(f"lr updated from {new_lr*hparams.divide_lr} to {new_lr}")
         if hparams.auto_lr_find == "True":
             print("looking for best lr...")
             # Run learning rate finder
@@ -226,7 +223,7 @@ if __name__ == "__main__":
     parser.add_argument("--coef_rec", type=float, default=.5)
     parser.add_argument("--coef_kl", type=float, default=.5)
     parser.add_argument("--coef_gen", type=float, default=.5)
-    parser.add_argument("--lr", type=float, default=1e-2)
+    parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--wd", type=float, default=0.)
     parser.add_argument("--dpo", type=float, default=0.)
     parser.add_argument("--epochs", type=int, default=100)

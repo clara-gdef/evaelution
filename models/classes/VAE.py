@@ -93,11 +93,8 @@ class VAE(pl.LightningModule):
         else:
             loss_text_gen_reduced = 0
 
-        # TODO when you're older, use the NLL
-
-        # loss_vae_rec = torch.nn.functional.mse_loss(sent_embed[:, -1, :], reconstructed_input, reduction="sum")
         obs_distrib = Normal(reconstructed_input, torch.exp(self.log_scale))
-        loss_vae_rec = - obs_distrib.log_prob(sent_embed[:, -1, :]).sum()
+        loss_vae_rec = - torch.sum(obs_distrib.log_prob(sent_embed[:, -1, :]))
 
         ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]).cuda(),
                           torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())

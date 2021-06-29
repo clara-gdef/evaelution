@@ -163,7 +163,7 @@ def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test
     shape_per_exp, color_legends, color = get_dicts_for_plot(att_type)
 
     fig = plt.figure(figsize=(15, 8))
-    fig.suptitle(f"{args.proj_type.upper()} projection of VAE space", fontsize=14)
+    fig.suptitle(f"{args.proj_type.upper()} projection of VAE space, epoch {epoch}", fontsize=14)
     print("Scattering points of train split...")
     ax = fig.add_subplot(211)
     for num, i in enumerate(range(len(points_train))):

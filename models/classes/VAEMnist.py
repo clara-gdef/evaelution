@@ -28,30 +28,25 @@ class VAEMnist(pl.LightningModule):
 
     def forward(self, images, labels):
         inputs = self.get_vae_encoder_input(images, labels)
+        ipdb.set_trace()
         mu_enc, log_var_enc = self.vae_encoder(inputs)
         std = torch.exp(log_var_enc / 2)
         z_dist = Normal(mu_enc, std + 1e-10)
         dec_input = z_dist.rsample()
         reconstructed_input = self.vae_decoder(dec_input)
 
-        loss_vae_rec, loss_vae_kl = self.loss_function(reconstructed_input,
-                                                       images, mu_enc, log_var_enc)
+        loss_vae_rec = torch.nn.functional.binary_cross_entropy(reconstructed_input, images.view(-1, 784), reduction='sum')
+        # obs_distrib = Normal(reconstructed_input, torch.exp(self.log_scale))
+        # loss_vae_rec = - torch.sum(obs_distrib.log_prob(images.view(-1, 784)))
+
         ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]).cuda(),
                           torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())
-        other_kl = torch.sum(kl_divergence(z_dist, ref_dist))
-        # assert round(loss_vae_kl.item(), 1) == round(other_kl.item(), 1)
-        # loss_vae_rec = torch.nn.functional.mse_loss(sent_embed[:, -1, :], reconstruc  ted_input, reduction="sum")
-        # obs_distrib = Normal(reconstructed_input, torch.exp(self.log_scale))
-        # loss_vae_rec = - obs_distrib.log_prob(sent_embed[:, -1, :]).sum()
-
-        # ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]).cuda(),
-        #                   torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())
-        # loss_vae_kl =
+        loss_vae_kl = torch.sum(kl_divergence(z_dist, ref_dist))
         if torch.isnan(loss_vae_kl) or torch.isinf(loss_vae_kl):
             ipdb.set_trace()
         if torch.isnan(loss_vae_rec) or torch.isinf(loss_vae_rec):
             ipdb.set_trace()
-        return loss_vae_rec, other_kl
+        return loss_vae_rec, loss_vae_kl
 
     def inference(self, images, labels):
         inputs = self.get_vae_encoder_input(images, labels)
@@ -109,7 +104,7 @@ class VAEMnist(pl.LightningModule):
         return {"val_loss": val_loss}
 
     def validation_epoch_end(self, validation_step_outputs):
-        if self.hp.plot_latent_space == "True":
+        if self.hp.plot_latent_space == "True" and self.trainer.current_epoch % 10 == 0:
             tsne_in_vae_space.main(self.hp, self, self.desc, self.trainer.current_epoch, "mnist")
 
     def test_epoch_start(self):
@@ -130,13 +125,3 @@ class VAEMnist(pl.LightningModule):
         reshaped_img = img.view(-1, 784)
         inpt = torch.cat([reshaped_img, labels], dim=-1)
         return inpt
-
-    def loss_function(self, recon_x, x, mu, logvar):
-        BCE = torch.nn.functional.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='sum')
-        # see Appendix B from VAE paper:
-        # Kingma and Welling. Auto-Encoding Variational Bayes. ICLR, 2014
-        # https://arxiv.org/abs/1312.6114
-        # 0.5 * sum(1 + log(sigma^2) - mu^2 - sigma^2)
-        KLD = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
-
-        return BCE, KLD
