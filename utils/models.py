@@ -27,6 +27,12 @@ def collate_for_VAE_ind(batch):
     return jobs, index_to_one_hot(ind, 20), None
 
 
+def collate_for_VAE_no_att(batch):
+    jobs = [i[0] for i in batch]
+    ind = [int(i[1]) for i in batch]
+    return jobs, index_to_one_hot(ind, 20), None
+
+
 def collate_for_VAE_mnist(batch):
     images = [i[0] for i in batch]
     labels = [int(i[1]) for i in batch]

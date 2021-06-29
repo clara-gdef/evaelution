@@ -43,7 +43,7 @@ class VAE(pl.LightningModule):
                                 return_tensors="pt")
         input_tokenized, mask = inputs["input_ids"].cuda(), inputs["attention_mask"].cuda()
         max_seq_len = input_tokenized.shape[-1]
-        sent_embed = torch.sigmoid(self.text_encoder(input_tokenized, mask)['last_hidden_state'])
+        sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
 
         inputs = self.get_vae_encoder_input(sent_embed, ind, exp)
         mu_enc, log_var_enc = self.vae_encoder(inputs)
@@ -96,9 +96,8 @@ class VAE(pl.LightningModule):
         obs_distrib = Normal(reconstructed_input, torch.exp(self.log_scale))
         loss_vae_rec = - torch.sum(obs_distrib.log_prob(sent_embed[:, -1, :]))
 
-        ref_dist = Normal(torch.zeros(mu_enc.shape[0], mu_enc.shape[-1]).cuda(),
-                          torch.ones(mu_enc.shape[0], mu_enc.shape[-1]).cuda())
-        loss_vae_kl = torch.sum(kl_divergence(z_dist, ref_dist))
+        loss_vae_kl = torch.sum(kl_divergence(z_dist, Normal(0, 1)))
+
         if torch.isnan(loss_vae_kl) or torch.isinf(loss_vae_kl):
             ipdb.set_trace()
         if torch.isnan(loss_vae_rec) or torch.isinf(loss_vae_rec):
@@ -195,6 +194,8 @@ class VAE(pl.LightningModule):
             inpt = torch.cat([sent_embed[:, -1, :], exp], dim=-1)
         elif self.hp.att_type == "ind":
             inpt = torch.cat([sent_embed[:, -1, :], ind], dim=-1)
+        elif self.hp.att_type == "none":
+            inpt = sent_embed[:, -1, :]
         else:
-            raise Exception(f"Wrong att_type specified. Can be exp or ind, got: {self.hp.att_type}")
+            raise Exception(f"Wrong att_type specified. Can be both, exp, ind, or none. Got: {self.hp.att_type}")
         return inpt

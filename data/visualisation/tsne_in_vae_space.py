@@ -64,13 +64,14 @@ def load_model(args, xp_title, model_path, model_name, att_type):
         print("Initiating model...")
         model = models.classes.VAEMnist(**arguments)
     else:
+        num_ind, num_exp = get_collate_fn_and_class_nums(args)
+
         arguments = {'emb_dim': 768,
                      'hp': args,
                      'desc': xp_title,
-                     "num_ind": 20,
+                     "num_ind": num_ind,
                      "model_path": model_path,
-                     "num_exp_level": 3,
-                     "epoch": 0,
+                     "num_exp_level": num_exp,
                      "datadir": CFG["gpudatadir"]}
         print("Initiating model...")
         model = models.classes.VAE(**arguments)
@@ -163,7 +164,7 @@ def plot_proj(args, points_train, inds_train, exps_train, points_test, inds_test
     shape_per_exp, color_legends, color = get_dicts_for_plot(att_type)
 
     fig = plt.figure(figsize=(15, 8))
-    fig.suptitle(f"{args.proj_type.upper()} projection of VAE space, epoch {epoch}", fontsize=14)
+    fig.suptitle(f"{args.proj_type.upper()} projection of VAE space, att={att_type}, epoch {epoch}", fontsize=14)
     print("Scattering points of train split...")
     ax = fig.add_subplot(211)
     for num, i in enumerate(range(len(points_train))):
@@ -235,8 +236,15 @@ def get_dicts_for_plot(att_type):
                          2: 'x'}
         color_legends = {k: str(k) for k in range(10)}
         color = cm.rainbow(np.linspace(0, 1, 10))
+    elif att_type == "none":
+        shape_per_exp = {0: "x",
+                         1: "x",
+                         2: 'x'}
+        color_legends = None
+        unique_color = [0.5, 0., 1., 1.]
+        color = np.array([unique_color] * 20)
     else:
-        raise Exception(f"Wrong att_type specified. Can be exp or ind, got: {att_type}")
+        raise Exception(f"Wrong att_type specified. Can be exp, ind, both or none. Got: {att_type}")
     return shape_per_exp, color_legends, color
 
 
@@ -252,6 +260,19 @@ def make_xp_title(hparams):
     return xp_title
 
 
+def get_collate_fn_and_class_nums(hparams):
+    if hparams.att_type == "both":
+        return 20, 3
+    elif hparams.att_type == "exp":
+        return 0, 3
+    elif hparams.att_type == "ind":
+        return 20, 0
+    elif hparams.att_type == "none":
+        return 0, 0
+    else:
+        raise Exception(f"Wrong att_type specified. Can be exp, ind, both or none. Got: {hparams.att_type}")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--DEBUG", type=str, default="True")
@@ -259,21 +280,20 @@ if __name__ == "__main__":
     parser.add_argument("--exp_type", type=str, default="uniform")
     parser.add_argument("--num_point_per_group", type=int, default=5)
     parser.add_argument("--n_comp", type=int, default=2)
-    parser.add_argument("--proj_type", type=str, default="pca")  # pca or tsne
-    parser.add_argument("--att_type", type=str, default="both")  # both or exp or ind
+    parser.add_argument("--proj_type", type=str, default="tsne")  # pca or tsne
+    parser.add_argument("--att_type", type=str, default="ind")  # both or exp or ind
     # model attributes
     parser.add_argument("--freeze_decoding", type=str, default="True")
     parser.add_argument("--b_size", type=int, default=128)
-    parser.add_argument("--mlp_hs", type=int, default=256)
-    parser.add_argument("--dec_hs", type=int, default=768)
-    parser.add_argument("--mlp_layers", type=int, default=1)
-    parser.add_argument("--dec_layers", type=int, default=1)
+    parser.add_argument("--mlp_hs", type=int, default=512)
+    parser.add_argument("--latent_size", type=int, default=512)
     parser.add_argument("--max_len", type=int, default=10)
-    parser.add_argument("--model_type", type=str, default="vae_no_dec")
+    parser.add_argument("--model_type", type=str, default="VAEnosigmoid")
     parser.add_argument("--optim", default="adam")
     # global hyper params
-    parser.add_argument("--alpha", type=float, default=.5)
-    parser.add_argument("--lr", type=float, default=1e-3)
+    parser.add_argument("--coef_rec", type=float, default=.5)
+    parser.add_argument("--logscale", type=float, default=1.)
+    parser.add_argument("--lr", type=float, default=1e-4)
     parser.add_argument("--wd", type=float, default=0.)
     parser.add_argument("--dpo", type=float, default=0.)
     parser.add_argument("--epochs", type=int, default=100)

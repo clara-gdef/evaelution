@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 
 from data.datasets.StringIndSubDataset import StringIndSubDataset
 from models.classes.VAE import VAE
-from utils.models import collate_for_VAE, get_latest_model, collate_for_VAE_exp, collate_for_VAE_ind
+from utils.models import collate_for_VAE, get_latest_model, collate_for_VAE_exp, collate_for_VAE_ind, collate_for_VAE_no_att
 
 
 def init(hparams):
@@ -182,8 +182,11 @@ def get_collate_fn_and_class_nums(hparams):
         return collate_for_VAE_exp, 0, 3
     elif hparams.att_type == "ind":
         return collate_for_VAE_ind, 20, 0
+    elif hparams.att_type == "none":
+        return collate_for_VAE_no_att, 0, 0
+
     else:
-        raise Exception(f"Wrong att_type specified. Can be exp or ind, got: {hparams.att_type}")
+        raise Exception(f"Wrong att_type specified. Can be exp, ind, both or none. Got: {hparams.att_type}")
 
 
 if __name__ == "__main__":
@@ -204,12 +207,12 @@ if __name__ == "__main__":
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--toy_dataset", type=str, default="False")
     parser.add_argument("--test_b_size", type=int, default=1)
-    parser.add_argument("--clip_val", type=float, default=.5)
-    parser.add_argument("--plot_latent_space", type=str, default="False")
+    parser.add_argument("--clip_val", type=float, default=1.)
+    parser.add_argument("--plot_latent_space", type=str, default="True")
     parser.add_argument("--plot_grad", type=str, default="False")
     parser.add_argument("--proj_type", type=str, default="tsne")
     parser.add_argument("--n_comp", type=int, default=2)
-    parser.add_argument("--att_type", type=str, default="both") # can be both, exp or ind
+    parser.add_argument("--att_type", type=str, default="ind") # can be both, exp, ind or "none"
     # model attributes
     parser.add_argument("--freeze_decoding", type=str, default="True")
     parser.add_argument("--optim", default="adam")
@@ -218,7 +221,7 @@ if __name__ == "__main__":
     parser.add_argument("--latent_size", type=int, default=512)
     parser.add_argument("--max_len", type=int, default=10)
     parser.add_argument("--logscale", type=float, default=1.)
-    parser.add_argument("--model_type", type=str, default="VAE")
+    parser.add_argument("--model_type", type=str, default="VAEnosigmoid")
     # global hyper params
     parser.add_argument("--coef_rec", type=float, default=.5)
     parser.add_argument("--coef_kl", type=float, default=.5)
