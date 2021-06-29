@@ -27,6 +27,25 @@ def collate_for_VAE_ind(batch):
     return jobs, index_to_one_hot(ind, 20), None
 
 
+def collate_for_VAE_emb(batch):
+    jobs = [i[0] for i in batch]
+    ind = [int(i[1]) for i in batch]
+    exp = [int(i[2]) for i in batch]
+    return jobs, torch.stack(ind).long(), torch.stack(exp).long()
+
+
+def collate_for_VAE_emb_exp(batch):
+    jobs = [i[0] for i in batch]
+    exp = [int(i[2]) for i in batch]
+    return jobs, None, torch.stack(exp).long()
+
+
+def collate_for_VAE_emb_ind(batch):
+    jobs = [i[0] for i in batch]
+    ind = [int(i[1]) for i in batch]
+    return jobs, torch.stack(ind).long(), None
+
+
 def collate_for_VAE_no_att(batch):
     jobs = [i[0] for i in batch]
     ind = [int(i[1]) for i in batch]
