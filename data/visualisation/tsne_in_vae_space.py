@@ -194,6 +194,12 @@ def get_dicts_for_plot(att_type):
             industry_dict = pkl.load(f_name)
         color_legends = {k: v for k, v in industry_dict.items()}
         color = cm.rainbow(np.linspace(0, 1, 20))
+    elif att_type == "mnist":
+        shape_per_exp = {0: "x",
+                         1: "x",
+                         2: 'x'}
+        color_legends = {k: str(k) for k in range(10)}
+        color = cm.rainbow(np.linspace(0, 1, 10))
     else:
         raise Exception(f"Wrong att_type specified. Can be exp or ind, got: {att_type}")
     return shape_per_exp, color_legends, color
