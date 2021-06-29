@@ -2,6 +2,7 @@ import argparse
 import os
 
 import ipdb
+from six.moves import urllib
 import pytorch_lightning as pl
 import torch
 import torchvision
@@ -122,6 +123,9 @@ def main(hparams):
 
 
 def load_datasets(CFG, hparams):
+    opener = urllib.request.build_opener()
+    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+    urllib.request.install_opener(opener)
     dataset_train = torchvision.datasets.MNIST(CFG["datadir"],
                                                train=True, transform=transforms.ToTensor(),
                                                download=(hparams.load_dataset == "False"))
