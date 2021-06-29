@@ -30,7 +30,7 @@ def collate_for_VAE_ind(batch):
 def collate_for_VAE_mnist(batch):
     images = [i[0] for i in batch]
     labels = [int(i[1]) for i in batch]
-    return images, index_to_one_hot(labels, 10)
+    return torch.stack(images), index_to_one_hot(labels, 10)
 
 
 def index_to_one_hot(indices, max_features):
