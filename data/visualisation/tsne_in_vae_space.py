@@ -78,9 +78,9 @@ def load_model(args, xp_title, model_path, model_name, att_type):
     print("Model Loaded.")
     model_file = get_latest_model(CFG["modeldir"], model_name)
     try:
-        model.load_state_dict(torch.load(model_file)["state_dict"])
-    except RuntimeError or KeyError:
         model.load_state_dict(torch.load(model_file))
+    except RuntimeError:
+        model.load_state_dict(torch.load(model_file)["state_dict"])
     print(f"Model loaded from checkpoint: {model_file}")
     epoch = model_file.split('/')[-1].split('=')[1].split('-')[0]
     return model, epoch
