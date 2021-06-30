@@ -145,6 +145,9 @@ class VAE(pl.LightningModule):
         rec, kl, gen = self.forward(sentences, ind_indices, exp_indices)
         train_kl_loss = self.hp.coef_kl * kl / sample_len
         train_rec_loss = self.hp.coef_rec * rec / sample_len
+        if self.trainer.current_epoch < self.hp.kl_ep_threshold:
+            train_kl_loss = 0
+
         train_loss = train_rec_loss + train_kl_loss
         self.log('train_rec_loss', train_rec_loss, on_step=True, on_epoch=False)
         self.log('train_kl_loss', train_kl_loss, on_step=True, on_epoch=False)

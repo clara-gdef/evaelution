@@ -208,6 +208,7 @@ if __name__ == "__main__":
     parser.add_argument("--toy_dataset", type=str, default="False")
     parser.add_argument("--test_b_size", type=int, default=1)
     parser.add_argument("--clip_val", type=float, default=1.)
+    parser.add_argument("--kl_ep_threshold", type=int, default=10)
     parser.add_argument("--plot_latent_space", type=str, default="True")
     parser.add_argument("--plot_grad", type=str, default="False")
     parser.add_argument("--proj_type", type=str, default="tsne")
