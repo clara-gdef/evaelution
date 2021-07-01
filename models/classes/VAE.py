@@ -91,7 +91,8 @@ class VAE(pl.LightningModule):
                                                               input_tokenized[:, 1:], reduction="sum", ignore_index=1)
             loss_text_gen_reduced = loss_text_gen / sum(sum(mask))
         else:
-            loss_text_gen_reduced = 0
+
+            mse_loss = torch.nn.functional.mse_loss(reconstructed_input, sent_embed[:, -1, :])
 
         obs_distrib = Normal(reconstructed_input, torch.exp(self.log_scale))
         loss_vae_rec = - torch.sum(obs_distrib.log_prob(sent_embed[:, -1, :]))
@@ -102,7 +103,7 @@ class VAE(pl.LightningModule):
             ipdb.set_trace()
         if torch.isnan(loss_vae_rec) or torch.isinf(loss_vae_rec):
             ipdb.set_trace()
-        return loss_vae_rec, loss_vae_kl, loss_text_gen_reduced
+        return loss_vae_rec, loss_vae_kl, mse_loss
 
     def inference(self, sent, ind, exp):
         inputs = self.tokenizer(sent, truncation=True, padding="max_length", max_length=self.max_len,
@@ -142,13 +143,14 @@ class VAE(pl.LightningModule):
     def training_step(self, batch, batch_nb):
         sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
         sample_len = len(sentences)
-        rec, kl, gen = self.forward(sentences, ind_indices, exp_indices)
+        rec, kl, mse = self.forward(sentences, ind_indices, exp_indices)
         train_kl_loss = self.hp.coef_kl * kl / sample_len
         train_rec_loss = self.hp.coef_rec * rec / sample_len
         if self.trainer.current_epoch < self.hp.kl_ep_threshold:
             train_kl_loss = 0
 
         train_loss = train_rec_loss + train_kl_loss
+        self.log('train_mse_loss', mse, on_step=True, on_epoch=False)
         self.log('train_rec_loss', train_rec_loss, on_step=True, on_epoch=False)
         self.log('train_kl_loss', train_kl_loss, on_step=True, on_epoch=False)
         self.log('train_loss', train_loss, on_step=True, on_epoch=False)
@@ -163,10 +165,11 @@ class VAE(pl.LightningModule):
     def validation_step(self, batch, batch_nb):
         sentences, ind_indices, exp_indices = batch[0], batch[1], batch[2]
         sample_len = len(sentences)
-        rec, kl, gen = self.forward(sentences, ind_indices, exp_indices)
+        rec, kl, mse = self.forward(sentences, ind_indices, exp_indices)
         val_kl_loss = self.hp.coef_kl * kl / sample_len
         val_rec_loss = self.hp.coef_rec * rec / sample_len
         val_loss = val_rec_loss + val_kl_loss
+        self.log('train_mse_loss', mse, on_step=False, on_epoch=True)
         self.log('val_rec_loss', val_rec_loss, on_step=False, on_epoch=True)
         self.log('val_kl_loss', val_kl_loss, on_step=False, on_epoch=True)
         self.log('val_loss', val_loss, on_step=False, on_epoch=True)
