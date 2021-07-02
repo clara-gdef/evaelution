@@ -60,7 +60,20 @@ class StringIndSubDataset(Dataset):
             self.tuples[idx]["exp_index"]
 
     def save_new_tuples(self, tuple_list, lookup):
-        ipdb.set_trace()
+        for blob in tuple_list:
+            assert (blob["ind_index"] < 20)
+        user_lookup = {}
+        tuples = []
+        counter = 0
+        for person_id, (start, end) in tqdm(lookup.items(), desc=f"Building tuples for split {self.split}..."):
+            id_person = person_id
+            num_jobs = end - start
+            for num, i in enumerate(range(start, end)):
+                new_job = tuple_list[i].copy()
+                tuples.append(new_job.copy())
+            user_lookup[id_person] = [counter, counter + num_jobs]
+            counter = counter + num_jobs
+        self.save_dataset("", -1)
 
     def save_dataset(self, suffix, subsample):
         if self.is_toy == "True":

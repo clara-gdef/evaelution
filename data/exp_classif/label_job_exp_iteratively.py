@@ -8,7 +8,7 @@ from collections import Counter
 from tqdm import tqdm
 from data.datasets import StringIndSubDataset, StringDataset
 from utils import get_metrics
-from utils.baselines import train_svm, pre_proc_data
+from utils.bow import train_svm, pre_proc_data
 from sklearn.feature_extraction.text import TfidfVectorizer
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
@@ -73,7 +73,8 @@ def main(args):
         print(f"Classifier saved at: {tgt_file}_exp_svc_{args.kernel}_it{iteration}.joblib")
         preds, labels = [], []
         # SVC eval
-        for cnt, user in enumerate(tqdm(all_users.keys(), desc="parsing users...")):
+        cnt = np.random.randint(args.user_step)
+        for user in tqdm(all_users.keys(), desc="parsing users..."):
             if user not in user_trains and cnt % args.user_step == 0:
                 current_user = all_users[user]
                 exp_seq_pred = [all_labels[current_user[0]]]
@@ -96,6 +97,7 @@ def main(args):
                     exp_seq_pred.append(all_labels[job])
                 assert all(exp_seq_pred[i] <= exp_seq_pred[i+1] for i in range(len(exp_seq_pred)-1))
                 assert all(exp_seq_init[i] <= exp_seq_init[i+1] for i in range(len(exp_seq_init)-1))
+            cnt += 1
         metrics = get_metrics(preds, labels, args.exp_levels, f"it_{iteration}")
         f1 = metrics[f"f1_it_{iteration}"]
         print(f"Iteration: {iteration}, F1 score: {f1}%")
@@ -223,19 +225,18 @@ def save_new_tuples(data_train_valid, data_test, all_labels, len_train, len_vali
 
 
 def save_new_tuples_per_split(tuple_list, lookup, split, iteration):
-    arguments = {'data_dir': CFG["gpudatadir"],
+    arguments = {'data_dir': CFG["datadir"],
                  "load": "False",
                  "subsample": -1,
-                 "max_len": 10,
+                 "max_len": args.max_len,
                  "exp_levels": args.exp_levels,
-                 "tuple_list": tuple_list,
-                 'lookup': lookup,
-                 "already_subbed": "True",
-                 "exp_type": args.exp_type,
+                 "exp_type": "iter",
+                 "rep_file": CFG['ppl_rep'],
                  "suffix": f"_it{iteration}",
                  "split": split,
                  "is_toy": "False"}
-    StringIndSubDataset(**arguments)
+    tmp = StringIndSubDataset(**arguments)
+    tmp.save_new_tuples(tuple_list, lookup)
 
 
 def test_model_on_all_test_data(args, model, vectorizer):

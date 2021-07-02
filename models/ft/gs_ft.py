@@ -74,7 +74,6 @@ def main(args):
             # With params (0.5, 50, 5)
 
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--max_len", type=int, default=32)
