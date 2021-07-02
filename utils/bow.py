@@ -100,7 +100,6 @@ def pre_proc_data_ind(ind_dict, data, tokenizer, stop_words):
         tmp = ["_".join(ind_dict[job[1]].split(" "))]
         tmp.extend(cleaned_ab)
         jobs.append(" ".join(tmp))
-        ipdb.set_trace()
     return jobs, labels_exp, labels_ind
 
 

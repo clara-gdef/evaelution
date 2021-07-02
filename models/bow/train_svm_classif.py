@@ -110,6 +110,8 @@ def get_exp_name(args):
     exp_name = f"{args.model}_{args.exp_levels}exp_{args.exp_type}_maxlen{args.max_len}"
     if args.tfidf == "True":
         exp_name += "_tfidf"
+    if args.add_ind_name == "True":
+        exp_name += "_IndName"
     return exp_name
 
 
