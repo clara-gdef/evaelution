@@ -86,7 +86,8 @@ def get_common_params():
             "att_type": args.att_type,
             "exp_type": args.exp_type,
             "exp_levels": args.exp_levels,
-            "dataset_suffix": args.dataset_suffix}
+            "dataset_suffix": args.dataset_suffix,
+            "add_ind_name": args.add_ind_name}
     return dico
 
 
@@ -115,6 +116,7 @@ if __name__ == "__main__":
     parser.add_argument("--subsample", type=int, default=1000)
     parser.add_argument("--exp_levels", type=int, default=3)
     parser.add_argument("--max_len", type=int, default=32)
+    parser.add_argument("--add_ind_name", type=str, default="False")
     parser.add_argument("--dataset_suffix", type=str, default="")
     parser.add_argument("--exp_type", type=str, default="uniform")
     parser.add_argument("--att_type", type=str, default="exp") # ind or exp
