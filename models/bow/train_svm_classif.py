@@ -79,7 +79,7 @@ def subsample_according_to_class_weight(args, data_train, data_test, class_dict,
             class_counter = 0
             while class_counter < num_sample_per_class[k]:
                 rdm_index = numpy.random.randint(len(data_train))
-                if (data_train["labels_ind"][rdm_index][1] == k) and (rdm_index not in sampled_index):
+                if (data_train["labels_ind"][rdm_index] == k) and (rdm_index not in sampled_index):
                     sub_train.append(data_train[rdm_index])
                     class_counter += 1
                     sampled_index.append(rdm_index)
@@ -88,7 +88,7 @@ def subsample_according_to_class_weight(args, data_train, data_test, class_dict,
             class_counter = 0
             while class_counter < num_sample_per_class[k]:
                 rdm_index = numpy.random.randint(len(data_test))
-                if (data_test["labels_ind"][rdm_index][1] == k) and (rdm_index not in sampled_index):
+                if (data_test["labels_ind"][rdm_index] == k) and (rdm_index not in sampled_index):
                     sub_test.append(data_test[rdm_index])
                     class_counter += 1
                     sampled_index.append(rdm_index)
