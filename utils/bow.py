@@ -7,11 +7,11 @@ import yaml
 import numpy as np
 from tqdm import tqdm
 from nltk.corpus import stopwords
+from nltk.tokenize import RegexpTokenizer
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.svm import SVC
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import f1_score, accuracy_score
-
 
 from data.datasets.StringIndSubDataset import StringIndSubDataset
 
@@ -68,12 +68,13 @@ def get_labelled_data(args):
 
 
 def pre_proc_data(data):
+    tokenizer = RegexpTokenizer(r'\w+')
     stop_words = set(stopwords.words("french"))
     labels_exp, labels_ind, jobs = [], [], []
     for job in tqdm(data, desc="Parsing profiles..."):
         labels_exp.append(job[2])
         labels_ind.append(job[1])
-        cleaned_ab = [w for w in job[0].split(" ") if (w not in stop_words) and (w != "")]
+        cleaned_ab = [w.lower() for w in tokenizer.tokenize(job[0]) if (w not in stop_words) and (w != "")]
         jobs.append(" ".join(cleaned_ab))
     ipdb.set_trace()
     return jobs, labels_exp, labels_ind

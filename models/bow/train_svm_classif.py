@@ -111,7 +111,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_df", type=float, default=0.9)
     parser.add_argument("--max_features", type=int, default=3000)
     parser.add_argument("--subsample", type=int, default=1000)
-    parser.add_argument("--max_len", type=int, default=10)
+    parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--save_model", default="True")
     parser.add_argument("--load_model", type=str, default="False")
     parser.add_argument("--toy_dataset", type=str, default="False")
