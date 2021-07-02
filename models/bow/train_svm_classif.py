@@ -73,6 +73,7 @@ def subsample_according_to_class_weight(args, data_train, data_test, class_dict,
     else:
         ind_weights = class_dict["ind"]
         num_sample_per_class = {k: int(v*subsample) for k, v in ind_weights.items()}
+        
         sub_train = {"jobs": [], "labels_exp": [], "labels_ind": []}
         sampled_index = []
         for k in tqdm(num_sample_per_class.keys(), desc="Subsampling train data according to industry class ratio"):
@@ -87,6 +88,7 @@ def subsample_according_to_class_weight(args, data_train, data_test, class_dict,
                     sampled_index.append(rdm_index)
         sub_test = {"jobs": [], "labels_exp": [], "labels_ind": []}
         sampled_index = []
+        ipdb.set_trace()
         for k in tqdm(num_sample_per_class.keys(), desc="Subsampling test data according to industry class ratio"):
             class_counter = 0
             while class_counter < num_sample_per_class[k]:
