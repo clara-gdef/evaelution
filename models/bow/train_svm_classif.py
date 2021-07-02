@@ -114,10 +114,10 @@ def get_exp_name(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--load_data", type=str, default="True")
-    parser.add_argument("--min_df", type=float, default=1e-4)
+    parser.add_argument("--min_df", type=float, default=1e-3)
     parser.add_argument("--model", type=str, default="svm") # svm or nb
-    parser.add_argument("--max_df", type=float, default=0.9)
-    parser.add_argument("--max_features", type=int, default=3000)
+    parser.add_argument("--max_df", type=float, default=0.6)
+    parser.add_argument("--max_features", type=int, default=12000)
     parser.add_argument("--subsample", type=int, default=1000)
     parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--save_model", default="True")
