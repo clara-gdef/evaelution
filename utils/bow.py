@@ -23,6 +23,8 @@ def get_labelled_data(args):
         CFG = yaml.load(ymlfile, Loader=yaml.SafeLoader)
     file_root = f"bow_jobs_pre_proced_{args.exp_type}_{args.exp_levels}exp_maxlen{args.max_len}"
     suffix = args.dataset_suffix
+    if args.add_ind_name == "True":
+        suffix += "_indName"
     if args.load_data == "True":
         print("Loading data...")
         with open(os.path.join(CFG["gpudatadir"], f"{file_root}_TRAIN.pkl"), 'rb') as f_name:
@@ -56,11 +58,19 @@ def get_labelled_data(args):
 
         np.random.shuffle(dataset_train.tuples)
 
-        jobs, labels_exp, labels_ind = pre_proc_data(dataset_train, tokenizer, stop_words)
-        data_train = {"jobs": jobs, "labels_exp": labels_exp, "labels_ind": labels_ind}
+        if args.add_ind_name == "True":
+            ipdb.set_trace()
+            dataset_test.rev_ind_dict
+            jobs, labels_exp, labels_ind = pre_proc_data_ind(ind_dict, dataset_train, tokenizer, stop_words)
+            data_train = {"jobs": jobs, "labels_exp": labels_exp, "labels_ind": labels_ind}
+            jobs, labels_exp, labels_ind = pre_proc_data_ind(ind_dict, dataset_test, tokenizer, stop_words)
+            data_test = {"jobs": jobs, "labels_exp": labels_exp, "labels_ind": labels_ind}
 
-        jobs, labels_exp, labels_ind = pre_proc_data(dataset_test, tokenizer, stop_words)
-        data_test = {"jobs": jobs, "labels_exp": labels_exp, "labels_ind": labels_ind}
+        else:
+            jobs, labels_exp, labels_ind = pre_proc_data(dataset_train, tokenizer, stop_words)
+            data_train = {"jobs": jobs, "labels_exp": labels_exp, "labels_ind": labels_ind}
+            jobs, labels_exp, labels_ind = pre_proc_data(dataset_test, tokenizer, stop_words)
+            data_test = {"jobs": jobs, "labels_exp": labels_exp, "labels_ind": labels_ind}
 
         with open(os.path.join(CFG["gpudatadir"], f"{file_root}_TRAIN.pkl"), 'wb') as f_name:
             pkl.dump(data_train, f_name)
@@ -74,6 +84,16 @@ def get_labelled_data(args):
 
 
 def pre_proc_data(data, tokenizer, stop_words):
+    labels_exp, labels_ind, jobs = [], [], []
+    for job in tqdm(data, desc="Parsing profiles..."):
+        labels_exp.append(int(job[2]))
+        labels_ind.append(int(job[1]))
+        cleaned_ab = [w.lower() for w in tokenizer.tokenize(job[0]) if (w not in stop_words) and (w != "")]
+        jobs.append(" ".join(cleaned_ab))
+    return jobs, labels_exp, labels_ind
+
+
+def pre_proc_data_ind(ind_dict, data, tokenizer, stop_words):
     labels_exp, labels_ind, jobs = [], [], []
     for job in tqdm(data, desc="Parsing profiles..."):
         labels_exp.append(int(job[2]))

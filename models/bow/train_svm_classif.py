@@ -108,6 +108,8 @@ def subsample_according_to_class_weight(args, data_train, data_test, class_dict,
 
 def get_exp_name(args):
     exp_name = f"{args.model}_{args.exp_levels}exp_{args.exp_type}_maxlen{args.max_len}"
+    if args.tfidf == "True":
+        exp_name += "_tfidf"
     return exp_name
 
 
@@ -128,6 +130,8 @@ if __name__ == "__main__":
     parser.add_argument("--att_type", type=str, default="exp") # ind or exp
     parser.add_argument("--exp_type", type=str, default="uniform") # uniform
     parser.add_argument("--exp_levels", type=int, default=3) # 5 of 3
+    parser.add_argument("--tfidf", default="True")
+    parser.add_argument("--add_ind_name", type=str, default="False")
     parser.add_argument("--kernel", type=str, default="linear")
     args = parser.parse_args()
     init(args)
