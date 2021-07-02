@@ -83,6 +83,7 @@ def get_common_params():
             "load_model": "False",
             "max_len": args.max_len,
             "kernel": "linear",
+            "att_type": args.att_type,
             "exp_type": args.exp_type,
             "exp_levels": args.exp_levels,
             "dataset_suffix": args.dataset_suffix}
@@ -116,6 +117,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--dataset_suffix", type=str, default="")
     parser.add_argument("--exp_type", type=str, default="uniform")
+    parser.add_argument("--att_type", type=str, default="exp") # ind or exp
     parser.add_argument("--load_data", type=str, default="True")
     args = parser.parse_args()
     init(args)
