@@ -8,6 +8,7 @@ import numpy as np
 from tqdm import tqdm
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
+from nltk.stem.snowball import FrenchStemmer
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.svm import SVC
 from sklearn.naive_bayes import MultinomialNB
@@ -50,10 +51,15 @@ def get_labelled_data(args):
         dataset_train.tuples.extend(dataset_valid.tuples)
         class_weights = get_class_weights(dataset_train)
 
-        jobs, labels_exp, labels_ind = pre_proc_data(dataset_train)
+        tokenizer = RegexpTokenizer(r'\w+')
+        stop_words = set(stopwords.words("french"))
+        stop_words.add("les")
+        stemmer = FrenchStemmer()
+
+        jobs, labels_exp, labels_ind = pre_proc_data(dataset_train, tokenizer, stop_words, stemmer)
         data_train = {"jobs": jobs, "labels_exp": labels_exp, "labels_ind": labels_ind}
 
-        jobs, labels_exp, labels_ind = pre_proc_data(dataset_test)
+        jobs, labels_exp, labels_ind = pre_proc_data(dataset_test, tokenizer, stop_words, stemmer)
         data_test = {"jobs": jobs, "labels_exp": labels_exp, "labels_ind": labels_ind}
 
         with open(os.path.join(CFG["gpudatadir"], f"{file_root}_TRAIN.pkl"), 'wb') as f_name:
@@ -67,14 +73,12 @@ def get_labelled_data(args):
     return data_train, data_test, class_weights
 
 
-def pre_proc_data(data):
-    tokenizer = RegexpTokenizer(r'\w+')
-    stop_words = set(stopwords.words("french"))
+def pre_proc_data(data, tokenizer, stop_words, stemmer):
     labels_exp, labels_ind, jobs = [], [], []
     for job in tqdm(data, desc="Parsing profiles..."):
         labels_exp.append(job[2])
         labels_ind.append(job[1])
-        cleaned_ab = [w.lower() for w in tokenizer.tokenize(job[0]) if (w not in stop_words) and (w != "")]
+        cleaned_ab = [stemmer.stem(w.lower()) for w in tokenizer.tokenize(job[0]) if (w not in stop_words) and (w != "")]
         jobs.append(" ".join(cleaned_ab))
     ipdb.set_trace()
     return jobs, labels_exp, labels_ind
