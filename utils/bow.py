@@ -59,11 +59,9 @@ def get_labelled_data(args):
         np.random.shuffle(dataset_train.tuples)
 
         if args.add_ind_name == "True":
-            ipdb.set_trace()
-            dataset_test.rev_ind_dict
-            jobs, labels_exp, labels_ind = pre_proc_data_ind(ind_dict, dataset_train, tokenizer, stop_words)
+            jobs, labels_exp, labels_ind = pre_proc_data_ind(dataset_test.ind_dict, dataset_train, tokenizer, stop_words)
             data_train = {"jobs": jobs, "labels_exp": labels_exp, "labels_ind": labels_ind}
-            jobs, labels_exp, labels_ind = pre_proc_data_ind(ind_dict, dataset_test, tokenizer, stop_words)
+            jobs, labels_exp, labels_ind = pre_proc_data_ind(dataset_test.ind_dict, dataset_test, tokenizer, stop_words)
             data_test = {"jobs": jobs, "labels_exp": labels_exp, "labels_ind": labels_ind}
 
         else:
@@ -99,7 +97,10 @@ def pre_proc_data_ind(ind_dict, data, tokenizer, stop_words):
         labels_exp.append(int(job[2]))
         labels_ind.append(int(job[1]))
         cleaned_ab = [w.lower() for w in tokenizer.tokenize(job[0]) if (w not in stop_words) and (w != "")]
-        jobs.append(" ".join(cleaned_ab))
+        tmp = ["_".join(ind_dict[job[1]].split(" "))]
+        tmp.extend(cleaned_ab)
+        jobs.append(" ".join(tmp))
+        ipdb.set_trace()
     return jobs, labels_exp, labels_ind
 
 
