@@ -64,7 +64,7 @@ def select_relevant_keys(handle, test_results):
 
 
 def subsample_according_to_class_weight(args, data_train, data_test, class_dict, subsample):
-    tgt_file = os.path.join(CFG["gpudatadir"], f"subsampled_data_{subsample}_{args.exp_type}_{args.exp_levels}exp.pkl")
+    tgt_file = os.path.join(CFG["gpudatadir"], f"subsampled_{subsample}_bow_jobs_pre_proced_{args.exp_type}_{args.exp_levels}exp.pkl")
     if os.path.isfile(tgt_file):
         with open(tgt_file, "rb") as f:
             dat = pkl.load(f)
@@ -79,7 +79,7 @@ def subsample_according_to_class_weight(args, data_train, data_test, class_dict,
             class_counter = 0
             while class_counter < num_sample_per_class[k]:
                 rdm_index = numpy.random.randint(len(data_train))
-                if (data_train[rdm_index][1] == k) and (rdm_index not in sampled_index):
+                if (data_train["labels_ind"][rdm_index][1] == k) and (rdm_index not in sampled_index):
                     sub_train.append(data_train[rdm_index])
                     class_counter += 1
                     sampled_index.append(rdm_index)
@@ -88,7 +88,7 @@ def subsample_according_to_class_weight(args, data_train, data_test, class_dict,
             class_counter = 0
             while class_counter < num_sample_per_class[k]:
                 rdm_index = numpy.random.randint(len(data_test))
-                if (data_test[rdm_index][1] == k) and (rdm_index not in sampled_index):
+                if (data_test["labels_ind"][rdm_index][1] == k) and (rdm_index not in sampled_index):
                     sub_test.append(data_test[rdm_index])
                     class_counter += 1
                     sampled_index.append(rdm_index)
