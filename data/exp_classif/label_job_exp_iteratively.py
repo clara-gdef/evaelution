@@ -358,6 +358,7 @@ if __name__ == "__main__":
     parser.add_argument("--subsample_jobs", type=int, default=-1)
     parser.add_argument("--train_user_len", type=int, default=1000)
     parser.add_argument("--max_iter", type=int, default=50)
+    parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--user_step", type=int, default=10)
     parser.add_argument("--start_iter", type=int, default=0)
     parser.add_argument("--f1_threshold", type=int, default=80)
