@@ -21,8 +21,6 @@ def init(args):
 
 def main(data_train, data_test, class_weights, dico):
     exp_title = f"gs_{args.exp_type}_{args.exp_levels}exp_res_{args.model}"
-    if args.tfidf == "True":
-        exp_title += "_tfidf"
     if args.subsample > 0:
         exp_title += f"_{args.subsample}"
     if args.TRAIN == "True":
