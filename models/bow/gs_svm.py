@@ -87,7 +87,7 @@ def get_common_params():
             "kernel": "linear",
             "exp_type": args.exp_type,
             "exp_levels": args.exp_levels,
-            "suffix": args.dataset_suffix}
+            "dataset_suffix": args.dataset_suffix}
     return dico
 
 
