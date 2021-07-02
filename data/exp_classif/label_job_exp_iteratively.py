@@ -12,6 +12,8 @@ from utils.bow import train_svm, pre_proc_data
 from sklearn.feature_extraction.text import TfidfVectorizer
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
+from nltk.corpus import stopwords
+from nltk.tokenize import RegexpTokenizer
 from itertools import chain
 
 
@@ -33,12 +35,16 @@ def main(args):
         check_monotonic_dynamic(data_train_valid, valid_lookup, "valid")
         check_monotonic_dynamic(data_test, test_lookup, "test")
 
-    cleaned_profiles, labels_exp_train, _ = pre_proc_data(data_train_valid)
-    cleaned_profiles_test, labels_exp_test, _ = pre_proc_data(data_test)
+    tokenizer = RegexpTokenizer(r'\w+')
+    stop_words = set(stopwords.words("french"))
+    stop_words.add("les")
+
+    jobs_train, labels_exp_train, _ = pre_proc_data(data_train_valid, tokenizer, stop_words)
+    cleaned_profiles_test, labels_exp_test, _ = pre_proc_data(data_test, tokenizer, stop_words)
     vectorizer = TfidfVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None,
                                  max_df=.8, min_df=1e-4, max_features=50000)
     print("Fitting vectorizer...")
-    train_features = vectorizer.fit_transform(cleaned_profiles)
+    train_features = vectorizer.fit_transform(jobs_train)
     print("Vectorizer Fitted.")
 
     test_features = vectorizer.transform(cleaned_profiles_test)
