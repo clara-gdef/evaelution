@@ -263,34 +263,21 @@ def get_class_dist(class_list):
 def load_datasets(args):
     datasets = []
     splits = ["TRAIN", "VALID", "TEST"]
-    if args.ind_sub == "True":
-        if args.start_iter == 0:
-            suffix = ""
-        else:
-            suffix = f"_it{args.start_iter}"
-        arguments = {'data_dir': CFG["gpudatadir"],
-                     "load": args.load_dataset,
-                     "subsample": args.subsample_jobs,
-                     "max_len": 10,
-                     "exp_levels": args.exp_levels,
-                     "tuple_list": None,
-                     "already_subbed": "True",
-                     'lookup': None,
-                     "suffix": suffix,
-                     "exp_type": args.exp_type,
-                     "is_toy": "False"}
-        for split in splits:
-            datasets.append(StringIndSubDataset(**arguments, split=split))
+    if args.start_iter == 0:
+        suffix = ""
     else:
-        arguments = {'data_dir': CFG["gpudatadir"],
-                     "load": args.load_dataset,
-                     "subsample": args.subsample_jobs,
-                     "max_len": 10,
-                     "exp_levels": args.exp_levels,
-                     "exp_type": args.exp_type,
-                     "is_toy": "False"}
-        for split in splits:
-            datasets.append(StringDataset(**arguments, split=split))
+        suffix = f"_it{args.start_iter}"
+    arguments = {'data_dir': CFG["gpudatadir"],
+                 "load": args.load_dataset,
+                 "subsample": args.subsample_jobs,
+                 "max_len": args.max_len,
+                 "exp_levels": args.exp_levels,
+                 "rep_file": CFG['ppl_rep'],
+                 "suffix": suffix,
+                 "exp_type": args.exp_type,
+                 "is_toy": "False"}
+    for split in splits:
+        datasets.append(StringIndSubDataset(**arguments, split=split))
     len_train = len(datasets[0])
     len_valid = len(datasets[1])
     init_train_lookup = datasets[0].user_lookup
