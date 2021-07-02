@@ -3,7 +3,7 @@ import yaml
 import argparse
 import os
 import pickle as pkl
-from utils import DotDict
+from utils.DotDict import DotDict
 from models.bow import train_svm_classif
 
 
