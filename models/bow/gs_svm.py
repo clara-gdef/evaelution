@@ -29,7 +29,7 @@ def main(data_train, data_test, class_weights, dico):
             results[min_df] = {}
             for max_df in [.6, .8, 1.0]:
                 results[min_df][max_df] = {}
-                for max_features in [10000, 20000, 30000]:
+                for max_features in [8000, 10000, 12000]:
                     print(f"min_df: {min_df}, max_df: {max_df}, max_features: {max_features}")
                     results[min_df][max_df] = {}
                     dico['min_df'] = min_df
@@ -70,7 +70,7 @@ def results_sanity_check(results, handle):
         for max_df in results[min_df].keys():
             for max_features in results[min_df][max_df].keys():
                 tmp.append(results[min_df][max_df][max_features][handle])
-    print(set(tmp))
+    print(f"different f1 values obtained{set(tmp)}")
     return tmp
 
 
