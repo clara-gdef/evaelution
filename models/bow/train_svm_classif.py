@@ -73,23 +73,28 @@ def subsample_according_to_class_weight(args, data_train, data_test, class_dict,
     else:
         ind_weights = class_dict["ind"]
         num_sample_per_class = {k: int(v*subsample) for k, v in ind_weights.items()}
-        sub_train, sub_test = [], []
+        sub_train = {"jobs": [], "labels_exp": [], "labels_ind": []}
         sampled_index = []
         for k in tqdm(num_sample_per_class.keys(), desc="Subsampling train data according to industry class ratio"):
             class_counter = 0
             while class_counter < num_sample_per_class[k]:
                 rdm_index = numpy.random.randint(len(data_train))
                 if (data_train["labels_ind"][rdm_index] == k) and (rdm_index not in sampled_index):
-                    sub_train.append(data_train[rdm_index])
+                    sub_train["jobs"].append(data_train["jobs"][rdm_index])
+                    sub_train["labels_ind"].append(data_train["labels_ind"][rdm_index])
+                    sub_train["labels_exp"].append(data_train["labels_exp"][rdm_index])
                     class_counter += 1
                     sampled_index.append(rdm_index)
+        sub_test = {"jobs": [], "labels_exp": [], "labels_ind": []}
         sampled_index = []
         for k in tqdm(num_sample_per_class.keys(), desc="Subsampling test data according to industry class ratio"):
             class_counter = 0
             while class_counter < num_sample_per_class[k]:
                 rdm_index = numpy.random.randint(len(data_test))
                 if (data_test["labels_ind"][rdm_index] == k) and (rdm_index not in sampled_index):
-                    sub_test.append(data_test[rdm_index])
+                    sub_test["jobs"].append(data_test["jobs"][rdm_index])
+                    sub_test["labels_ind"].append(data_test["labels_ind"][rdm_index])
+                    sub_test["labels_exp"].append(data_test["labels_exp"][rdm_index])
                     class_counter += 1
                     sampled_index.append(rdm_index)
         tmp = {"train": sub_train, "test": sub_test}
