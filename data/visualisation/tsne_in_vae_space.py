@@ -249,7 +249,7 @@ def get_dicts_for_plot(att_type):
 
 
 def make_xp_title(hparams):
-    xp_title = f"{hparams.model_type}_bs{hparams.b_size}_mlphs{hparams.mlp_hs}_lr{hparams.lr}_{hparams.optim}"
+    xp_title = f"{hparams.model_type}_bs{hparams.b_size}_mlphs{hparams.mlp_hs}_lr{hparams.lr}_{hparams.optim}_{hparams.sent_rep}"
     if hparams.coef_rec != .5:
         xp_title += f"_coef_rec{hparams.coef_rec}"
     if hparams.att_type != "both":

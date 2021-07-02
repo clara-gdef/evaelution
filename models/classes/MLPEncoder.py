@@ -11,11 +11,13 @@ class MLPEncoder(pl.LightningModule):
         self.leaky_relu = torch.nn.LeakyReLU(0.2)
 
         self.in_layer = torch.nn.Linear(input_size, hidden_size)
-        self.hidden_layer = torch.nn.Linear(hidden_size, hidden_size)
+        self.hidden_layer1 = torch.nn.Linear(hidden_size, hidden_size)
+        self.hidden_layer2 = torch.nn.Linear(hidden_size, hidden_size)
         self.mean_linear = torch.nn.Linear(hidden_size, latent_size)
         self.var_linear = torch.nn.Linear(hidden_size, latent_size)
 
     def forward(self, inputs):
         outs = self.leaky_relu(self.in_layer(inputs))
-        outs_2 = self.leaky_relu(self.hidden_layer(outs))
-        return self.mean_linear(outs_2), self.var_linear(outs_2)
+        outs_2 = self.leaky_relu(self.hidden_layer1(outs))
+        outs_3 = self.leaky_relu(self.hidden_layer2(outs))
+        return self.mean_linear(outs_3), self.var_linear(outs_3)

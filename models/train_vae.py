@@ -164,7 +164,7 @@ def init_lightning(CFG, xp_title, model_name):
 
 
 def make_xp_title(hparams):
-    xp_title = f"{hparams.model_type}_bs{hparams.b_size}_mlphs{hparams.mlp_hs}_lr{hparams.lr}_{hparams.optim}"
+    xp_title = f"{hparams.model_type}_bs{hparams.b_size}_mlphs{hparams.mlp_hs}_lr{hparams.lr}_{hparams.optim}_{hparams.sent_rep}"
     if hparams.coef_rec != .5:
         xp_title += f"_coef_rec{hparams.coef_rec}"
     if hparams.att_type != "both":
@@ -216,13 +216,14 @@ if __name__ == "__main__":
     parser.add_argument("--att_type", type=str, default="ind") # can be both, exp, ind or "none"
     # model attributes
     parser.add_argument("--freeze_decoding", type=str, default="True")
+    parser.add_argument("--sent_rep", type=str, default="cls") # can be cls or pooler
     parser.add_argument("--optim", default="adam")
     parser.add_argument("--b_size", type=int, default=256)
     parser.add_argument("--mlp_hs", type=int, default=512)
     parser.add_argument("--latent_size", type=int, default=512)
-    parser.add_argument("--max_len", type=int, default=10)
+    parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--logscale", type=float, default=1.)
-    parser.add_argument("--model_type", type=str, default="VAEnosigmoid")
+    parser.add_argument("--model_type", type=str, default="VAEmorelayersCLS")
     # global hyper params
     parser.add_argument("--coef_rec", type=float, default=.5)
     parser.add_argument("--coef_kl", type=float, default=.5)

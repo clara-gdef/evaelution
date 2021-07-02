@@ -125,3 +125,19 @@ def plot_grad_flow(named_parameters, desc):
                 Line2D([0], [0], color="b", lw=4),
                 Line2D([0], [0], color="k", lw=4)], ['max-gradient', 'mean-gradient', 'zero-gradient'])
     plt.savefig(f"img/plot_grad_flow_{desc}.png")
+
+
+def get_metrics_at_k(predictions, labels, num_classes, handle):
+    out_predictions = []
+    for index, pred in enumerate(predictions):
+        if labels[index] in pred:
+            if (type(labels[index]) == torch.Tensor) or (type(labels[index]) == np.ndarray):
+                out_predictions.append(labels[index].item())
+            else:
+                out_predictions.append(labels[index])
+        else:
+            if (type(pred[0]) == torch.Tensor) or (type(pred[0]) == np.ndarray):
+                out_predictions.append(pred[0].item())
+            else:
+                out_predictions.append(pred[0])
+    return get_metrics(out_predictions, labels, num_classes, handle)

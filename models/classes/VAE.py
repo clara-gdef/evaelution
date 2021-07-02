@@ -43,8 +43,12 @@ class VAE(pl.LightningModule):
                                 return_tensors="pt")
         input_tokenized, mask = inputs["input_ids"].cuda(), inputs["attention_mask"].cuda()
         max_seq_len = input_tokenized.shape[-1]
-        sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
-
+        if self.hp.sent_rep == "pooler":
+            sent_embed = self.text_encoder(input_tokenized, mask)['pooler_output']
+        elif self.hp.sent_rep == "cls":
+            sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
+        else:
+            raise Exception(f"Wrong sent rep specified. Can be cls or pooler. Got: {self.hp.sent_rep}")
         inputs = self.get_vae_encoder_input(sent_embed, ind, exp)
         mu_enc, log_var_enc = self.vae_encoder(inputs)
         std = torch.exp(log_var_enc / 2)
@@ -92,10 +96,10 @@ class VAE(pl.LightningModule):
             loss_text_gen_reduced = loss_text_gen / sum(sum(mask))
         else:
 
-            mse_loss = torch.nn.functional.mse_loss(reconstructed_input, sent_embed[:, -1, :])
+            mse_loss = torch.nn.functional.mse_loss(reconstructed_input, inputs[:, :768])
 
         obs_distrib = Normal(reconstructed_input, torch.exp(self.log_scale))
-        loss_vae_rec = - torch.sum(obs_distrib.log_prob(sent_embed[:, -1, :]))
+        loss_vae_rec = - torch.sum(obs_distrib.log_prob(inputs[:, :768]))
 
         loss_vae_kl = torch.sum(kl_divergence(z_dist, Normal(0, 1)))
 
@@ -109,8 +113,12 @@ class VAE(pl.LightningModule):
         inputs = self.tokenizer(sent, truncation=True, padding="max_length", max_length=self.max_len,
                                 return_tensors="pt")
         input_tokenized, mask = inputs["input_ids"].cuda(), inputs["attention_mask"].cuda()
-        sent_embed = torch.sigmoid(self.text_encoder(input_tokenized, mask)['last_hidden_state'])
-
+        if self.hp.sent_rep == "pooler":
+            sent_embed = self.text_encoder(input_tokenized, mask)['pooler_output']
+        elif self.hp.sent_rep == "cls":
+            sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
+        else:
+            raise Exception(f"Wrong sent rep specified. Can be cls or pooler. Got: {self.hp.sent_rep}")
         inputs = self.get_vae_encoder_input(sent_embed, ind, exp)
         mu_enc, log_var_enc = self.vae_encoder(inputs)
         std = torch.exp(log_var_enc / 2)
@@ -125,8 +133,12 @@ class VAE(pl.LightningModule):
         inputs = self.tokenizer(sent, truncation=True, padding="max_length", max_length=self.max_len,
                                 return_tensors="pt")
         input_tokenized, mask = inputs["input_ids"].cuda(), inputs["attention_mask"].cuda()
-        sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
-
+        if self.hp.sent_rep == "pooler":
+            sent_embed = self.text_encoder(input_tokenized, mask)['pooler_output']
+        elif self.hp.sent_rep == "cls":
+            sent_embed = self.text_encoder(input_tokenized, mask)['last_hidden_state']
+        else:
+            raise Exception(f"Wrong sent rep specified. Can be cls or pooler. Got: {self.hp.sent_rep}")
         inputs = self.get_vae_encoder_input(sent_embed, ind, exp)
         mu_enc, sig_enc = self.vae_encoder(inputs)
         z_dist = Normal(mu_enc, torch.nn.functional.softplus(sig_enc) + 1e-10)
@@ -150,10 +162,10 @@ class VAE(pl.LightningModule):
             train_kl_loss = 0
 
         train_loss = train_rec_loss + train_kl_loss
-        self.log('train_mse_loss', mse, on_step=True, on_epoch=False)
-        self.log('train_rec_loss', train_rec_loss, on_step=True, on_epoch=False)
-        self.log('train_kl_loss', train_kl_loss, on_step=True, on_epoch=False)
-        self.log('train_loss', train_loss, on_step=True, on_epoch=False)
+        self.log('train_mse_loss', mse)
+        self.log('train_rec_loss', train_rec_loss)
+        self.log('train_kl_loss', train_kl_loss)
+        self.log('train_loss', train_loss)
         if self.hp.plot_grad == "True":
             train_loss.backward()
             plot_grad_flow(self.vae_encoder.named_parameters(), self.desc + "enc")
@@ -169,10 +181,10 @@ class VAE(pl.LightningModule):
         val_kl_loss = self.hp.coef_kl * kl / sample_len
         val_rec_loss = self.hp.coef_rec * rec / sample_len
         val_loss = val_rec_loss + val_kl_loss
-        self.log('train_mse_loss', mse, on_step=False, on_epoch=True)
-        self.log('val_rec_loss', val_rec_loss, on_step=False, on_epoch=True)
-        self.log('val_kl_loss', val_kl_loss, on_step=False, on_epoch=True)
-        self.log('val_loss', val_loss, on_step=False, on_epoch=True)
+        self.log('val_mse_loss', mse)
+        self.log('val_rec_loss', val_rec_loss)
+        self.log('val_kl_loss', val_kl_loss)
+        self.log('val_loss', val_loss)
         return {"val_loss": val_loss}
 
     def validation_epoch_end(self, validation_step_outputs):
@@ -193,15 +205,24 @@ class VAE(pl.LightningModule):
     def test_epoch_end(self):
         ipdb.set_trace()
 
-    def get_vae_encoder_input(self, sent_embed, ind, exp):
+    def get_vae_encoder_input(self, sent_embed_tmp, ind, exp):
+        sent_embed = self.get_sent_embed(sent_embed_tmp)
         if self.hp.att_type == "both":
-            inpt = torch.cat([sent_embed[:, -1, :], ind, exp], dim=-1)
+            inpt = torch.cat([sent_embed, ind, exp], dim=-1)
         elif self.hp.att_type == "exp":
-            inpt = torch.cat([sent_embed[:, -1, :], exp], dim=-1)
+            inpt = torch.cat([sent_embed, exp], dim=-1)
         elif self.hp.att_type == "ind":
-            inpt = torch.cat([sent_embed[:, -1, :], ind], dim=-1)
+            inpt = torch.cat([sent_embed, ind], dim=-1)
         elif self.hp.att_type == "none":
             inpt = sent_embed[:, -1, :]
         else:
             raise Exception(f"Wrong att_type specified. Can be both, exp, ind, or none. Got: {self.hp.att_type}")
         return inpt
+
+    def get_sent_embed(self, sent_embed_tmp):
+        if self.hp.sent_rep == "pooler":
+            return sent_embed_tmp
+        elif self.hp.sent_rep == "cls":
+            return sent_embed_tmp[:, 0, :]
+        else:
+            raise Exception(f"Wrong sent rep specified. Can be cls or pooler. Got: {self.hp.sent_rep}")
