@@ -7,7 +7,7 @@ import numpy as np
 from collections import Counter
 from tqdm import tqdm
 from data.datasets.StringIndSubDataset import StringIndSubDataset
-from utils import get_metrics
+from utils.models import get_metrics
 from utils.bow import train_svm, pre_proc_data
 from sklearn.feature_extraction.text import TfidfVectorizer
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
