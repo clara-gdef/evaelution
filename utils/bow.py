@@ -54,7 +54,7 @@ def get_labelled_data(args):
         stop_words = set(stopwords.words("french"))
         stop_words.add("les")
 
-        np.random.shuffle(dataset_train)
+        np.random.shuffle(dataset_train.tuples)
 
         jobs, labels_exp, labels_ind = pre_proc_data(dataset_train, tokenizer, stop_words)
         data_train = {"jobs": jobs, "labels_exp": labels_exp, "labels_ind": labels_ind}
