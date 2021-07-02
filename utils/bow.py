@@ -134,9 +134,9 @@ def test_for_att(args, class_dict, att_type, labels, model, features, split):
 
 
 def get_predictions(args, model, features, labels, att_type):
-    if args.model == "SVM":
+    if args.model == "svm":
         predictions = model.decision_function(features)
-    elif args.model == "NB":
+    elif args.model == "nb":
         predictions = model.predict_log_proba(features)
     if att_type == "exp":
         k = 2
