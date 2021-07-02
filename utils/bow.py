@@ -22,9 +22,9 @@ def get_labelled_data(args):
     with open("config.yaml", "r") as ymlfile:
         CFG = yaml.load(ymlfile, Loader=yaml.SafeLoader)
     file_root = f"bow_jobs_pre_proced_{args.exp_type}_{args.exp_levels}exp_maxlen{args.max_len}"
-    suffix = args.dataset_suffix
     if args.add_ind_name == "True":
-        suffix += "_indName"
+        file_root += "_indName"
+    suffix = args.dataset_suffix
     if args.load_data == "True":
         print("Loading data...")
         with open(os.path.join(CFG["gpudatadir"], f"{file_root}_TRAIN.pkl"), 'rb') as f_name:
