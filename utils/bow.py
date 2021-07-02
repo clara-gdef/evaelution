@@ -98,7 +98,9 @@ def get_class_weights(dataset_train):
 
 def fit_vectorizer(args, input_data):
     mf = args.max_features if args.max_features != 0 else None
-    vectorizer = TfidfVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None,
+    # vectorizer = TfidfVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None,
+    #                              max_df=args.max_df, min_df=args.min_df, max_features=mf)
+    vectorizer = CountVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None,
                                  max_df=args.max_df, min_df=args.min_df, max_features=mf)
     print("Fitting vectorizer...")
     data_features = vectorizer.fit_transform([np.str_(x) for x in input_data])
