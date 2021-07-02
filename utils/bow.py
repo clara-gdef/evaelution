@@ -22,6 +22,7 @@ def get_labelled_data(args):
     with open("config.yaml", "r") as ymlfile:
         CFG = yaml.load(ymlfile, Loader=yaml.SafeLoader)
     file_root = f"bow_jobs_pre_proced_{args.exp_type}_{args.exp_levels}exp"
+    suffix = args.dataset_suffix
     if args.load_data == "True":
         print("Loading data...")
         with open(os.path.join(CFG["gpudatadir"], f"{file_root}_TRAIN.pkl"), 'rb') as f_name:
@@ -29,11 +30,10 @@ def get_labelled_data(args):
         with open(os.path.join(CFG["gpudatadir"], f"{file_root}_TEST.pkl"), 'rb') as f_name:
             data_test = pkl.load(f_name)
         with open(os.path.join(CFG["gpudatadir"],
-                               f"class_weights_dict_{args.exp_type}_{args.exp_levels}exp.pkl"),
+                               f"class_weights_dict_{args.exp_type}_{args.exp_levels}exp_{suffix}.pkl"),
                   'rb') as f_name:
             class_weights = pkl.load(f_name)
     else:
-        suffix = args.dataset_suffix
         print("Building datasets...")
         ppl_file = CFG["ppl_rep"]
         arguments = {'data_dir': CFG["gpudatadir"],
