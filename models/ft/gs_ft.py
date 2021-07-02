@@ -74,15 +74,6 @@ def main(args):
             # With params (0.5, 50, 5)
 
 
-def get_suffix(args):
-    suffix = '_10'
-    if args.att_type == "ind":
-        att_string = "ind20"
-    elif args.att_type == "exp":
-        att_string = f"exp{args.exp_levels}_{args.exp_type}"
-    suffix += "_subInd"
-    return att_string, suffix
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -91,7 +82,7 @@ if __name__ == "__main__":
     parser.add_argument("--exp_type", type=str, default="uniform")
     parser.add_argument("--TRAIN", type=str, default="True")
     parser.add_argument("--TEST", type=str, default="True")
-    parser.add_argument("--dataset_suffix", type=str, default="new2_it30")# can be ind or exp
+    parser.add_argument("--dataset_suffix", type=str, default="")
     parser.add_argument("--att_type", type=str, default="exp")# can be ind or exp    args = parser.parse_args()
     args = parser.parse_args()
     main(args)
