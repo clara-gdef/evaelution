@@ -33,9 +33,9 @@ def main(args, data_train, data_test, class_dict):
         vectorizer = joblib.load(f"{tgt_file}_vectorizer_{args.model}_{args.kernel}.joblib")
     else:
         if args.model == "svm":
-            model = train_svm(scale(train_features[:args.subsample]), data_train[f"labels_{args.att_type}"][:args.subsample], class_dict[args.att_type], args.kernel)
+            model = train_svm(train_features[:args.subsample], data_train[f"labels_{args.att_type}"][:args.subsample], class_dict[args.att_type], args.kernel)
         elif args.model == "nb":
-            model = train_nb(scale(train_features[:args.subsample]), data_train[f"labels_{args.att_type}"][:args.subsample], class_dict[args.att_type])
+            model = train_nb(train_features[:args.subsample], data_train[f"labels_{args.att_type}"][:args.subsample], class_dict[args.att_type])
         else:
             raise Exception("Wrong model type specified, can be either svm or nb")
         if args.save_model == "True":
