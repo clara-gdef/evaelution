@@ -145,7 +145,6 @@ def get_predictions(args, model, features, labels, att_type):
     predictions_at_1 = []
     for sample, lab in zip(predictions, labels):
         predictions_at_1.append(get_pred_at_k(sample, lab, 1))
-    ipdb.set_trace()
     predictions_at_10 = []
     for sample, lab in zip(predictions, labels):
         predictions_at_10.append(get_pred_at_k(sample, lab, k))
