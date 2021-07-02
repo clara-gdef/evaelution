@@ -50,11 +50,11 @@ def get_labelled_data(args):
         dataset_test = StringIndSubDataset(**arguments, split="TEST")
         dataset_train.tuples.extend(dataset_valid.tuples)
         class_weights = get_class_weights(dataset_train)
-
         tokenizer = RegexpTokenizer(r'\w+')
         stop_words = set(stopwords.words("french"))
         stop_words.add("les")
-        # stemmer = FrenchStemmer()
+
+        np.random.shuffle(dataset_train)
 
         jobs, labels_exp, labels_ind = pre_proc_data(dataset_train, tokenizer, stop_words)
         data_train = {"jobs": jobs, "labels_exp": labels_exp, "labels_ind": labels_ind}
