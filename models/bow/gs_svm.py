@@ -87,7 +87,7 @@ def get_common_params():
             "kernel": "linear",
             "exp_type": args.exp_type,
             "exp_levels": args.exp_levels,
-            "suffix": args.suffix}
+            "suffix": args.dataset_suffix}
     return dico
 
 
@@ -116,7 +116,7 @@ if __name__ == "__main__":
     parser.add_argument("--subsample", type=int, default=1000)
     parser.add_argument("--exp_levels", type=int, default=3)
     parser.add_argument("--max_len", type=int, default=32)
-    parser.add_argument("--suffix", type=str, default="")
+    parser.add_argument("--dataset_suffix", type=str, default="")
     parser.add_argument("--exp_type", type=str, default="uniform")
     parser.add_argument("--load_data", type=str, default="True")
     args = parser.parse_args()
