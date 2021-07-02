@@ -128,6 +128,7 @@ def test_for_att(args, class_dict, att_type, labels, model, features, split):
     num_c = len(class_dict[att_type])
     handle = f"{att_type} {split} {args.model}"
     preds, preds_at_k, k = get_predictions(args, model, features, labels, att_type)
+    ipdb.set_trace()
     res_at_1 = eval_model(labels, preds, num_c, handle)
     res_at_k = eval_model(labels, preds_at_k, num_c, f"{handle}_@{k}")
     return {**res_at_1, **res_at_k}
