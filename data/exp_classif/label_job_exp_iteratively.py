@@ -6,7 +6,7 @@ import os
 import numpy as np
 from collections import Counter
 from tqdm import tqdm
-from data.datasets import StringIndSubDataset, StringDataset
+from data.datasets.StringIndSubDataset import StringIndSubDataset
 from utils import get_metrics
 from utils.bow import train_svm, pre_proc_data
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -361,6 +361,7 @@ def subsample_user_lookup(args, datasets):
     else:
         print(f"No subsampling of users, returning full lookup of length: {len(datasets.user_lookup)}")
         return datasets.user_lookup
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
