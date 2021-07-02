@@ -114,6 +114,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_len", type=int, default=10)
     parser.add_argument("--save_model", default="True")
     parser.add_argument("--load_model", type=str, default="False")
+    parser.add_argument("--dataset_suffix", type=str, default="")
     parser.add_argument("--sub_ind", type=str, default="True")
     parser.add_argument("--att_type", type=str, default="exp") # ind or exp
     parser.add_argument("--exp_type", type=str, default="uniform") # uniform
