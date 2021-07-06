@@ -50,5 +50,6 @@ if __name__ == "__main__":
     parser.add_argument("--exp_levels", type=int, default=3) # 5 of 3
     parser.add_argument("--load_data", type=str, default="True")
     parser.add_argument("--max_len", type=int, default=32)
+    parser.add_argument("--add_ind_name", type=str, default="False")
     args = parser.parse_args()
     main(args)
