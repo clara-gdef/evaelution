@@ -301,7 +301,13 @@ def load_datasets(args):
     test_lookup_sub = subsample_user_lookup(args, datasets[-1])
 
     data_train_valid = subsample_jobs_from_user_lookup(datasets[0].tuples + datasets[1].tuples, {**train_lookup_sub, **valid_lookup_sub})
-    data_train_valid.user_lookup = {**train_lookup_sub, **valid_lookup_sub}
+
+    for attribute in vars(datasets[0]):
+        ipdb.set_trace()
+        if str(attribute) not in ["user_lookup", "tuples"]:
+            data_train_valid[str(attribute)] = vars(datasets[0])[attribute]
+
+    ipdb.set_trace()
     data_train_valid.check_monotonicity = datasets[0].check_monotonicity
     data_train_valid.check_monotonicity()
 
@@ -318,7 +324,6 @@ def subsample_jobs_from_user_lookup(jobs, lookup):
     for user_id, (start, end) in lookup.items():
         for num_job in range(start, end):
             new_jobs.append(jobs[num_job])
-    ipdb.set_trace()
     print(len(new_jobs))
     return Bunch(tuples=new_jobs, user_lookup=lookup)
 
