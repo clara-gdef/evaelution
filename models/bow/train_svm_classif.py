@@ -34,9 +34,9 @@ def main(args, data_train, data_test, class_dict):
         vectorizer = joblib.load(f"{tgt_file}_vectorizer_{args.model}_{args.kernel}.joblib")
     else:
         if args.model == "svm":
-            model, scaler = train_svm(train_features[:args.subsample], data_train[f"labels_{args.att_type}"][:args.subsample], class_dict[args.att_type], args.kernel)
+            model = train_svm(train_features[:args.subsample], data_train[f"labels_{args.att_type}"][:args.subsample], class_dict[args.att_type], args.kernel)
         elif args.model == "nb":
-            model, scaler = train_nb(train_features[:args.subsample], data_train[f"labels_{args.att_type}"][:args.subsample], class_dict[args.att_type])
+            model = train_nb(train_features[:args.subsample], data_train[f"labels_{args.att_type}"][:args.subsample], class_dict[args.att_type])
         else:
             raise Exception("Wrong model type specified, can be either svm or nb")
         if args.save_model == "True":
@@ -44,9 +44,8 @@ def main(args, data_train, data_test, class_dict):
             joblib.dump(vectorizer, f"{tgt_file}_vectorizer_{args.model}_{args.kernel}.joblib")
     # TEST
     test_features = vectorizer.transform(data_test["jobs"])
-    data2 = scaler.transform(test_features.todense())
-    res_test = test_for_att(args, class_dict, args.att_type, data_test[f"labels_{args.att_type}"][:args.subsample], model, data2[:args.subsample], "TEST")
-    res_train = test_for_att(args, class_dict, args.att_type, data_train[f"labels_{args.att_type}"][:args.subsample], model, data2[:args.subsample], "TRAIN")
+    res_test = test_for_att(args, class_dict, args.att_type, data_test[f"labels_{args.att_type}"][:args.subsample], model, test_features[:args.subsample].todense(), "TEST")
+    res_train = test_for_att(args, class_dict, args.att_type, data_train[f"labels_{args.att_type}"][:args.subsample], model, train_features[:args.subsample], "TRAIN")
 
     all_res = {**res_test, **res_train}
     print(f"EXP NAME: {exp_name}")
