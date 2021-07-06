@@ -126,7 +126,7 @@ def build_txt_files(args, suffix):
     if os.path.isfile(tgt_file_test_model):
         os.system('rm ' + tgt_file_test_model)
         print("removing previous file")
-    write_in_file_with_label(args, tgt_file_test_model, test_dataset, args.att_type, "test")
+    write_in_file_with_label(args, tgt_file_test_model, test_dataset, args.att_type, "test", train_dataset.ind_dict)
     print("File " + tgt_file_test_model + " built.")
 
 
