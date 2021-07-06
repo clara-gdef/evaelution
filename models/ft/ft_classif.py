@@ -164,7 +164,7 @@ def get_attribute(att_type, dataset, item):
         else:
             att = industry_tmp
     elif att_type == "exp":
-        att = item[-1]
+        att = int(item[-1])
     else:
         raise Exception(att_type)
     return att
