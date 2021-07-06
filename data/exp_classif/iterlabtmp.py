@@ -14,7 +14,6 @@ from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
-from itertools import chain
 
 
 def init(args):
@@ -29,11 +28,7 @@ def init(args):
 
 
 def main(args):
-    data_train_valid, data_test, (len_train, len_valid), train_lookup, valid_lookup, test_lookup = load_datasets(args)
-    if args.initial_check == "True":
-        check_monotonic_dynamic(data_train_valid, train_lookup, "train")
-        check_monotonic_dynamic(data_train_valid, valid_lookup, "valid")
-        check_monotonic_dynamic(data_test, test_lookup, "test")
+    data_train_valid, data_test, (len_train, len_valid), train_lookup, valid_lookup, test_lookup, sublookup = load_datasets(args)
 
     tokenizer = RegexpTokenizer(r'\w+')
     stop_words = set(stopwords.words("french"))
@@ -57,9 +52,9 @@ def main(args):
     for k, v in test_lookup.items():
         offset_test_lookup[k] = [v[0] + offset, v[1] + offset]
     assert v[1] + offset <= train_features.shape[0] + test_features.shape[0]
-    all_users = {**train_lookup, **offset_test_lookup}
+    all_users = {**sublookup, **offset_test_lookup}
 
-    check_monotonic_dynamic(data_train_valid + data_test, all_users, "all")
+    check_monotonic_dynamic(data_train_valid + data_test, sublookup, "all")
     print(f"Concatenating all {train_features.shape[0] + test_features.shape[0]} features...")
     all_features = np.concatenate((train_features.toarray(), test_features.toarray()), axis=0)
     all_labels = labels_exp_train
@@ -272,7 +267,7 @@ def load_datasets(args):
         suffix = ""
     else:
         suffix = f"_it{args.start_iter}"
-    arguments = {'data_dir': CFG["gpudatadir"],
+    arguments = {'data_dir': CFG["datadir"],
                  "load": args.load_dataset,
                  "subsample": args.subsample_jobs,
                  "max_len": args.max_len,
@@ -295,21 +290,36 @@ def load_datasets(args):
         offset_valid_lookup[k] = [v[0] + offset, v[1] + offset]
     datasets[1].user_lookup = offset_valid_lookup
 
-    data_train_valid = datasets[0]
-    data_train_valid.tuples.extend(datasets[1].tuples)
-
     train_lookup_sub = subsample_user_lookup(args, datasets[0])
     valid_lookup_sub = subsample_user_lookup(args, datasets[1])
     test_lookup_sub = subsample_user_lookup(args, datasets[-1])
 
-    data_train_valid.user_lookup = {**train_lookup_sub, **valid_lookup_sub}
+    data_train_valid = datasets[0]
+    tmp, new_lookup = subsample_jobs_from_user_lookup(datasets[0].tuples + datasets[1].tuples, {**train_lookup_sub, **valid_lookup_sub})
+    data_train_valid.tuples = tmp
+    data_train_valid.user_lookup = new_lookup
     data_train_valid.check_monotonicity()
-    datasets[-1].user_lookup = test_lookup_sub
 
-    # len_valid = len(datasets[1])
-    # assert len(data_train_valid) == len_train + len_valid
+    sub_jobs_test, new_lookup_test = subsample_jobs_from_user_lookup(datasets[-1].tuples, test_lookup_sub)
+    datasets[-1].tuples = sub_jobs_test
+    datasets[-1].user_lookup = new_lookup_test
     return data_train_valid, datasets[-1], (len_train, len_valid), \
-           init_train_lookup, offset_valid_lookup, init_test_lookup
+           init_train_lookup, offset_valid_lookup, new_lookup_test, new_lookup
+
+
+def subsample_jobs_from_user_lookup(jobs, lookup):
+    new_lookup = {}
+    new_jobs = []
+    usr_counter, start_cnt, end_cnt = 0, 0, 0
+    for user_id, (start, end) in lookup.items():
+        for num_job in range(start, end):
+            end_cnt += 1
+            new_jobs.append(jobs[num_job])
+        new_lookup[usr_counter] = [start_cnt, end_cnt]
+        usr_counter += 1
+        start_cnt = end_cnt
+    print(f"retained jobs: {len(new_jobs)}")
+    return new_jobs, new_lookup
 
 
 def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
