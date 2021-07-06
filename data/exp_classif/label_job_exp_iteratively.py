@@ -306,7 +306,9 @@ def load_datasets(args):
     data_train_valid.user_lookup = new_lookup
     data_train_valid.check_monotonicity()
 
-    datasets[-1].user_lookup = test_lookup_sub
+    sub_jobs_test, new_lookup_test = subsample_jobs_from_user_lookup(datasets[-1].tuples, test_lookup_sub)
+    datasets[-1].tuples = sub_jobs_test
+    datasets[-1].user_lookup = new_lookup_test
     return data_train_valid, datasets[-1], (len_train, len_valid), \
            init_train_lookup, offset_valid_lookup, init_test_lookup, new_lookup
 
