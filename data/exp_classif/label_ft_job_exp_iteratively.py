@@ -7,7 +7,7 @@ import numpy as np
 from collections import Counter
 from tqdm import tqdm
 from data.datasets import StringIndSubDataset
-from utils import get_metrics, handle_fb_preds
+from utils.bow import get_metrics, handle_fb_preds
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
 
