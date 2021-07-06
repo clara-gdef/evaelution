@@ -5,6 +5,8 @@ import os
 import fasttext
 import numpy as np
 from collections import Counter
+from utils.Bunch import Bunch
+
 from tqdm import tqdm
 from data.datasets.StringIndSubDataset import StringIndSubDataset
 from utils.models import get_metrics, handle_fb_preds
@@ -338,21 +340,34 @@ def load_datasets(args):
         offset_valid_lookup[k] = [v[0] + offset, v[1] + offset]
     datasets[1].user_lookup = offset_valid_lookup
 
-    data_train_valid = datasets[0]
-    data_train_valid.tuples.extend(datasets[1].tuples)
-
     train_lookup_sub = subsample_user_lookup(args, datasets[0])
     valid_lookup_sub = subsample_user_lookup(args, datasets[1])
     test_lookup_sub = subsample_user_lookup(args, datasets[-1])
 
-    data_train_valid.user_lookup = {**train_lookup_sub, **valid_lookup_sub}
+    data_train_valid = subsample_jobs_from_user_lookup(datasets[0].tuples + datasets[1].tuples, {**train_lookup_sub, **valid_lookup_sub})
+
+    for attribute in dir(datasets[0]):
+        if str(attribute) not in ["user_lookup", "tuples"]:
+            data_train_valid[str(attribute)] = datasets[0].__getattribute__(attribute)
+
+    ipdb.set_trace()
+    data_train_valid.check_monotonicity = datasets[0].check_monotonicity
     data_train_valid.check_monotonicity()
+
     datasets[-1].user_lookup = test_lookup_sub
 
-    # len_valid = len(datasets[1])
-    # assert len(data_train_valid) == len_train + len_valid
     return data_train_valid, datasets[-1], (len_train, len_valid), \
            init_train_lookup, offset_valid_lookup, init_test_lookup
+
+
+def subsample_jobs_from_user_lookup(jobs, lookup):
+    new_jobs = []
+    for user_id, (start, end) in lookup.items():
+        for num_job in range(start, end):
+            new_jobs.append(jobs[num_job])
+    print(len(new_jobs))
+    return Bunch(tuples=new_jobs, user_lookup=lookup)
+
 
 
 def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
