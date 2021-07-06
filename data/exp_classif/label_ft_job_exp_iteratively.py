@@ -140,7 +140,7 @@ def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
 
 
 def build_ft_txt_file(args, suffix, all_labels, all_users, dataset_train, dataset_test):
-    tgt_file = os.path.join(CFG["datadir"],
+    tgt_file = os.path.join(CFG["gpudatadir"],
                             f"ft_classif_supervised_ind20_exp{args.exp_levels}_{args.exp_type}{suffix}.test")
     if os.path.isfile(tgt_file):
         os.system('rm ' + tgt_file)
@@ -151,7 +151,7 @@ def build_ft_txt_file(args, suffix, all_labels, all_users, dataset_train, datase
         suffix += f"_sub{args.train_user_len}"
 
     sub_data, sub_labels, user_train = get_subset_data_and_labels(dataset_train, all_labels, all_users, args.train_user_len)
-    tgt_file_exp_model = os.path.join(CFG["datadir"],
+    tgt_file_exp_model = os.path.join(CFG["gpudatadir"],
                                       f"ft_classif_supervised_ind20_exp{args.exp_levels}_{args.exp_type}{suffix}.train")
     print(tgt_file_exp_model)
     if os.path.isfile(tgt_file_exp_model):
@@ -286,7 +286,7 @@ def save_new_tuples(data_train_valid, data_test, all_labels, len_train, len_vali
 
 
 def save_new_tuples_per_split(tuple_list, lookup, split, iteration):
-    arguments = {'data_dir': CFG["datadir"],
+    arguments = {'data_dir': CFG["gpudatadir"],
                  "load": "False",
                  "subsample": -1,
                  "max_len": args.max_len,
@@ -315,7 +315,7 @@ def load_datasets(args):
         suffix = ""
     else:
         suffix = f"_it{args.start_iter}"
-    arguments = {'data_dir': CFG["datadir"],
+    arguments = {'data_dir': CFG["gpudatadir"],
                  "load": args.load_dataset,
                  "subsample": -1,
                  "max_len": args.max_len,
