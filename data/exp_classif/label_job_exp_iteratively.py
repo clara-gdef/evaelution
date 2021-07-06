@@ -304,7 +304,7 @@ def load_datasets(args):
 
     for attribute in dir(datasets[0]):
         if str(attribute) not in ["user_lookup", "tuples"]:
-            data_train_valid[str(attribute)] = datasets[0].__getattribute__(attribute)
+            data_train_valid.__setattr__(attribute, datasets[0].__getattribute__(attribute))
 
     data_train_valid.check_monotonicity = datasets[0].check_monotonicity
     data_train_valid.check_monotonicity()
