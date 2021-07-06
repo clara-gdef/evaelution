@@ -133,12 +133,12 @@ def fit_vectorizer(args, input_data):
 
 def train_svm(data, labels, class_weights, kernel):
     model = SVC(kernel=kernel, class_weight=class_weights, verbose=True)
-    scaler = StandardScaler()
+    # scaler = StandardScaler()
     print("Fitting scaler...")
-    data2 = scaler.fit_transform(data)
+    # data2 = scaler.fit_transform(data)
     print("Scaler fitted.")
     print("Fitting SVM...")
-    model.fit(data2, labels)
+    model.fit(data, labels)
     print("SVM fitted!")
     return model
 
