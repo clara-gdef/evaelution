@@ -8,7 +8,7 @@ from collections import Counter
 from utils.Bunch import Bunch
 
 from tqdm import tqdm
-from data.datasets import StringIndSubDataset
+from data.datasets.StringIndSubDataset import StringIndSubDataset
 from utils.models import get_metrics, handle_fb_preds
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
