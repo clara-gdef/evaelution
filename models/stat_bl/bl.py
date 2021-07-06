@@ -1,13 +1,10 @@
 import argparse
-import fasttext
 import ipdb
 from tqdm import tqdm
 import yaml
-import pickle as pkl
-import os
 import numpy as np
-from utils.baselines import eval_model, get_pred_at_k, get_labelled_data
-from utils.models import handle_fb_preds, handle_fb_pred, get_metrics, get_metrics_at_k
+from utils.bow import get_labelled_data
+from utils.models import get_metrics, get_metrics_at_k
 
 
 def main(args):
@@ -17,7 +14,7 @@ def main(args):
             CFG = yaml.load(ymlfile, Loader=yaml.SafeLoader)
         data_train, data_test, class_weights = get_labelled_data(args)
         if args.att_type == "ind":
-            k = 10
+            k = 5
         else:
             k = 2
         metrics_at_1, metrics_at_k = eval_procedure(data_test, args.bl_type, class_weights, k)
@@ -48,7 +45,7 @@ def eval_procedure(datatest, bl_type, class_weights, k):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--att_type", type=str, default="exp")
-    parser.add_argument("--bl_type", type=str, default="mc") # can be "mc" or "rdm"
+    parser.add_argument("--bl_type", type=str, default="rdm") # can be "mc" or "rdm"
     parser.add_argument("--exp_type", type=str, default="uniform") # "uniform
     parser.add_argument("--exp_levels", type=int, default=3) # 5 of 3
     parser.add_argument("--load_data", type=str, default="True")
