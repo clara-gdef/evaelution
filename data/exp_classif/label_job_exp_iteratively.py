@@ -13,6 +13,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
 from nltk.corpus import stopwords
+from utils.Bunch import Bunch
 from nltk.tokenize import RegexpTokenizer
 
 
@@ -237,7 +238,7 @@ def save_new_tuples_per_split(tuple_list, lookup, split, iteration):
                  "exp_levels": args.exp_levels,
                  "exp_type": "iter",
                  "rep_file": CFG['ppl_rep'],
-                 "suffix": f"_it{iteration}",
+                 "suffix": f"_svm_it{iteration}",
                  "split": split,
                  "is_toy": "False"}
     tmp = StringIndSubDataset(**arguments)
@@ -312,7 +313,15 @@ def load_datasets(args):
 
 
 def subsample_jobs_from_user_lookup(jobs, lookup):
+    new_jobs = []
+    for user in lookup.keys():
+        start = user[0]
+        end = user[1]
+        for num_job in range(start, end):
+            new_jobs.append(jobs[num_job])
     ipdb.set_trace()
+    print(len(new_jobs))
+    return Bunch(tuples=new_jobs, user_lookup=lookup)
 
 
 def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):

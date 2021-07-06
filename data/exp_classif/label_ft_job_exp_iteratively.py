@@ -293,7 +293,7 @@ def save_new_tuples_per_split(tuple_list, lookup, split, iteration):
                  "exp_levels": args.exp_levels,
                  "exp_type": "iter",
                  "rep_file": CFG['ppl_rep'],
-                 "suffix": f"_it{iteration}",
+                 "suffix": f"_ft_it{iteration}",
                  "split": split,
                  "is_toy": "False"}
     tmp = StringIndSubDataset(**arguments)
