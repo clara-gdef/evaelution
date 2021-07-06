@@ -9,7 +9,7 @@ from utils.Bunch import Bunch
 
 from tqdm import tqdm
 from data.datasets import StringIndSubDataset
-from utils import get_metrics, handle_fb_preds
+from utils.models import get_metrics, handle_fb_preds
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
 
