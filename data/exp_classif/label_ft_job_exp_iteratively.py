@@ -317,7 +317,7 @@ def load_datasets(args):
         suffix = ""
     else:
         suffix = f"_it{args.start_iter}"
-    arguments = {'data_dir': CFG["gpudatadir"],
+    arguments = {'data_dir': CFG["datadir"],
                  "load": args.load_dataset,
                  "subsample": -1,
                  "max_len": args.max_len,
