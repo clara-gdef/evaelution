@@ -146,9 +146,9 @@ def write_in_file_with_label(args, tgt_file, dataset, att_type, split, ind_dict)
         for item in tqdm(dataset, desc="Parsing train " + split + " dataset for " + att_type + "..."):
             job_str = item[0]
             if args.add_ind_name == "True":
-                tmp = job_str
+                tmp2 = job_str
                 job_str = "_".join(ind_dict[item[1]].split(" "))
-                job_str += " " + tmp
+                job_str += " " + tmp2
             att = get_attribute(att_type, dataset, item)
             final_str = f"__label__{att} {job_str} \n"
             f.write(final_str)
