@@ -87,6 +87,8 @@ def get_param_and_suffix(args):
     suffix = f"{args.att_type}"
     if args.att_type == "exp":
         suffix += f"{args.exp_levels}_{args.exp_type}"
+    if args.add_ind_name == "True":
+        suffix += "_IndName"
     suffix += args.dataset_suffix
 
     params = (0.1, 5, 1)
@@ -129,19 +131,25 @@ def build_txt_files(args, suffix):
 
 
 def build_train_file(args, tgt_file, train_dataset, valid_dataset, att_type):
+    ind_dict = train_dataset.ind_dict
     if os.path.isfile(tgt_file):
         os.system('rm ' + tgt_file)
         print("removing previous file")
-    write_in_file_with_label(args, tgt_file, train_dataset, att_type, "train")
-    write_in_file_with_label(args, tgt_file, valid_dataset, att_type, "valid")
+    write_in_file_with_label(args, tgt_file, train_dataset, att_type, "train", ind_dict)
+    write_in_file_with_label(args, tgt_file, valid_dataset, att_type, "valid", ind_dict)
     print("File " + tgt_file + " built.")
 
 
-def write_in_file_with_label(args, tgt_file, dataset, att_type, split):
+def write_in_file_with_label(args, tgt_file, dataset, att_type, split, ind_dict):
     with open(tgt_file, 'a+') as f:
         tmp = []
         for item in tqdm(dataset, desc="Parsing train " + split + " dataset for " + att_type + "..."):
             job_str = item[0]
+            if args.add_ind_name == "True":
+                tmp = job_str
+                job_str = ["_".join(ind_dict[item[1]].split(" "))]
+                job_str += tmp
+                ipdb.set_trace()
             att = get_attribute(att_type, dataset, item)
             final_str = f"__label__{att} {job_str} \n"
             f.write(final_str)
@@ -171,8 +179,9 @@ if __name__ == "__main__":
     parser.add_argument("--exp_type", type=str, default='uniform')
     parser.add_argument("--toy_dataset", type=str, default="False")
     parser.add_argument("--TEST", type=str, default="True")
+    parser.add_argument("--add_ind_name", type=str, default="False")
     parser.add_argument("--TRAIN", type=str, default="True")
-    parser.add_argument("--dataset_suffix", type=str, default="new2_it30")# can be ind or exp
+    parser.add_argument("--dataset_suffix", type=str, default="")# can be ind or exp
     parser.add_argument("--att_type", type=str, default="exp")# can be ind or exp
     args = parser.parse_args()
     main(args)

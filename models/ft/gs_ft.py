@@ -80,6 +80,7 @@ if __name__ == "__main__":
     parser.add_argument("--exp_levels", type=int, default=3)
     parser.add_argument("--exp_type", type=str, default="uniform")
     parser.add_argument("--TRAIN", type=str, default="True")
+    parser.add_argument("--add_ind_name", type=str, default="False")
     parser.add_argument("--TEST", type=str, default="True")
     parser.add_argument("--dataset_suffix", type=str, default="")
     parser.add_argument("--att_type", type=str, default="exp")# can be ind or exp    args = parser.parse_args()
