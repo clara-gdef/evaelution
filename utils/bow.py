@@ -73,7 +73,7 @@ def get_labelled_data(args):
         with open(os.path.join(CFG["gpudatadir"], f"{file_root}_TRAIN.pkl"), 'wb') as f_name:
             pkl.dump(data_train, f_name)
         with open(os.path.join(CFG["gpudatadir"], f"{file_root}_TEST.pkl"), 'wb') as f_name:
-            pkl.dump(dataset_test, f_name)
+            pkl.dump(data_test, f_name)
         with open(os.path.join(CFG["gpudatadir"],
                                f"class_weights_dict_{args.exp_type}_{args.exp_levels}exp_{suffix}.pkl"),
                   'wb') as f_name:
@@ -118,9 +118,11 @@ def get_class_weights(dataset_train):
 
 def fit_vectorizer(args, input_data):
     mf = args.max_features if args.max_features != 0 else None
-    # vectorizer = TfidfVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None,
-    #                              max_df=args.max_df, min_df=args.min_df, max_features=mf)
-    vectorizer = CountVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None,
+    if args.tfidf == "True":
+        vectorizer = TfidfVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None,
+                                 max_df=args.max_df, min_df=args.min_df, max_features=mf)
+    else:
+        vectorizer = CountVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None,
                                  max_df=args.max_df, min_df=args.min_df, max_features=mf)
     print("Fitting vectorizer...")
     data_features = vectorizer.fit_transform([np.str_(x) for x in input_data])
@@ -130,7 +132,7 @@ def fit_vectorizer(args, input_data):
 
 
 def train_svm(data, labels, class_weights, kernel):
-    model = SVC(kernel=kernel, class_weight=class_weights, verbose=True)
+    model = SVC(kernel=kernel, class_weight=class_weights, verbose=True, max_iter=100)
     print("Fitting SVM...")
     model.fit(data, labels)
     print("SVM fitted!")
