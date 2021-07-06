@@ -13,7 +13,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.svm import SVC
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import f1_score, accuracy_score
-
+from sklearn.preprocessing import StandardScaler
 from data.datasets.StringIndSubDataset import StringIndSubDataset
 
 
@@ -133,8 +133,12 @@ def fit_vectorizer(args, input_data):
 
 def train_svm(data, labels, class_weights, kernel):
     model = SVC(kernel=kernel, class_weight=class_weights, verbose=True, max_iter=100)
+    scaler = StandardScaler()
+    print("Fitting scaler...")
+    data2 = scaler.fit_transform(data)
+    print("Scaler fitted.")
     print("Fitting SVM...")
-    model.fit(data, labels)
+    model.fit(data2, labels)
     print("SVM fitted!")
     return model
 
