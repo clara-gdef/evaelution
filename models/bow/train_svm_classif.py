@@ -45,8 +45,8 @@ def main(args, data_train, data_test, class_dict):
     # TEST
     test_features = vectorizer.transform(data_test["jobs"])
     data2 = scaler.transform(test_features)
-    res_test = test_for_att(args, class_dict, args.att_type, data_test[f"labels_{args.att_type}"][:args.subsample], model, test_features[:args.subsample].todense(), "TEST")
-    res_train = test_for_att(args, class_dict, args.att_type, data_train[f"labels_{args.att_type}"][:args.subsample], model, train_features[:args.subsample], "TRAIN")
+    res_test = test_for_att(args, class_dict, args.att_type, data_test[f"labels_{args.att_type}"][:args.subsample], model, data2[:args.subsample].todense(), "TEST")
+    res_train = test_for_att(args, class_dict, args.att_type, data_train[f"labels_{args.att_type}"][:args.subsample], model, data2[:args.subsample], "TRAIN")
 
     all_res = {**res_test, **res_train}
     print(f"EXP NAME: {exp_name}")
