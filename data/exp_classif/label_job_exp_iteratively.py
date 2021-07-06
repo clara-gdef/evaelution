@@ -301,7 +301,6 @@ def load_datasets(args):
     test_lookup_sub = subsample_user_lookup(args, datasets[-1])
 
     data_train_valid = subsample_jobs_from_user_lookup(datasets[0].tuples + datasets[1].tuples, {**train_lookup_sub, **valid_lookup_sub})
-    ipdb.set_trace()
     for attribute in dir(datasets[0]):
         if str(attribute) not in ["user_lookup", "tuples", "__weakref__"]:
             data_train_valid.__setattr__(attribute, datasets[0].__getattribute__(attribute))
