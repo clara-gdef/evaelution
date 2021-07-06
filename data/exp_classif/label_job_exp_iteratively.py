@@ -322,7 +322,7 @@ def subsample_jobs_from_user_lookup(jobs, lookup):
         for num_job in range(start, end):
             new_jobs.append(jobs[num_job])
     print(len(new_jobs))
-    tmp = Bunch(tuples=new_jobs, user_lookup=lookup)
+    tmp = Bunch(tuples=new_jobs, user_lookup=lookup, __len__=len(new_jobs))
     print(len(tmp))
     return tmp
 
