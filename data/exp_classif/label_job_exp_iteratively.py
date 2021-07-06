@@ -314,9 +314,7 @@ def load_datasets(args):
 
 def subsample_jobs_from_user_lookup(jobs, lookup):
     new_jobs = []
-    for user in lookup.keys():
-        start = user[0]
-        end = user[1]
+    for user_id, (start, end) in lookup.items():
         for num_job in range(start, end):
             new_jobs.append(jobs[num_job])
     ipdb.set_trace()
