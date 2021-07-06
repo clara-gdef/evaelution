@@ -14,7 +14,6 @@ from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
 from nltk.corpus import stopwords
 from nltk.tokenize import RegexpTokenizer
-from itertools import chain
 
 
 def init(args):
