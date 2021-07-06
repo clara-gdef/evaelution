@@ -23,6 +23,8 @@ def main(data_train, data_test, class_weights, dico):
     exp_title = f"gs_{args.exp_type}_{args.exp_levels}exp_res_{args.model}"
     if args.subsample > 0:
         exp_title += f"_{args.subsample}"
+    if args.add_ind_name == "True":
+        exp_title += "_IndName"
     if args.TRAIN == "True":
         results = {}
         for min_df in [1e-2, 1e-3, 1e-4]:

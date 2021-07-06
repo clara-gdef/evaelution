@@ -24,6 +24,7 @@ def main(args, data_train, data_test, class_dict):
         CFG = yaml.load(ymlfile, Loader=yaml.SafeLoader)
     # TRAIN
     if args.subsample > 0:
+        print("subsample_according_to_class_weight...")
         data_train, data_test = subsample_according_to_class_weight(args, data_train, data_test, class_dict, args.subsample)
     train_features, vectorizer = fit_vectorizer(args, data_train["jobs"])
     exp_name = get_exp_name(args)
