@@ -301,12 +301,11 @@ def load_datasets(args):
     test_lookup_sub = subsample_user_lookup(args, datasets[-1])
 
     data_train_valid = subsample_jobs_from_user_lookup(datasets[0].tuples + datasets[1].tuples, {**train_lookup_sub, **valid_lookup_sub})
-
+    ipdb.set_trace()
     for attribute in dir(datasets[0]):
         if str(attribute) not in ["user_lookup", "tuples", "__class__", "__weakref__"]:
             data_train_valid.__setattr__(attribute, datasets[0].__getattribute__(attribute))
     ipdb.set_trace()
-    data_train_valid.check_monotonicity = datasets[0].check_monotonicity
     data_train_valid.check_monotonicity()
 
     datasets[-1].user_lookup = test_lookup_sub
@@ -323,7 +322,9 @@ def subsample_jobs_from_user_lookup(jobs, lookup):
         for num_job in range(start, end):
             new_jobs.append(jobs[num_job])
     print(len(new_jobs))
-    return Bunch(tuples=new_jobs, user_lookup=lookup)
+    tmp = Bunch(tuples=new_jobs, user_lookup=lookup)
+    print(len(tmp))
+    return tmp
 
 
 def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
