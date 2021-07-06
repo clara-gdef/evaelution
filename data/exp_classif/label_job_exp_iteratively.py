@@ -29,7 +29,7 @@ def init(args):
 
 
 def main(args):
-    data_train_valid, data_test, (len_train, len_valid), train_lookup, valid_lookup, test_lookup = load_datasets(args)
+    data_train_valid, data_test, (len_train, len_valid), train_lookup, valid_lookup, test_lookup, sublookup = load_datasets(args)
     if args.initial_check == "True":
         check_monotonic_dynamic(data_train_valid, train_lookup, "train")
         check_monotonic_dynamic(data_train_valid, valid_lookup, "valid")
@@ -58,9 +58,9 @@ def main(args):
     for k, v in test_lookup.items():
         offset_test_lookup[k] = [v[0] + offset, v[1] + offset]
     assert v[1] + offset <= train_features.shape[0] + test_features.shape[0]
-    all_users = {**train_lookup, **offset_test_lookup}
+    all_users = {**sublookup, **offset_test_lookup}
 
-    check_monotonic_dynamic(data_train_valid + data_test, all_users, "all")
+    check_monotonic_dynamic(data_train_valid + data_test, sublookup, "all")
     print(f"Concatenating all {train_features.shape[0] + test_features.shape[0]} features...")
     all_features = np.concatenate((train_features.toarray(), test_features.toarray()), axis=0)
     all_labels = labels_exp_train
@@ -304,19 +304,11 @@ def load_datasets(args):
     tmp, new_lookup = subsample_jobs_from_user_lookup(datasets[0].tuples + datasets[1].tuples, {**train_lookup_sub, **valid_lookup_sub})
     data_train_valid.tuples = tmp
     data_train_valid.user_lookup = new_lookup
-    # for attribute in dir(datasets[0]):
-    #     if str(attribute) not in ["user_lookup", "tuples", "__weakref__", "__class__"]:
-    #         data_train_valid.__setattr__(attribute, datasets[0].__getattribute__(attribute))
-    # ipdb.set_trace()
-    # data_train_valid.__getitem__ = datasets[0].__getitem__
     data_train_valid.check_monotonicity()
 
     datasets[-1].user_lookup = test_lookup_sub
-
-    # len_valid = len(datasets[1])
-    # assert len(data_train_valid) == len_train + len_valid
     return data_train_valid, datasets[-1], (len_train, len_valid), \
-           init_train_lookup, offset_valid_lookup, init_test_lookup
+           init_train_lookup, offset_valid_lookup, init_test_lookup, new_lookup
 
 
 def subsample_jobs_from_user_lookup(jobs, lookup):
@@ -330,9 +322,7 @@ def subsample_jobs_from_user_lookup(jobs, lookup):
         new_lookup[usr_counter] = [start_cnt, end_cnt]
         usr_counter += 1
         start_cnt = end_cnt
-    print(len(new_jobs))
-    # tmp = Bunch(tuples=new_jobs, user_lookup=lookup, __len__=len(new_jobs))
-    # print(len(tmp))
+    print(f"retained jobs: {len(new_jobs)}")
     return new_jobs, new_lookup
 
 
