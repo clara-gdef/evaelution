@@ -76,7 +76,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--max_len", type=int, default=32)
+    parser.add_argument("--max_len", type=int, default=10)
     parser.add_argument("--exp_levels", type=int, default=3)
     parser.add_argument("--exp_type", type=str, default="uniform")
     parser.add_argument("--TRAIN", type=str, default="True")
