@@ -288,12 +288,13 @@ def load_datasets(args):
 
 
 def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
+    print(f"Subsampling users for SVC training...")
     user_id_as_list = [i for i, _ in user_lookup.items()]
     user_train = []
     arr = np.arange(train_user_len)
     np.random.shuffle(arr)
     sub_data, sub_labels = [], []
-    for i in arr:
+    for i in tqdm(arr):
         user_train.append(user_id_as_list[i])
         current_user = user_lookup[user_id_as_list[i]]
         for job_num in range(current_user[0], current_user[1]):
