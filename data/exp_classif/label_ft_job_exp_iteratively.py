@@ -34,7 +34,7 @@ def main(args):
 
     iteration = args.start_iter
     f1 = 0
-    params = (0.1, 50, 2)
+    params = (0.1, 5, 1)
     exp_name = get_exp_name(args)
 
     all_labels = get_all_labels(data_train, data_valid, data_test)
