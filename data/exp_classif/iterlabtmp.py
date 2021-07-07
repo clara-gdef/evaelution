@@ -109,7 +109,7 @@ def main(args):
                 try :
                     assert all(exp_seq_pred[i] <= exp_seq_pred[i + 1] for i in range(len(exp_seq_pred) - 1))
                     assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
-                except AssertionError():
+                except AssertionError:
                     faulty_users.append(user)
                     with open(os.path.join(CFG["gpudatadir"], "faulty_users.pkl"), "wb") as f:
                         pkl.dump(faulty_users, f)
