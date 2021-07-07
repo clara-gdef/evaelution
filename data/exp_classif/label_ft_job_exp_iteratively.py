@@ -47,16 +47,15 @@ def main(args):
     print("Features and labels concatenated.")
     while f1 < args.f1_threshold and iteration < args.max_iter:
         train_file, test_file, user_train = build_ft_txt_file(args, f'_it{iteration}', all_labels, all_users, data_train, data_valid, data_test)
-        if iteration == 0:
-            class_dist = get_class_dist(all_labels)
-            print(f"Initial class dist: {class_dist}")
         print(f"Iteration number: {iteration}")
         print(f"Training classifier on {args.train_user_len} jobs...")
         classifier = fasttext.train_supervised(input=train_file, lr=params[0], epoch=params[1],
                                                wordNgrams=params[2])
         if iteration == 0:
             init_metrics = test_model_on_all_test_data(classifier, test_file)
-            print(f"initial F1 score: {init_metrics['f1_it_0']}%")
+            print(f"initial F1 score: {init_metrics[0]['f1_exp']}%")
+            class_dist = get_class_dist(all_labels)
+            print(f"Initial class dist: {class_dist}")
         iteration += 1
         classifier.save_model(tgt_file)
         print(f"Model saved at {tgt_file}")
@@ -90,9 +89,9 @@ def main(args):
             cnt += 1
         # metrics = get_metrics(preds, labels, args.exp_levels, f"it_{iteration}")
         metrics = test_model_on_all_test_data(classifier, test_file)
-        f1 = metrics[f"f1_it_{iteration}"]
+        f1 = metrics[0]["f1_exp"]
         print(f"Iteration: {iteration}, F1 score: {f1}%")
-        print(f"initial F1 score: {init_metrics['f1_it_0']}%")
+        print(f"initial F1 score: {init_metrics[0]['f1_exp']}%")
         pred_class_dist = get_class_dist(preds)
         label_class_dist = get_class_dist(labels)
         print(f"Class distributions in PREDS: {pred_class_dist}")
@@ -364,7 +363,7 @@ def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
 
 def get_exp_name(args):
     exp_name = f"FT_label_iter_{args.exp_levels}exp_{args.exp_type}"
-    if args.train_user_len != -1:
+    if args.train_user_len != 192115:
         exp_name += f"_trainOn{args.train_user_len}"
     if args.user_step != 1:
         exp_name += f"_step{args.user_step}"
@@ -391,7 +390,7 @@ if __name__ == "__main__":
     parser.add_argument("--subsample_users", type=int, default=-1)
     parser.add_argument("--load_dataset", type=str, default="True")
     parser.add_argument("--subsample_jobs", type=int, default=-1)
-    parser.add_argument("--train_user_len", type=int, default=5000)
+    parser.add_argument("--train_user_len", type=int, default=192115)# max: 192115
     parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--max_iter", type=int, default=100)
     parser.add_argument("--user_step", type=int, default=1)
