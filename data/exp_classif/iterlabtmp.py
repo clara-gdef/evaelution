@@ -81,7 +81,7 @@ def main(args):
         # SVC eval
         cnt = np.random.randint(args.user_step)
         for user in tqdm(all_users.keys(), desc="parsing users..."):
-            if user not in user_trains and cnt % args.user_step == 0:
+            if user not in user_trains and cnt % args.user_step == 0 and user != 33:
                 current_user = all_users[user]
                 exp_seq_pred = [all_labels[current_user[0]]]
                 exp_seq_init = [all_labels[current_user[0]]]
@@ -317,7 +317,6 @@ def get_all_users(data_train, data_valid, data_test, train_lu, valid_lu, test_lu
     offset_valid_lookup = {}
     for k, v in valid_lu.items():
         offset_valid_lookup[k] = [v[0] + offset, v[1] + offset]
-    ipdb.set_trace()
     assert v[1] + offset <= len(data_train) + len(data_valid)
     offset = len(data_train) + len(data_valid)
     offset_test_lookup = {}
