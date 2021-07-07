@@ -6,6 +6,7 @@ import os
 import numpy as np
 from collections import Counter
 from tqdm import tqdm
+import pickle as pkl
 from data.datasets.StringIndSubDataset import StringIndSubDataset
 from utils.models import get_metrics
 from utils.bow import train_svm, pre_proc_data
@@ -79,10 +80,13 @@ def main(args):
         print(f"Classifier saved at: {tgt_file}_exp_svc_{args.kernel}_it{iteration}.joblib")
         preds, labels = [], []
         # SVC eval
-        faulty_users = [33, 104, 125, 726, 2672]
+        with open(os.path.join(CFG["gpudatadir"], "faulty_users.pkl"), 'rb') as f:
+            faulty_users = pkl.load(f)
         cnt = np.random.randint(args.user_step)
+        seen_users = 0
         for user in tqdm(all_users.keys(), desc="parsing users..."):
             if user not in user_trains and cnt % args.user_step == 0 and user not in faulty_users:
+                seen_users+=1
                 current_user = all_users[user]
                 exp_seq_pred = [all_labels[current_user[0]]]
                 exp_seq_init = [all_labels[current_user[0]]]
@@ -102,8 +106,16 @@ def main(args):
                     preds.append(pred)
                     labels.append(all_labels[job])
                     exp_seq_pred.append(all_labels[job])
-                assert all(exp_seq_pred[i] <= exp_seq_pred[i + 1] for i in range(len(exp_seq_pred) - 1))
-                assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
+                try :
+                    assert all(exp_seq_pred[i] <= exp_seq_pred[i + 1] for i in range(len(exp_seq_pred) - 1))
+                    assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
+                except AssertionError():
+                    faulty_users.append(user)
+                    with open(os.path.join(CFG["gpudatadir"], "faulty_users.pkl"), "wb") as f:
+                        pkl.dump(faulty_users, f)
+                    print(f"New faulty user detected. Total faulty users: {len(faulty_users)}")
+                    print(f"Percentage on user seen: {100*len(faulty_users)/seen_users} %")
+
             cnt += 1
         metrics = get_metrics(preds, labels, args.exp_levels, f"it_{iteration}")
         f1 = metrics[f"f1_it_{iteration}"]
@@ -149,7 +161,7 @@ def word_analysis(args, all_features, all_labels, vectorizer, exp_name, iteratio
     words_unique_to_class2 = mc_words_per_class[2] - mc_words_per_class[1] - mc_words_per_class[0]
     tmp = [words_unique_to_class0, words_unique_to_class1, words_unique_to_class2]
     for k, word_list in zip(mc_words_per_class.keys(), tmp):
-        get_word_clouds_for_class(word_counter[k], word_list, k, exp_name + f"_it{iteration}")
+        get_word_clouds_for_class(word_counter[k], word_list, k, exp_name + f"_svm_it{iteration}")
     print("word clouds saved!")
 
 

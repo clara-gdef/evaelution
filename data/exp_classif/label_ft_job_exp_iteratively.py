@@ -206,7 +206,7 @@ def word_analysis(args, all_tuples, all_labels, exp_name, iteration):
     words_unique_to_class2 = mc_words_per_class[2] - mc_words_per_class[1] - mc_words_per_class[0]
     tmp = [words_unique_to_class0, words_unique_to_class1, words_unique_to_class2]
     for k, word_list in zip(mc_words_per_class.keys(), tmp):
-        get_word_clouds_for_class(word_counter[k], word_list, k, exp_name + f"_new2_it{iteration}")
+        get_word_clouds_for_class(word_counter[k], word_list, k, exp_name + f"_ft_it{iteration}")
     print("word clouds saved!")
 
 
@@ -259,14 +259,6 @@ def save_new_tuples(data_train, data_valid, data_test, all_labels, iteration):
                "exp_index": label,
                "words": data_valid.tuples[num]["words"]}
         tuples_valid.append(new)
-    # offset = len(data_train)
-    # reset_valid_lookup = {}
-    # if min(min(valid_lookup.values())) >= offset:
-    #     for k, v in valid_lookup.items():
-    #         assert v[0] - offset >= 0
-    #         reset_valid_lookup[k] = [v[0] - offset, v[1] - offset]
-    # else:
-    #     reset_valid_lookup = valid_lookup
 
     labels_test = all_labels[len(data_train) + len(data_valid):-1]
     tuples_test = []
@@ -275,15 +267,6 @@ def save_new_tuples(data_train, data_valid, data_test, all_labels, iteration):
                "exp_index": label,
                "words": data_test.tuples[num]["words"]}
         tuples_test.append(new)
-
-    # offset = len(data_train) + len(data_valid)
-    # reset_test_lookup = {}
-    # if min(min(test_lookup.values())) >= offset:
-    #     for k, v in test_lookup.items():
-    #         assert v[0] - offset >= 0
-    #         reset_test_lookup[k] = [v[0] - offset, v[1] - offset]
-    # else:
-    #     reset_test_lookup = test_lookup
     save_new_tuples_per_split(data_train, "TRAIN", iteration)
     save_new_tuples_per_split(data_valid, "VALID", iteration)
     save_new_tuples_per_split(tuples_test, "TEST", iteration)
