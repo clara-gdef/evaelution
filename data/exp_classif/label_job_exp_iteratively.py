@@ -13,6 +13,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
 from nltk.corpus import stopwords
+import time
 from nltk.tokenize import RegexpTokenizer
 from itertools import chain
 
@@ -62,7 +63,11 @@ def main(args):
 
     check_monotonic_dynamic(data_train_valid + data_test, all_users, "all")
     print(f"Concatenating all {train_features.shape[0] + test_features.shape[0]} features...")
+    ipdb.set_trace()
+    start_time = time.time()
     all_features = np.concatenate((train_features.toarray(), test_features.toarray()), axis=0)
+    print("--- %s seconds ---" % (time.time() - start_time))
+
     all_labels = labels_exp_train
     all_labels.extend(labels_exp_test)
     print("Features and labels concatenated.")
