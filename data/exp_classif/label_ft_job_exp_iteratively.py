@@ -48,7 +48,7 @@ def main(args):
     while f1 < args.f1_threshold and iteration < args.max_iter:
         train_file, test_file = build_ft_txt_file(args, f'_it{iteration}', all_labels, all_users, data_train, data_valid, data_test)
         print(f"Iteration number: {iteration}")
-        print(f"Training classifier on {len(user_train)} jobs...")
+        print(f"Training classifier on {len(data_train) + len(data_valid)} jobs...")
         classifier = fasttext.train_supervised(input=train_file, lr=params[0], epoch=params[1],
                                                wordNgrams=params[2])
         if iteration == 0:
