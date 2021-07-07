@@ -336,7 +336,7 @@ if __name__ == "__main__":
     parser.add_argument("--subsample_users", type=int, default=-1)
     parser.add_argument("--load_dataset", type=str, default="True")
     # parser.add_argument("--subsample_jobs", type=int, default=-1)
-    parser.add_argument("--train_user_len", type=int, default=5000)
+    parser.add_argument("--train_user_len", type=int, default=2000)
     parser.add_argument("--max_iter", type=int, default=50)
     parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--user_step", type=int, default=10)
