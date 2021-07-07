@@ -48,13 +48,14 @@ def main(args):
     while f1 < args.f1_threshold and iteration < args.max_iter:
         train_file, test_file, user_train = build_ft_txt_file(args, f'_it{iteration}', all_labels, all_users, data_train, data_valid, data_test)
         if iteration == 0:
-            init_metrics = test_model_on_all_test_data(classifier, test_file)
             class_dist = get_class_dist(all_labels)
             print(f"Initial class dist: {class_dist}")
         print(f"Iteration number: {iteration}")
         print(f"Training classifier on {args.train_user_len} jobs...")
         classifier = fasttext.train_supervised(input=train_file, lr=params[0], epoch=params[1],
                                                wordNgrams=params[2])
+        if iteration == 0:
+            init_metrics = test_model_on_all_test_data(classifier, test_file)
         iteration += 1
         classifier.save_model(tgt_file)
         print(f"Model saved at {tgt_file}")
