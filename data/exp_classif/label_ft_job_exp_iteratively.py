@@ -46,7 +46,7 @@ def main(args):
     check_monotonic_dynamic(data_train + data_valid + data_test, all_users, "all")
     print("Features and labels concatenated.")
     while f1 < args.f1_threshold and iteration < args.max_iter:
-        train_file, test_file, user_train = build_ft_txt_file(args, f'_it{iteration}', all_labels, all_users, data_train, data_valid, data_test)
+        train_file, test_file = build_ft_txt_file(args, f'_it{iteration}', all_labels, all_users, data_train, data_valid, data_test)
         print(f"Iteration number: {iteration}")
         print(f"Training classifier on {len(user_train)} jobs...")
         classifier = fasttext.train_supervised(input=train_file, lr=params[0], epoch=params[1],
