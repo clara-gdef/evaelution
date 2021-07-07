@@ -240,8 +240,11 @@ def get_jobs_str_per_class(args, all_tuples, all_labels):
         for job_index in v:
             rev_class_index[job_index] = k
     class_txt = {k: "" for k in range(args.exp_levels)}
+    cnt = 0
     for num, tup in enumerate(tqdm(all_tuples, desc="sorting jobs by class on all features...")):
-        class_txt[rev_class_index[num]] += f" {tup}"
+        if cnt % 100:
+            class_txt[rev_class_index[num]] += f" {tup}"
+        cnt += 1
     return class_txt
 
 
