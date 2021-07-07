@@ -316,10 +316,7 @@ def get_class_dist(class_list):
 def load_datasets(args):
     datasets = []
     splits = ["TRAIN", "VALID", "TEST"]
-    if args.start_iter == 0:
-        suffix = f"_ft_it0"
-    else:
-        suffix = f"_ft_it{args.start_iter}"
+    suffix = f"_ft_it{args.start_iter}"
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": args.load_dataset,
                  "subsample": -1,
