@@ -22,8 +22,8 @@ def main(args):
         test_lu = data_test.user_lookup
         exp_seq = Counter()
         exp_seq = get_exp_sequence(train_lu, data_train.tuples, 0, exp_seq, "train")
-        exp_seq = get_exp_sequence(valid_lu, data_valid.tuples, len(data_train), exp_seq, "valid")
-        exp_seq = get_exp_sequence(test_lu, data_test.tuples, len(data_train)+len(data_valid), exp_seq, "test")
+        exp_seq = get_exp_sequence(valid_lu, data_valid.tuples, 0, exp_seq, "valid")
+        exp_seq = get_exp_sequence(test_lu, data_test.tuples, 0, exp_seq, "test")
         total_users = len(train_lu)+len(valid_lu)+len(test_lu)
         ipdb.set_trace()
         exp_seq.most_common(10)
