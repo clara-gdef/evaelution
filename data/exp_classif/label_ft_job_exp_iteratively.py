@@ -9,7 +9,7 @@ from utils.Bunch import Bunch
 
 from tqdm import tqdm
 from data.datasets.StringIndSubDataset import StringIndSubDataset
-from utils.models import get_metrics, handle_fb_preds
+from utils.models import get_metrics, handle_fb_preds, get_metrics_at_k
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
 
@@ -46,13 +46,13 @@ def main(args):
     check_monotonic_dynamic(data_train + data_valid + data_test, all_users, "all")
     print("Features and labels concatenated.")
     while f1 < args.f1_threshold and iteration < args.max_iter:
-        train_valid_file, test_file, user_train = build_ft_txt_file(args, f'_it{iteration}', all_labels, all_users, data_train, data_valid, data_test)
+        train_file, test_file, user_train = build_ft_txt_file(args, f'_it{iteration}', all_labels, all_users, data_train, data_valid, data_test)
         if iteration == 0:
             class_dist = get_class_dist(all_labels)
             print(f"Initial class dist: {class_dist}")
         print(f"Iteration number: {iteration}")
         print(f"Training classifier on {args.train_user_len} jobs...")
-        classifier = fasttext.train_supervised(input=train_valid_file, lr=params[0], epoch=params[1],
+        classifier = fasttext.train_supervised(input=train_file, lr=params[0], epoch=params[1],
                                                wordNgrams=params[2])
         iteration += 1
         classifier.save_model(tgt_file)
@@ -95,9 +95,32 @@ def main(args):
         word_analysis(args, all_tuples, all_labels, exp_name, iteration)
         save_new_tuples(data_train, data_valid, data_test, all_labels, iteration)
 
-    ipdb.set_trace()
     # the model converged, we test it on the whole dataset
-    all_results = test_model_on_all_test_data(args, classifier, vectorizer)
+    all_results_test = test_model_on_all_test_data(classifier, test_file)
+    all_results_train = test_model_on_all_test_data(classifier, train_file)
+    ipdb.set_trace()
+
+
+def test_model_on_all_test_data(model, test_file):
+    print("Testing...")
+    num_lines = 0
+    with open(test_file, 'r') as test_f:
+        for line in test_f:
+            num_lines += 1
+    labels = []
+    predictions = []
+    with open(test_file, 'r') as test_f:
+        pbar = tqdm(test_f, total=num_lines)
+        for line in pbar:
+            tmp = line.split("__label__")[1]
+            k = 2
+            labels.append(int(tmp.split(" ")[0]))
+            pred = handle_fb_preds(model.predict(tmp[2:-2], k=k))
+            predictions.append(pred)
+    preds = np.stack(predictions)
+    metrics_at_1 = get_metrics(preds[:, 0], labels, len(model.labels), "exp")
+    metrics_at_k = get_metrics_at_k(preds, labels, len(model.labels), "exp @2")
+    return metrics_at_1, metrics_at_k
 
 
 def get_all_labels(data_train, data_valid, data_test):
@@ -381,17 +404,15 @@ if __name__ == "__main__":
     parser.add_argument("--subsample_users", type=int, default=-1)
     parser.add_argument("--load_dataset", type=str, default="True")
     parser.add_argument("--subsample_jobs", type=int, default=-1)
-    parser.add_argument("--train_user_len", type=int, default=1000)
+    parser.add_argument("--train_user_len", type=int, default=5000)
     parser.add_argument("--max_len", type=int, default=32)
-    parser.add_argument("--max_iter", type=int, default=50)
-    parser.add_argument("--user_step", type=int, default=10)
+    parser.add_argument("--max_iter", type=int, default=100)
+    parser.add_argument("--user_step", type=int, default=1)
     parser.add_argument("--start_iter", type=int, default=0)
     parser.add_argument("--f1_threshold", type=int, default=80)
-    parser.add_argument("--exp_type", type=str, default="uniform")
+    parser.add_argument("--exp_type", type=str, default="iter")
     parser.add_argument("--ind_sub", type=str, default="True")
     parser.add_argument("--initial_check", type=str, default="False")
-    parser.add_argument("--kernel", type=str, default="linear")
-    parser.add_argument("--tfidf", type=str, default="True")
     parser.add_argument("--exp_levels", type=int, default=3)
     args = parser.parse_args()
     init(args)
