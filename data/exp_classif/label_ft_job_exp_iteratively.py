@@ -149,7 +149,7 @@ def get_all_tuples(data_train, data_valid, data_test):
     return all_tuples
 
 
-def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
+def get_subset_data_and_labels(features_train, features_valid, labels, user_lookup, train_user_len):
     user_id_as_list = [i for i, _ in user_lookup.items()]
     user_train = []
     arr = np.arange(train_user_len)
@@ -159,7 +159,8 @@ def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
         user_train.append(user_id_as_list[i])
         current_user = user_lookup[user_id_as_list[i]]
         for job_num in range(current_user[0], current_user[1]):
-            sub_data.append(features[job_num])
+            ipdb.set_trace()
+            sub_data.append(features_train[job_num])
             sub_labels.append(labels[job_num])
     assert len(sub_data) == len(sub_labels)
     return sub_data, sub_labels, user_train
@@ -171,12 +172,12 @@ def build_ft_txt_file(args, suffix, all_labels, all_users, dataset_train, datase
     if os.path.isfile(tgt_file):
         os.system('rm ' + tgt_file)
         print("removing previous file")
-    write_in_file_with_label(args, tgt_file, dataset_test.tuples + dataset_valid.tuples, f"exp", "test")
+    write_in_file_with_label(args, tgt_file, dataset_test.tuples, f"exp", "test")
 
     if args.train_user_len != 192115:
         suffix += f"_sub{args.train_user_len}"
 
-    sub_data, sub_labels, user_train = get_subset_data_and_labels(dataset_train, all_labels, all_users, args.train_user_len)
+    sub_data, sub_labels, user_train = get_subset_data_and_labels(dataset_train, dataset_valid, all_labels, all_users, args.train_user_len)
     tgt_file_exp_model = os.path.join(CFG["gpudatadir"],
                                       f"ft_classif_supervised_ind20_exp{args.exp_levels}_{args.exp_type}{suffix}.train")
     print(tgt_file_exp_model)
