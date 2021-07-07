@@ -29,7 +29,7 @@ def init(args):
 
 
 def main(args):
-    data_train_valid, data_test, (len_train, len_valid), train_lookup, valid_lookup, test_lookup = load_datasets(args)
+    data_train_valid, data_test, (len_train, len_valid), train_lookup, valid_lookup, test_lookup, test_lookup_sub = load_datasets(args)
     if args.initial_check == "True":
         check_monotonic_dynamic(data_train_valid, train_lookup, "train")
         check_monotonic_dynamic(data_train_valid, valid_lookup, "valid")
@@ -54,7 +54,8 @@ def main(args):
     tgt_file = os.path.join(CFG["modeldir"], exp_name)
     offset = len(data_train_valid)
     offset_test_lookup = {}
-    for k, v in test_lookup.items():
+    # for k, v in test_lookup.items():]
+    for k, v in test_lookup_sub.items():
         offset_test_lookup[k] = [v[0] + offset, v[1] + offset]
     assert v[1] + offset <= train_features.shape[0] + test_features.shape[0]
     all_users = {**train_lookup, **offset_test_lookup}
@@ -309,7 +310,7 @@ def load_datasets(args):
     # len_valid = len(datasets[1])
     # assert len(data_train_valid) == len_train + len_valid
     return data_train_valid, datasets[-1], (len_train, len_valid), \
-           init_train_lookup, offset_valid_lookup, init_test_lookup
+           init_train_lookup, offset_valid_lookup, init_test_lookup, test_lookup_sub
 
 
 def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
