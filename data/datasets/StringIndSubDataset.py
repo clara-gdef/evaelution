@@ -60,19 +60,9 @@ class StringIndSubDataset(Dataset):
             self.tuples[idx]["exp_index"]
 
     def save_new_tuples(self, tuple_list, lookup):
-        for blob in tuple_list:
-            assert (blob["ind_index"] < 20)
-        user_lookup = {}
-        tuples = []
-        counter = 0
-        for person_id, (start, end) in tqdm(lookup.items(), desc=f"Building tuples for split {self.split}..."):
-            id_person = person_id
-            num_jobs = end - start
+        for person_id, (start, end) in tqdm(lookup.items(), desc=f"Changing {len(lookup)} tuples inx split {self.split}..."):
             for num, i in enumerate(range(start, end)):
-                new_job = tuple_list[i].copy()
-                tuples.append(new_job.copy())
-            user_lookup[id_person] = [counter, counter + num_jobs]
-            counter = counter + num_jobs
+                self.tuples[i] = tuple_list[num].copy()
         self.save_dataset("", -1)
 
     def save_dataset(self, suffix, subsample):
@@ -121,7 +111,7 @@ class StringIndSubDataset(Dataset):
                 if self.exp_type == "uniform":
                     exp = self.get_uniform_experience(len(sorted_jobs))
                 elif self.exp_type == "iter":
-                    exp = -1 # will be filled later
+                    exp = self.get_uniform_experience(len(sorted_jobs)) # will be overwritten later
                 else:
                     raise Exception("exp_type provided not supported. "
                                     "Can only support uniform or iteratively labelled exp atm.")
@@ -131,7 +121,7 @@ class StringIndSubDataset(Dataset):
                     if self.exp_type == "uniform":
                         new_job["exp_index"] = exp[num]
                     elif self.exp_type == "iter":
-                        new_job["exp_index"] = -1 # will be filled later
+                        new_job["exp_index"] = exp[num] # will be overwritten later
                     else:
                         raise Exception("exp_type provided not supported. "
                                         "Can only support uniform or iteratively labelled exp atm.")
