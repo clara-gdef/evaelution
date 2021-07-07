@@ -157,7 +157,7 @@ def build_ft_txt_file(args, suffix, all_labels, all_users, dataset_train, datase
         print("removing previous file")
     write_in_file_with_label(args, tgt_file, dataset_test.tuples, f"exp", "test")
 
-    if args.train_user_len != 192115:
+    if args.train_user_len != 256160:
         suffix += f"_sub{args.train_user_len}"
 
     sub_data, sub_labels, user_train = get_subset_data_and_labels(dataset_train, dataset_valid, all_labels, all_users, args.train_user_len)
@@ -341,7 +341,6 @@ def get_subset_data_and_labels(features_train, features_valid, labels, user_look
         user_train.append(user_id_as_list[i])
         current_user = user_lookup[user_id_as_list[i]]
         for job_num in range(current_user[0], current_user[1]):
-            ipdb.set_trace()
             sub_data.append(features[job_num])
             sub_labels.append(labels[job_num])
     assert len(sub_data) == len(sub_labels)
@@ -350,7 +349,7 @@ def get_subset_data_and_labels(features_train, features_valid, labels, user_look
 
 def get_exp_name(args):
     exp_name = f"FT_label_iter_{args.exp_levels}exp_{args.exp_type}"
-    if args.train_user_len != 192115:
+    if args.train_user_len != 256160:
         exp_name += f"_trainOn{args.train_user_len}"
     if args.user_step != 1:
         exp_name += f"_step{args.user_step}"
@@ -377,7 +376,7 @@ if __name__ == "__main__":
     parser.add_argument("--subsample_users", type=int, default=-1)
     parser.add_argument("--load_dataset", type=str, default="True")
     parser.add_argument("--subsample_jobs", type=int, default=-1)
-    parser.add_argument("--train_user_len", type=int, default=192115)# max: 192115
+    parser.add_argument("--train_user_len", type=int, default=256160)# max: 256160
     parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--max_iter", type=int, default=100)
     parser.add_argument("--user_step", type=int, default=1)
