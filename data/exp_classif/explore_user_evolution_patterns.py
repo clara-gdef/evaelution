@@ -36,7 +36,7 @@ def get_exp_sequence(users, jobs, offset, exp_seq, split):
         end = current_user[1] + offset
         current_seq = []
         for job in range(start, end):
-            tmp = jobs[job]["exp_index"]
+            tmp = jobs[job][-1]
             current_seq.append(tmp)
         if len(current_seq) > 0:
             exp_seq[str(current_seq)] += 1
