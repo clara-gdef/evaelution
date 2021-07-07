@@ -241,8 +241,8 @@ def get_jobs_str_per_class(args, all_tuples, all_labels):
             rev_class_index[job_index] = k
     class_txt = {k: "" for k in range(args.exp_levels)}
     cnt = np.random.randint(args.user_step)
-    for num, tup in enumerate(tqdm(all_tuples, desc="sorting jobs by class on all features...")):
-        if cnt % 1000:
+    for num, tup in enumerate(tqdm(all_tuples, desc="sorting jobs by class on all samples...")):
+        if cnt % 10000:
             class_txt[rev_class_index[num]] += f" {tup}"
         cnt += 1
     return class_txt
