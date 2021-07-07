@@ -15,7 +15,7 @@ def main(args):
     with open("config.yaml", "r") as ymlfile:
         CFG = yaml.load(ymlfile, Loader=yaml.SafeLoader)
     with ipdb.launch_ipdb_on_exception():
-        data_train, data_valid, data_test, class_weights = get_data(CFG, args)
+        data_train, data_valid, data_test = get_data(CFG, args)
 
         train_lu = data_train.user_lookup
         valid_lu = data_valid.user_lookup
