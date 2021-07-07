@@ -364,24 +364,6 @@ def get_exp_name(args):
     return exp_name
 
 
-def subsample_user_lookup(args, datasets):
-    if args.subsample_users != -1:
-        usr_num = args.subsample_users
-        tmp_user_lu = {}
-        i = 0
-        for k, v in datasets.user_lookup.items():
-            if i < usr_num:
-                tmp_user_lu[k] = v
-                i += 1
-            else:
-                break
-        print(f"Subsampling {usr_num} users, returning lookup of length: {len(tmp_user_lu)}")
-        return tmp_user_lu
-    else:
-        print(f"No subsampling of users, returning full lookup of length: {len(datasets.user_lookup)}")
-        return datasets.user_lookup
-
-
 def get_all_users(data_train, data_valid, data_test, train_lu, valid_lu, test_lu):
     offset = len(data_train)
     offset_valid_lookup = {}

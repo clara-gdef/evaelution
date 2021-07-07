@@ -7,11 +7,7 @@ import pickle as pkl
 import numpy as np
 from tqdm import tqdm
 from collections import Counter
-from operator import itemgetter
-from itertools import chain
-from sklearn.feature_extraction.text import TfidfTransformer
-from scipy import sparse
-from data.datasets import ExpIndJobsCustomVocabDataset, StringIndSubDataset, StringDataset
+from data.datasets.StringIndSubDataset import StringIndSubDataset
 from utils.baselines import map_profiles_to_label, get_class_weights, pre_proc_data
 
 
@@ -50,43 +46,31 @@ def get_exp_sequence(users, jobs, offset, exp_seq, split):
 
 
 def get_data(CFG, args):
-    suffix = ""
+    suffix = f"_{args.mod_type}_it{args.iteration}"
     print("Building datasets...")
     arguments = {'data_dir': CFG["gpudatadir"],
-                 "load": "True",
-                 "subsample": args.subsample,
+                 "load": args.load_dataset,
+                 "subsample": -1,
                  "max_len": args.max_len,
                  "exp_levels": args.exp_levels,
-                 "exp_type": args.exp_type,
+                 "rep_file": CFG['ppl_rep'],
+                 "suffix": suffix,
+                 "exp_type": "iter",
                  "is_toy": "False"}
-    if args.sub_ind == 'True':
-        arguments["already_subbed"] = 'True'
-        arguments["tuple_list"] = None
-        arguments["lookup"] = None
-        arguments["suffix"] = args.suffix
-        data_train = StringIndSubDataset(**arguments, split="TRAIN")
-        data_valid = StringIndSubDataset(**arguments, split="VALID")
-        data_test = StringIndSubDataset(**arguments, split="TEST")
-        suffix = f"_subInd{args.suffix}"
-    else:
-        data_train = StringDataset(**arguments, split="TRAIN")
-        data_valid = StringDataset(**arguments, split="VALID")
-        data_test = StringDataset(**arguments, split="TEST")
-    with open(os.path.join(CFG["gpudatadir"], f"class_weights_dict_{args.exp_type}_{args.exp_levels}exp_dynamics{suffix}.pkl"),
-              'rb') as f_name:
-        class_weights = pkl.load(f_name)
-    return data_train, data_valid, data_test, class_weights
+    data_train = StringIndSubDataset(**arguments, split="TRAIN")
+    data_valid = StringIndSubDataset(**arguments, split="VALID")
+    data_test = StringIndSubDataset(**arguments, split="TEST")
+    return data_train, data_valid, data_test
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mod_type", type=str, default="SVM")
+    parser.add_argument("--mod_type", type=str, default="ft") # svm or ft
     parser.add_argument("--load_dataset", type=str, default="True")
-    parser.add_argument("--sub_ind", type=str, default="True")
     parser.add_argument("--subsample", type=int, default=-1)
-    parser.add_argument("--max_len", type=int, default=10)
+    parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--exp_levels", type=int, default=3)
-    parser.add_argument("--suffix", type=str, default="_new_it8")
-    parser.add_argument("--exp_type", type=str, default="uniform")
+    parser.add_argument("--iteration", type=int, default=38)
+    parser.add_argument("--exp_type", type=str, default="iter")
     args = parser.parse_args()
     main(args)
