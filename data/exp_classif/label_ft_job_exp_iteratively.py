@@ -325,11 +325,13 @@ def load_datasets(args):
         datasets.append(StringIndSubDataset(**arguments, split=split))
     train_lookup = datasets[0].user_lookup
     valid_lookup = datasets[1].user_lookup
+    print(f"train and valid lookup len : {len(train_lookup) + len(valid_lookup)}")
     test_lookup = datasets[-1].user_lookup
     return datasets[0], datasets[1], datasets[2], train_lookup, valid_lookup, test_lookup
 
 
 def get_subset_data_and_labels(features_train, features_valid, labels, user_lookup, train_user_len):
+    features = features_train.tuples + features_valid.tuples
     user_id_as_list = [i for i, _ in user_lookup.items()]
     user_train = []
     arr = np.arange(train_user_len)
@@ -340,7 +342,7 @@ def get_subset_data_and_labels(features_train, features_valid, labels, user_look
         current_user = user_lookup[user_id_as_list[i]]
         for job_num in range(current_user[0], current_user[1]):
             ipdb.set_trace()
-            sub_data.append(features_train[job_num])
+            sub_data.append(features[job_num])
             sub_labels.append(labels[job_num])
     assert len(sub_data) == len(sub_labels)
     return sub_data, sub_labels, user_train
