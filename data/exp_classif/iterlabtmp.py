@@ -79,9 +79,10 @@ def main(args):
         print(f"Classifier saved at: {tgt_file}_exp_svc_{args.kernel}_it{iteration}.joblib")
         preds, labels = [], []
         # SVC eval
+        faulty_users = [33, 104]
         cnt = np.random.randint(args.user_step)
         for user in tqdm(all_users.keys(), desc="parsing users..."):
-            if user not in user_trains and cnt % args.user_step == 0 and user != 33:
+            if user not in user_trains and cnt % args.user_step == 0 and user not in faulty_users:
                 current_user = all_users[user]
                 exp_seq_pred = [all_labels[current_user[0]]]
                 exp_seq_init = [all_labels[current_user[0]]]
