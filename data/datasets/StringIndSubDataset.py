@@ -170,7 +170,7 @@ class StringIndSubDataset(Dataset):
         return " ".join(word_list)
 
     def get_uniform_experience(self, career_len):
-        return [round(i) for i in np.linspace(0, self.exp_levels - 1, career_len)]
+        return [int(round(i)) for i in np.linspace(0, self.exp_levels - 1, career_len)]
 
     def check_monotonicity(self):
         all_labels = [i["exp_index"] for i in self.tuples]
