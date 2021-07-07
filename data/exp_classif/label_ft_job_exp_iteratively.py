@@ -46,7 +46,7 @@ def main(args):
     check_monotonic_dynamic(data_train + data_valid + data_test, all_users, "all")
     print("Features and labels concatenated.")
     while f1 < args.f1_threshold and iteration < args.max_iter:
-        train_file, test_file = build_ft_txt_file(args, f'_it{iteration}', all_labels, all_users, data_train, data_valid, data_test)
+        train_file, test_file = build_ft_txt_file(args, f'_it{iteration}', data_train, data_valid, data_test)
         print(f"Iteration number: {iteration}")
         print(f"Training classifier on {len(data_train) + len(data_valid)} jobs...")
         classifier = fasttext.train_supervised(input=train_file, lr=params[0], epoch=params[1],
@@ -155,7 +155,9 @@ def get_all_tuples(data_train, data_valid, data_test):
     return all_tuples
 
 
-def build_ft_txt_file(args, suffix, all_labels, all_users, dataset_train, dataset_valid, dataset_test):
+def build_ft_txt_file(args, suffix, dataset_train, dataset_valid, dataset_test):
+    if args.enforce_monotony != "True":
+        suffix += f"_NON_MONOTONIC"
     tgt_file = os.path.join(CFG["gpudatadir"],
                             f"ft_classif_supervised_ind20_exp{args.exp_levels}_{args.exp_type}{suffix}.test")
     if os.path.isfile(tgt_file):
