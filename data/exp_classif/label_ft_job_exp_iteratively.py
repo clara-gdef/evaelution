@@ -361,8 +361,6 @@ def get_exp_name(args):
     exp_name = f"FT_label_iter_{args.exp_levels}exp_{args.exp_type}"
     if args.subsample_users != -1:
         exp_name += f"_eval{args.subsample_users}"
-    if args.tfidf == "True":
-        exp_name += "_tfidf"
     return exp_name
 
 
