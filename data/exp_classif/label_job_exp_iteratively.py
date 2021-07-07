@@ -64,10 +64,17 @@ def main(args):
     check_monotonic_dynamic(data_train_valid + data_test, all_users, "all")
     print(f"Concatenating all {train_features.shape[0] + test_features.shape[0]} features...")
     ipdb.set_trace()
-    start_time = time.time()
+    start_time_concatenated = time.time()
     all_features = np.concatenate((train_features.toarray(), test_features.toarray()), axis=0)
-    print("--- %s seconds ---" % (time.time() - start_time))
-
+    print("--- %s seconds for \" np.concatenate\" ---" % (time.time() - start_time_concatenated))
+    all_features_list = []
+    start_time_append = time.time()
+    for i in train_features:
+        all_features_list.append(i.toarray())
+    for j in test_features:
+        all_features_list.append(j.toarray())
+    print("--- %s seconds for \" list.append \" ---" % (time.time() - start_time_append))
+    ipdb.set_trace()
     all_labels = labels_exp_train
     all_labels.extend(labels_exp_test)
     print("Features and labels concatenated.")
