@@ -240,7 +240,7 @@ def get_jobs_str_per_class(args, all_tuples, all_labels):
         for job_index in v:
             rev_class_index[job_index] = k
     class_txt = {k: "" for k in range(args.exp_levels)}
-    cnt = np.random.randint(args.user_step)
+    # cnt = np.random.randint(args.user_step)
     # for num, tup in enumerate(tqdm(all_tuples, desc="sorting jobs by class on all samples...")):
     # if cnt % 10000:
     #     class_txt[rev_class_index[num]] += f" {tup}"
@@ -263,49 +263,51 @@ def save_new_tuples(data_train_valid, data_test, all_labels, len_train, len_vali
     for num, label in enumerate(tqdm(labels_valid, desc="relabel valid tuples...")):
         tuples_valid[num]["exp_index"] = label
 
-    offset = len_train
-    reset_valid_lookup = {}
-    if min(min(valid_lookup.values())) >= offset:
-        for k, v in valid_lookup.items():
-            assert v[0] - offset >= 0
-            reset_valid_lookup[k] = [v[0] - offset, v[1] - offset]
-    else:
-        reset_valid_lookup = valid_lookup
+    # offset = len_train
+    # reset_valid_lookup = {}
+    # if min(min(valid_lookup.values())) >= offset:
+    #     for k, v in valid_lookup.items():
+    #         assert v[0] - offset >= 0
+    #         reset_valid_lookup[k] = [v[0] - offset, v[1] - offset]
+    # else:
+    #     reset_valid_lookup = valid_lookup
 
     labels_test = all_labels[len_train + len_valid:-1]
     tuples_test = []
     for num, label in enumerate(tqdm(labels_test, desc="relabel test tuples...")):
-        new = {"ind_index": data_test.tuples[num]["ind_index"],
-               "exp_index": label,
-               "words": data_test.tuples[num]["words"]}
-        tuples_test.append(new)
+        tuples_test[num]["exp_index"] = label
+        # new = {"ind_index": data_test.tuples[num]["ind_index"],
+        #        "exp_index": label,
+        #        "words": data_test.tuples[num]["words"]}
+        # tuples_test.append(new)
 
-    offset = len_train + len_valid
-    reset_test_lookup = {}
-    if min(min(test_lookup.values())) >= offset:
-        for k, v in test_lookup.items():
-            assert v[0] - offset >= 0
-            reset_test_lookup[k] = [v[0] - offset, v[1] - offset]
-    else:
-        reset_test_lookup = test_lookup
-    save_new_tuples_per_split(tuples_train, train_lookup, "TRAIN", iteration)
-    save_new_tuples_per_split(tuples_valid, reset_valid_lookup, "VALID", iteration)
-    save_new_tuples_per_split(tuples_test, reset_test_lookup, "TEST", iteration)
+    # offset = len_train + len_valid
+    # reset_test_lookup = {}
+    # if min(min(test_lookup.values())) >= offset:
+    #     for k, v in test_lookup.items():
+    #         assert v[0] - offset >= 0
+    #         reset_test_lookup[k] = [v[0] - offset, v[1] - offset]
+    # else:
+    #     reset_test_lookup = test_lookup
+    save_new_tuples_per_split(tuples_train, "TRAIN", iteration)
+    save_new_tuples_per_split(tuples_valid, "VALID", iteration)
+    save_new_tuples_per_split(tuples_test, "TEST", iteration)
 
 
-def save_new_tuples_per_split(tuple_list, lookup, split, iteration):
+def save_new_tuples_per_split(tuple_list, split, iteration):
+    suffix = f"_ft_it{iteration}"
     arguments = {'data_dir': CFG["datadir"],
-                 "load": "False",
+                 "load": "True",
                  "subsample": -1,
                  "max_len": args.max_len,
                  "exp_levels": args.exp_levels,
                  "exp_type": "iter",
                  "rep_file": CFG['ppl_rep'],
-                 "suffix": f"_ft_it{iteration}",
+                 "suffix": f"_ft_it{iteration-1}",
                  "split": split,
                  "is_toy": "False"}
     tmp = StringIndSubDataset(**arguments)
-    tmp.save_new_tuples(tuple_list, lookup)
+    tmp.save_new_tuples(tuple_list, suffix)
 
 
 def get_class_dist(class_list):

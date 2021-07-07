@@ -59,12 +59,12 @@ class StringIndSubDataset(Dataset):
             self.tuples[idx]["ind_index"], \
             self.tuples[idx]["exp_index"]
 
-    def save_new_tuples(self, tuple_list, lookup):
+    def save_new_tuples(self, tuple_list, suffix):
         self.tuples = tuple_list
         # for person_id, (start, end) in tqdm(lookup.items(), desc=f"Changing {len(lookup)} tuples inx split {self.split}..."):
         #     for num, i in enumerate(range(start, end)):
         #         self.tuples[i] = tuple_list[num].copy()
-        self.save_dataset("", -1)
+        self.save_dataset(suffix, -1)
 
     def save_dataset(self, suffix, subsample):
         if self.is_toy == "True":
