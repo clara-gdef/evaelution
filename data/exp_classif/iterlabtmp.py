@@ -66,6 +66,7 @@ def main(args):
 
     print("Features and labels concatenated.")
     while f1 < args.f1_threshold and iteration < args.max_iter:
+        iteration += 1
         print(f"Iteration number: {iteration}")
         # svc training
         subset_train_data, subset_train_labels, user_trains = get_subset_data_and_labels(train_features.toarray(), labels_exp_train,
@@ -84,7 +85,7 @@ def main(args):
                 current_user = all_users[user]
                 exp_seq_pred = [all_labels[current_user[0]]]
                 exp_seq_init = [all_labels[current_user[0]]]
-                for job in range(current_user[0] + 1, current_user[1]):
+                for job in range(current_user[0]+1, current_user[1]):
                     prev_exp = all_labels[job - 1]
                     if job == current_user[1] - 1:
                         next_exp = 2  # max possible
@@ -110,14 +111,13 @@ def main(args):
         label_class_dist = get_class_dist(labels)
         print(f"Class distributions in PREDS: {pred_class_dist}")
         print(f"Class distributions in LABELS: {label_class_dist}")
-        iteration += 1
         word_analysis(args, all_features, all_labels, vectorizer, exp_name, iteration)
         save_new_tuples(data_train, data_valid, data_test, all_labels, train_lookup, valid_lookup,
                         test_lookup, iteration)
 
-    ipdb.set_trace()
     # the model converged, we test it on the whole dataset
-    all_results = test_model_on_all_test_data(args, classifier, vectorizer)
+    all_results = test_model_on_all_test_data(args, classifier, vectorizer, tokenizer, stop_words)
+    ipdb.set_trace()
 
 
 def check_monotonic_dynamic(data, lookup, split):
@@ -242,10 +242,9 @@ def save_new_tuples_per_split(tuple_list, lookup, split, iteration):
     tmp.save_new_tuples(tuple_list, lookup)
 
 
-def test_model_on_all_test_data(args, model, vectorizer):
-    args.subsample_jobs = 10000
-    data_train, data_test, (len_train, len_valid) = load_datasets(args)
-    cleaned_profiles_test, labels_exp_test, _ = pre_proc_data(data_test)
+def test_model_on_all_test_data(args, model, vectorizer, tokenizer, stop_words):
+    data_train, data_valid, data_test, train_lookup, valid_lookup, test_lookup = load_datasets(args)
+    cleaned_profiles_test, labels_exp_test, _ = pre_proc_data(data_test, tokenizer, stop_words)
     test_features = vectorizer.transform(cleaned_profiles_test)
     preds = model.predict(test_features.toarray())
     assert len(preds) == len(labels_exp_test)
@@ -313,29 +312,12 @@ def get_exp_name(args):
     return exp_name
 
 
-def subsample_user_lookup(args, datasets):
-    if args.subsample_users != -1:
-        usr_num = args.subsample_users
-        tmp_user_lu = {}
-        i = 0
-        for k, v in datasets.user_lookup.items():
-            if i < usr_num:
-                tmp_user_lu[k] = v
-                i += 1
-            else:
-                break
-        print(f"Subsampling {usr_num} users, returning lookup of length: {len(tmp_user_lu)}")
-        return tmp_user_lu
-    else:
-        print(f"No subsampling of users, returning full lookup of length: {len(datasets.user_lookup)}")
-        return datasets.user_lookup
-
-
 def get_all_users(data_train, data_valid, data_test, train_lu, valid_lu, test_lu):
     offset = len(data_train)
     offset_valid_lookup = {}
     for k, v in valid_lu.items():
         offset_valid_lookup[k] = [v[0] + offset, v[1] + offset]
+    ipdb.set_trace()
     assert v[1] + offset <= len(data_train) + len(data_valid)
     offset = len(data_train) + len(data_valid)
     offset_test_lookup = {}
