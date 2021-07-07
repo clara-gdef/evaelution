@@ -317,7 +317,7 @@ def load_datasets(args):
     datasets = []
     splits = ["TRAIN", "VALID", "TEST"]
     if args.start_iter == 0:
-        suffix = ""
+        suffix = f"_ft_it0"
     else:
         suffix = f"_ft_it{args.start_iter}"
     arguments = {'data_dir': CFG["gpudatadir"],
