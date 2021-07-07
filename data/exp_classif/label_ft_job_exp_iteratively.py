@@ -48,6 +48,7 @@ def main(args):
     while f1 < args.f1_threshold and iteration < args.max_iter:
         train_file, test_file, user_train = build_ft_txt_file(args, f'_it{iteration}', all_labels, all_users, data_train, data_valid, data_test)
         if iteration == 0:
+            init_metrics = test_model_on_all_test_data(classifier, test_file)
             class_dist = get_class_dist(all_labels)
             print(f"Initial class dist: {class_dist}")
         print(f"Iteration number: {iteration}")
@@ -85,9 +86,11 @@ def main(args):
                 assert all(exp_seq_pred[i] <= exp_seq_pred[i + 1] for i in range(len(exp_seq_pred) - 1))
                 assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
             cnt += 1
-        metrics = get_metrics(preds, labels, args.exp_levels, f"it_{iteration}")
+        # metrics = get_metrics(preds, labels, args.exp_levels, f"it_{iteration}")
+        metrics = test_model_on_all_test_data(classifier, test_file)
         f1 = metrics[f"f1_it_{iteration}"]
         print(f"Iteration: {iteration}, F1 score: {f1}%")
+        print(f"initial F1 score: {metrics['f1_it_0']}%")
         pred_class_dist = get_class_dist(preds)
         label_class_dist = get_class_dist(labels)
         print(f"Class distributions in PREDS: {pred_class_dist}")
@@ -359,8 +362,10 @@ def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
 
 def get_exp_name(args):
     exp_name = f"FT_label_iter_{args.exp_levels}exp_{args.exp_type}"
-    if args.subsample_users != -1:
-        exp_name += f"_eval{args.subsample_users}"
+    if args.train_user_len != -1:
+        exp_name += f"_trainOn{args.train_user_len}"
+    if args.user_step != 1:
+        exp_name += f"_step{args.user_step}"
     return exp_name
 
 
@@ -387,7 +392,7 @@ if __name__ == "__main__":
     parser.add_argument("--train_user_len", type=int, default=5000)
     parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--max_iter", type=int, default=100)
-    parser.add_argument("--user_step", type=int, default=10)
+    parser.add_argument("--user_step", type=int, default=1)
     parser.add_argument("--start_iter", type=int, default=0)
     parser.add_argument("--f1_threshold", type=int, default=80)
     parser.add_argument("--exp_type", type=str, default="iter")
