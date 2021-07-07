@@ -230,7 +230,7 @@ def save_new_tuples(data_train_valid, data_test, all_labels, len_train, len_vali
 
 
 def save_new_tuples_per_split(tuple_list, lookup, split, iteration):
-    arguments = {'data_dir': CFG["datadir"],
+    arguments = {'data_dir': CFG["gpudatadir"],
                  "load": "False",
                  "subsample": -1,
                  "max_len": args.max_len,

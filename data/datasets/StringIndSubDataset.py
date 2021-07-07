@@ -121,7 +121,7 @@ class StringIndSubDataset(Dataset):
                 if self.exp_type == "uniform":
                     exp = self.get_uniform_experience(len(sorted_jobs))
                 elif self.exp_type == "iter":
-                    ipdb.set_trace()
+                    exp = -1 # will be filled later
                 else:
                     raise Exception("exp_type provided not supported. "
                                     "Can only support uniform or iteratively labelled exp atm.")
@@ -131,7 +131,7 @@ class StringIndSubDataset(Dataset):
                     if self.exp_type == "uniform":
                         new_job["exp_index"] = exp[num]
                     elif self.exp_type == "iter":
-                        ipdb.set_trace()
+                        new_job["exp_index"] = -1 # will be filled later
                     else:
                         raise Exception("exp_type provided not supported. "
                                         "Can only support uniform or iteratively labelled exp atm.")
