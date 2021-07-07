@@ -27,7 +27,7 @@ def init(args):
 
 def main(args):
     data_train, data_valid, data_test, train_lookup, valid_lookup, test_lookup = load_datasets(args)
-    if args.initial_check == "True":
+    if args.initial_check == "True" and args.enforce_monotonic == "True":
         check_monotonic_dynamic(data_train, train_lookup, "train")
         check_monotonic_dynamic(data_valid, valid_lookup, "valid")
         check_monotonic_dynamic(data_test, test_lookup, "test")
@@ -69,23 +69,29 @@ def main(args):
                 exp_seq_pred = [all_labels[current_user[0]]]
                 exp_seq_init = [all_labels[current_user[0]]]
                 for job in range(current_user[0] + 1, current_user[1]):
-                    prev_exp = all_labels[job - 1]
-                    if job == current_user[1] - 1:
-                        next_exp = 2  # max possible
+                    if args.enforce_monotonic == "True":
+                        prev_exp = all_labels[job - 1]
+                        if job == current_user[1] - 1:
+                            next_exp = 2  # max possible
+                        else:
+                            next_exp = all_labels[job + 1]
+                        tmp = handle_fb_preds(classifier.predict(all_tuples[job], k=3))
+                        pred = int(tmp[0])
+                        # relabel current tuple according to evolution constraint
+                        exp_seq_init.append(all_labels[job])
+                        if prev_exp <= pred <= next_exp:
+                            all_labels[job] = pred
                     else:
-                        next_exp = all_labels[job + 1]
-                    tmp = handle_fb_preds(classifier.predict(all_tuples[job], k=3))
-                    pred = int(tmp[0])
-                    # relabel current tuple according to evolution constraint
-                    exp_seq_init.append(all_labels[job])
-                    if prev_exp <= pred <= next_exp:
+                        tmp = handle_fb_preds(classifier.predict(all_tuples[job], k=3))
+                        pred = int(tmp[0])
                         all_labels[job] = pred
                     # keep predictions for evaluation of convergence
                     preds.append(pred)
                     labels.append(all_labels[job])
                     exp_seq_pred.append(all_labels[job])
-                assert all(exp_seq_pred[i] <= exp_seq_pred[i + 1] for i in range(len(exp_seq_pred) - 1))
-                assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
+                if args.enforce_monotonic == "True":
+                    assert all(exp_seq_pred[i] <= exp_seq_pred[i + 1] for i in range(len(exp_seq_pred) - 1))
+                    assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
             cnt += 1
         # metrics = get_metrics(preds, labels, args.exp_levels, f"it_{iteration}")
         metrics = test_model_on_all_test_data(classifier, test_file)
@@ -283,6 +289,8 @@ def save_new_tuples(data_train, data_valid, data_test, all_labels, iteration):
 
 def save_new_tuples_per_split(tuple_list, split, iteration):
     suffix = f"_ft_it{iteration}"
+    if args.enforce_monotony != "True":
+        suffix += f"_NON_MONOTONIC"
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": "True",
                  "subsample": -1,
@@ -310,6 +318,8 @@ def load_datasets(args):
     datasets = []
     splits = ["TRAIN", "VALID", "TEST"]
     suffix = f"_ft_it{args.start_iter}"
+    if args.enforce_monotony != "True":
+        suffix += f"_NON_MONOTONIC"
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": args.load_dataset,
                  "subsample": -1,
@@ -332,6 +342,8 @@ def get_exp_name(args):
     exp_name = f"FT_label_iter_{args.exp_levels}exp_{args.exp_type}"
     if args.user_step != 1:
         exp_name += f"_step{args.user_step}"
+    if args.enforce_monotony != "True":
+        exp_name += f"_NON_MONOTONIC"
     return exp_name
 
 
@@ -362,6 +374,7 @@ if __name__ == "__main__":
     parser.add_argument("--start_iter", type=int, default=0)
     parser.add_argument("--f1_threshold", type=int, default=80)
     parser.add_argument("--exp_type", type=str, default="iter")
+    parser.add_argument("--enforce_monotonu", type=str, default="True")
     parser.add_argument("--ind_sub", type=str, default="True")
     parser.add_argument("--initial_check", type=str, default="False")
     parser.add_argument("--exp_levels", type=int, default=3)
