@@ -79,7 +79,7 @@ def main(args):
         print(f"Classifier saved at: {tgt_file}_exp_svc_{args.kernel}_it{iteration}.joblib")
         preds, labels = [], []
         # SVC eval
-        faulty_users = [33, 104]
+        faulty_users = [33, 104, 125]
         cnt = np.random.randint(args.user_step)
         for user in tqdm(all_users.keys(), desc="parsing users..."):
             if user not in user_trains and cnt % args.user_step == 0 and user not in faulty_users:
@@ -336,7 +336,7 @@ if __name__ == "__main__":
     parser.add_argument("--train_user_len", type=int, default=5000)
     parser.add_argument("--max_iter", type=int, default=50)
     parser.add_argument("--max_len", type=int, default=32)
-    parser.add_argument("--user_step", type=int, default=10)
+    parser.add_argument("--user_step", type=int, default=100)
     parser.add_argument("--start_iter", type=int, default=0)
     parser.add_argument("--f1_threshold", type=int, default=80)
     parser.add_argument("--exp_type", type=str, default="uniform")
