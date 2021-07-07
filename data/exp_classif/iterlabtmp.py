@@ -79,7 +79,7 @@ def main(args):
         print(f"Classifier saved at: {tgt_file}_exp_svc_{args.kernel}_it{iteration}.joblib")
         preds, labels = [], []
         # SVC eval
-        faulty_users = [33, 104, 125, 726]
+        faulty_users = [33, 104, 125, 726, 2672]
         cnt = np.random.randint(args.user_step)
         for user in tqdm(all_users.keys(), desc="parsing users..."):
             if user not in user_trains and cnt % args.user_step == 0 and user not in faulty_users:
@@ -227,6 +227,7 @@ def save_new_tuples(data_train, data_valid, data_test, all_labels, train_lookup,
 
 
 def save_new_tuples_per_split(tuple_list, lookup, split, iteration):
+    suffix = f"_svm_it{iteration}"
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": "False",
                  "subsample": -1,
@@ -234,13 +235,12 @@ def save_new_tuples_per_split(tuple_list, lookup, split, iteration):
                  "exp_levels": args.exp_levels,
                  "exp_type": "iter",
                  "rep_file": CFG['ppl_rep'],
-                 "suffix": f"_svm_it{iteration}",
+                 "suffix": f"_svm_it{iteration-1}",
                  "split": split,
                  "is_toy": "False"}
     tmp = StringIndSubDataset(**arguments)
-    assert max(max(lookup.values())) == len(tuple_list) - 1
-    assert min(min(lookup.values())) == 0
-    tmp.save_new_tuples(tuple_list, lookup)
+    tmp.name = f"StringIndSubDataset_{args.exp_levels}exp_iter_maxlen{args.max_len}_{split}"
+    tmp.save_new_tuples(tuple_list, suffix)
 
 
 def test_model_on_all_test_data(args, model, vectorizer, tokenizer, stop_words):

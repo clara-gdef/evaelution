@@ -302,6 +302,7 @@ def save_new_tuples_per_split(tuple_list, split, iteration):
                  "split": split,
                  "is_toy": "False"}
     tmp = StringIndSubDataset(**arguments)
+    tmp.name = f"StringIndSubDataset_{args.exp_levels}exp_iter_maxlen{args.max_len}_{split}"
     tmp.save_new_tuples(tuple_list, suffix)
 
 
