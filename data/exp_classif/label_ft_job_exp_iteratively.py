@@ -157,10 +157,6 @@ def build_ft_txt_file(args, suffix, all_labels, all_users, dataset_train, datase
         print("removing previous file")
     write_in_file_with_label(args, tgt_file, dataset_test.tuples, f"exp", "test")
 
-    # if args.train_user_len != 256160:
-    #     suffix += f"_sub{args.train_user_len}"
-
-    # sub_data, sub_labels, user_train = get_subset_data_and_labels(dataset_train, dataset_valid, all_labels, all_users, args.train_user_len)
     tgt_file_exp_model = os.path.join(CFG["gpudatadir"],
                                       f"ft_classif_supervised_ind20_exp{args.exp_levels}_{args.exp_type}{suffix}.train")
     print(tgt_file_exp_model)
@@ -332,27 +328,8 @@ def load_datasets(args):
     return datasets[0], datasets[1], datasets[2], train_lookup, valid_lookup, test_lookup
 
 
-# def get_subset_data_and_labels(features_train, features_valid, labels, user_lookup, train_user_len):
-#     features = features_train.tuples + features_valid.tuples
-#     user_id_as_list = [i for i, _ in user_lookup.items()]
-#     user_train = []
-#     arr = np.arange(train_user_len)
-#     np.random.shuffle(arr)
-#     sub_data, sub_labels = [], []
-#     for i in arr:
-#         user_train.append(user_id_as_list[i])
-#         current_user = user_lookup[user_id_as_list[i]]
-#         for job_num in range(current_user[0], current_user[1]):
-#             sub_data.append(features[job_num])
-#             sub_labels.append(labels[job_num])
-#     assert len(sub_data) == len(sub_labels)
-#     return sub_data, sub_labels, user_train
-
-
 def get_exp_name(args):
     exp_name = f"FT_label_iter_{args.exp_levels}exp_{args.exp_type}"
-    # if args.train_user_len != 256160:
-    #     exp_name += f"_trainOn{args.train_user_len}"
     if args.user_step != 1:
         exp_name += f"_step{args.user_step}"
     return exp_name
