@@ -79,7 +79,7 @@ def main(args):
         print(f"Classifier saved at: {tgt_file}_exp_svc_{args.kernel}_it{iteration}.joblib")
         preds, labels = [], []
         # SVC eval
-        faulty_users = [33, 104, 125]
+        faulty_users = [33, 104, 125, 726]
         cnt = np.random.randint(args.user_step)
         for user in tqdm(all_users.keys(), desc="parsing users..."):
             if user not in user_trains and cnt % args.user_step == 0 and user not in faulty_users:
@@ -266,10 +266,7 @@ def get_class_dist(class_list):
 def load_datasets(args):
     datasets = []
     splits = ["TRAIN", "VALID", "TEST"]
-    if args.start_iter == 0:
-        suffix = ""
-    else:
-        suffix = f"_svm_it{args.start_iter}"
+    suffix = f"_svm_it{args.start_iter}"
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": args.load_dataset,
                  "subsample": -1,
@@ -277,7 +274,7 @@ def load_datasets(args):
                  "exp_levels": args.exp_levels,
                  "rep_file": CFG['ppl_rep'],
                  "suffix": suffix,
-                 "exp_type": args.exp_type,
+                 "exp_type": "iter",
                  "is_toy": "False"}
     for split in splits:
         datasets.append(StringIndSubDataset(**arguments, split=split))

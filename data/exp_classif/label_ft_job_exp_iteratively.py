@@ -324,7 +324,7 @@ def load_datasets(args):
                  "exp_levels": args.exp_levels,
                  "rep_file": CFG['ppl_rep'],
                  "suffix": suffix,
-                 "exp_type": args.exp_type,
+                 "exp_type": "iter",
                  "is_toy": "False"}
     for split in splits:
         datasets.append(StringIndSubDataset(**arguments, split=split))
