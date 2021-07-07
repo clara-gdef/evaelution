@@ -93,8 +93,7 @@ def main(args):
         print(f"Class distributions in PREDS: {pred_class_dist}")
         print(f"Class distributions in LABELS: {label_class_dist}")
         word_analysis(args, all_tuples, all_labels, exp_name, iteration)
-        save_new_tuples(data_train, data_valid, data_test, all_labels, train_lookup, valid_lookup,
-                        test_lookup, iteration)
+        save_new_tuples(data_train, data_valid, data_test, all_labels, iteration)
 
     ipdb.set_trace()
     # the model converged, we test it on the whole dataset
@@ -244,8 +243,7 @@ def get_jobs_str_per_class(args, all_tuples, all_labels):
     return class_txt
 
 
-def save_new_tuples(data_train, data_valid, data_test, all_labels, train_lookup, valid_lookup,
-                        test_lookup, iteration):
+def save_new_tuples(data_train, data_valid, data_test, all_labels, iteration):
     tuples_train = []
     labels_train = all_labels[:len(data_train)]
     for num, label in enumerate(tqdm(labels_train, desc="relabel train tuples...")):
@@ -261,14 +259,14 @@ def save_new_tuples(data_train, data_valid, data_test, all_labels, train_lookup,
                "exp_index": label,
                "words": data_valid.tuples[num]["words"]}
         tuples_valid.append(new)
-    offset = len(data_train)
-    reset_valid_lookup = {}
-    if min(min(valid_lookup.values())) >= offset:
-        for k, v in valid_lookup.items():
-            assert v[0] - offset >= 0
-            reset_valid_lookup[k] = [v[0] - offset, v[1] - offset]
-    else:
-        reset_valid_lookup = valid_lookup
+    # offset = len(data_train)
+    # reset_valid_lookup = {}
+    # if min(min(valid_lookup.values())) >= offset:
+    #     for k, v in valid_lookup.items():
+    #         assert v[0] - offset >= 0
+    #         reset_valid_lookup[k] = [v[0] - offset, v[1] - offset]
+    # else:
+    #     reset_valid_lookup = valid_lookup
 
     labels_test = all_labels[len(data_train) + len(data_valid):-1]
     tuples_test = []
@@ -278,17 +276,17 @@ def save_new_tuples(data_train, data_valid, data_test, all_labels, train_lookup,
                "words": data_test.tuples[num]["words"]}
         tuples_test.append(new)
 
-    offset = len(data_train) + len(data_valid)
-    reset_test_lookup = {}
-    if min(min(test_lookup.values())) >= offset:
-        for k, v in test_lookup.items():
-            assert v[0] - offset >= 0
-            reset_test_lookup[k] = [v[0] - offset, v[1] - offset]
-    else:
-        reset_test_lookup = test_lookup
-    save_new_tuples_per_split(data_train, train_lookup, "TRAIN", iteration)
-    save_new_tuples_per_split(data_valid, reset_valid_lookup, "VALID", iteration)
-    save_new_tuples_per_split(tuples_test, reset_test_lookup, "TEST", iteration)
+    # offset = len(data_train) + len(data_valid)
+    # reset_test_lookup = {}
+    # if min(min(test_lookup.values())) >= offset:
+    #     for k, v in test_lookup.items():
+    #         assert v[0] - offset >= 0
+    #         reset_test_lookup[k] = [v[0] - offset, v[1] - offset]
+    # else:
+    #     reset_test_lookup = test_lookup
+    save_new_tuples_per_split(data_train, "TRAIN", iteration)
+    save_new_tuples_per_split(data_valid, "VALID", iteration)
+    save_new_tuples_per_split(tuples_test, "TEST", iteration)
 
 
 def save_new_tuples_per_split(tuple_list, split, iteration):
