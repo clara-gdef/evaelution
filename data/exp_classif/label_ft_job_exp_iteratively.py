@@ -48,7 +48,7 @@ def main(args):
     while f1 < args.f1_threshold and iteration < args.max_iter:
         train_file, test_file, user_train = build_ft_txt_file(args, f'_it{iteration}', all_labels, all_users, data_train, data_valid, data_test)
         print(f"Iteration number: {iteration}")
-        print(f"Training classifier on {args.train_user_len} jobs...")
+        print(f"Training classifier on {len(user_train)} jobs...")
         classifier = fasttext.train_supervised(input=train_file, lr=params[0], epoch=params[1],
                                                wordNgrams=params[2])
         if iteration == 0:
@@ -64,7 +64,7 @@ def main(args):
         # this allows to cover different users from one loop to the next, even if we skip some every loop
         cnt = np.random.randint(args.user_step)
         for user in tqdm(all_users.keys(), desc="parsing users..."):
-            if user not in user_train and cnt % args.user_step == 0:
+            if cnt % args.user_step == 0:
                 current_user = all_users[user]
                 exp_seq_pred = [all_labels[current_user[0]]]
                 exp_seq_init = [all_labels[current_user[0]]]
@@ -120,7 +120,6 @@ def test_model_on_all_test_data(model, test_file):
             k = 2
             labels.append(int(tmp.split(" ")[0]))
             pred = handle_fb_preds(model.predict(tmp[2:-2], k=k))
-            ipdb.set_trace()
             predictions.append(pred)
     preds = np.stack(predictions)
     metrics_at_1 = get_metrics(preds[:, 0], labels, len(model.labels), "exp")
@@ -158,20 +157,22 @@ def build_ft_txt_file(args, suffix, all_labels, all_users, dataset_train, datase
         print("removing previous file")
     write_in_file_with_label(args, tgt_file, dataset_test.tuples, f"exp", "test")
 
-    if args.train_user_len != 256160:
-        suffix += f"_sub{args.train_user_len}"
+    # if args.train_user_len != 256160:
+    #     suffix += f"_sub{args.train_user_len}"
 
-    sub_data, sub_labels, user_train = get_subset_data_and_labels(dataset_train, dataset_valid, all_labels, all_users, args.train_user_len)
+    # sub_data, sub_labels, user_train = get_subset_data_and_labels(dataset_train, dataset_valid, all_labels, all_users, args.train_user_len)
     tgt_file_exp_model = os.path.join(CFG["gpudatadir"],
                                       f"ft_classif_supervised_ind20_exp{args.exp_levels}_{args.exp_type}{suffix}.train")
     print(tgt_file_exp_model)
     if os.path.isfile(tgt_file_exp_model):
         os.system('rm ' + tgt_file_exp_model)
         print("removing previous file")
-    write_in_file_with_label(args, tgt_file_exp_model, sub_data,
+    write_in_file_with_label(args, tgt_file_exp_model, dataset_train,
                              f"exp", "train")
+    write_in_file_with_label(args, tgt_file_exp_model, dataset_valid,
+                             f"exp", "valid")
 
-    return tgt_file_exp_model, tgt_file, user_train
+    return tgt_file_exp_model, tgt_file
 
 
 def write_in_file_with_label(args, tgt_file, dataset, att_type, split):
@@ -327,27 +328,27 @@ def load_datasets(args):
     return datasets[0], datasets[1], datasets[2], train_lookup, valid_lookup, test_lookup
 
 
-def get_subset_data_and_labels(features_train, features_valid, labels, user_lookup, train_user_len):
-    features = features_train.tuples + features_valid.tuples
-    user_id_as_list = [i for i, _ in user_lookup.items()]
-    user_train = []
-    arr = np.arange(train_user_len)
-    np.random.shuffle(arr)
-    sub_data, sub_labels = [], []
-    for i in arr:
-        user_train.append(user_id_as_list[i])
-        current_user = user_lookup[user_id_as_list[i]]
-        for job_num in range(current_user[0], current_user[1]):
-            sub_data.append(features[job_num])
-            sub_labels.append(labels[job_num])
-    assert len(sub_data) == len(sub_labels)
-    return sub_data, sub_labels, user_train
+# def get_subset_data_and_labels(features_train, features_valid, labels, user_lookup, train_user_len):
+#     features = features_train.tuples + features_valid.tuples
+#     user_id_as_list = [i for i, _ in user_lookup.items()]
+#     user_train = []
+#     arr = np.arange(train_user_len)
+#     np.random.shuffle(arr)
+#     sub_data, sub_labels = [], []
+#     for i in arr:
+#         user_train.append(user_id_as_list[i])
+#         current_user = user_lookup[user_id_as_list[i]]
+#         for job_num in range(current_user[0], current_user[1]):
+#             sub_data.append(features[job_num])
+#             sub_labels.append(labels[job_num])
+#     assert len(sub_data) == len(sub_labels)
+#     return sub_data, sub_labels, user_train
 
 
 def get_exp_name(args):
     exp_name = f"FT_label_iter_{args.exp_levels}exp_{args.exp_type}"
-    if args.train_user_len != 256160:
-        exp_name += f"_trainOn{args.train_user_len}"
+    # if args.train_user_len != 256160:
+    #     exp_name += f"_trainOn{args.train_user_len}"
     if args.user_step != 1:
         exp_name += f"_step{args.user_step}"
     return exp_name
@@ -373,7 +374,7 @@ if __name__ == "__main__":
     parser.add_argument("--subsample_users", type=int, default=-1)
     parser.add_argument("--load_dataset", type=str, default="True")
     parser.add_argument("--subsample_jobs", type=int, default=-1)
-    parser.add_argument("--train_user_len", type=int, default=256160)# max: 256160
+    # parser.add_argument("--train_user_len", type=int, default=256160)# max: 256160
     parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--max_iter", type=int, default=100)
     parser.add_argument("--user_step", type=int, default=1)
