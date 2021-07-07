@@ -89,7 +89,7 @@ def main(args):
                     preds.append(pred)
                     labels.append(all_labels[job])
                     exp_seq_pred.append(all_labels[job])
-                if args.enforce_monotonic == "True":
+                if args.enforce_monotony == "True":
                     assert all(exp_seq_pred[i] <= exp_seq_pred[i + 1] for i in range(len(exp_seq_pred) - 1))
                     assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
             cnt += 1
@@ -374,7 +374,7 @@ if __name__ == "__main__":
     parser.add_argument("--start_iter", type=int, default=0)
     parser.add_argument("--f1_threshold", type=int, default=80)
     parser.add_argument("--exp_type", type=str, default="iter")
-    parser.add_argument("--enforce_monotonu", type=str, default="True")
+    parser.add_argument("--enforce_monotony", type=str, default="True")
     parser.add_argument("--ind_sub", type=str, default="True")
     parser.add_argument("--initial_check", type=str, default="False")
     parser.add_argument("--exp_levels", type=int, default=3)
