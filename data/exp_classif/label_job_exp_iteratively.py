@@ -311,8 +311,8 @@ def load_datasets(args):
     # len_valid = len(datasets[1])
     # assert len(data_train_valid) == len_train + len_valid
     return data_train_valid, datasets[-1], (len_train, len_valid), \
-           init_train_lookup, offset_valid_lookup, init_test_lookup, test_lookup_sub,
-            {**train_lookup_sub, **valid_lookup_sub}
+           init_train_lookup, offset_valid_lookup, init_test_lookup, test_lookup_sub,\
+           {**train_lookup_sub, **valid_lookup_sub}
 
 
 def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
