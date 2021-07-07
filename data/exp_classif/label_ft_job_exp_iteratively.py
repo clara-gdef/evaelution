@@ -149,23 +149,6 @@ def get_all_tuples(data_train, data_valid, data_test):
     return all_tuples
 
 
-def get_subset_data_and_labels(features_train, features_valid, labels, user_lookup, train_user_len):
-    user_id_as_list = [i for i, _ in user_lookup.items()]
-    user_train = []
-    arr = np.arange(train_user_len)
-    np.random.shuffle(arr)
-    sub_data, sub_labels = [], []
-    for i in arr:
-        user_train.append(user_id_as_list[i])
-        current_user = user_lookup[user_id_as_list[i]]
-        for job_num in range(current_user[0], current_user[1]):
-            ipdb.set_trace()
-            sub_data.append(features_train[job_num])
-            sub_labels.append(labels[job_num])
-    assert len(sub_data) == len(sub_labels)
-    return sub_data, sub_labels, user_train
-
-
 def build_ft_txt_file(args, suffix, all_labels, all_users, dataset_train, dataset_valid, dataset_test):
     tgt_file = os.path.join(CFG["gpudatadir"],
                             f"ft_classif_supervised_ind20_exp{args.exp_levels}_{args.exp_type}{suffix}.test")
@@ -346,7 +329,7 @@ def load_datasets(args):
     return datasets[0], datasets[1], datasets[2], train_lookup, valid_lookup, test_lookup
 
 
-def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
+def get_subset_data_and_labels(features_train, features_valid, labels, user_lookup, train_user_len):
     user_id_as_list = [i for i, _ in user_lookup.items()]
     user_train = []
     arr = np.arange(train_user_len)
@@ -356,7 +339,8 @@ def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
         user_train.append(user_id_as_list[i])
         current_user = user_lookup[user_id_as_list[i]]
         for job_num in range(current_user[0], current_user[1]):
-            sub_data.append(features[job_num])
+            ipdb.set_trace()
+            sub_data.append(features_train[job_num])
             sub_labels.append(labels[job_num])
     assert len(sub_data) == len(sub_labels)
     return sub_data, sub_labels, user_train
