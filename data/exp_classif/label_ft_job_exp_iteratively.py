@@ -27,7 +27,7 @@ def init(args):
 
 def main(args):
     data_train, data_valid, data_test, train_lookup, valid_lookup, test_lookup = load_datasets(args)
-    if args.initial_check == "True" and args.enforce_monotonic == "True":
+    if args.initial_check == "True" and args.enforce_monotony == "True":
         check_monotonic_dynamic(data_train, train_lookup, "train")
         check_monotonic_dynamic(data_valid, valid_lookup, "valid")
         check_monotonic_dynamic(data_test, test_lookup, "test")
@@ -69,7 +69,7 @@ def main(args):
                 exp_seq_pred = [all_labels[current_user[0]]]
                 exp_seq_init = [all_labels[current_user[0]]]
                 for job in range(current_user[0] + 1, current_user[1]):
-                    if args.enforce_monotonic == "True":
+                    if args.enforce_monotony == "True":
                         prev_exp = all_labels[job - 1]
                         if job == current_user[1] - 1:
                             next_exp = 2  # max possible
