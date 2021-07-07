@@ -173,7 +173,7 @@ def build_ft_txt_file(args, suffix, all_labels, all_users, dataset_train, datase
         print("removing previous file")
     write_in_file_with_label(args, tgt_file, dataset_test.tuples + dataset_valid.tuples, f"exp", "test")
 
-    if args.train_user_len != -1:
+    if args.train_user_len != 192115:
         suffix += f"_sub{args.train_user_len}"
 
     sub_data, sub_labels, user_train = get_subset_data_and_labels(dataset_train, all_labels, all_users, args.train_user_len)
