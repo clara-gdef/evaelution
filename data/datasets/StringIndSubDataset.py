@@ -44,7 +44,7 @@ class StringIndSubDataset(Dataset):
             self.save_dataset("", subsample)
 
         if subsample != -1 and self.is_toy == "False":
-            np.random.shuffle(self.tuples)
+            # np.random.shuffle(self.tuples)
             tmp = self.tuples[:subsample]
             self.tuples = tmp
 
