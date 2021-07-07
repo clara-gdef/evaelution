@@ -79,8 +79,8 @@ def main(args):
         print(f"Training classifier on {len(subset_train_data)} jobs...")
         class_weigths = get_class_dist(subset_train_labels)
         classifier = train_svm(subset_train_data, subset_train_labels, class_weigths, args.kernel)
-        joblib.dump(classifier, f"{tgt_file}_exp_svc_{args.kernel}_it{iteration}.joblib")
-        print(f"Classifier saved at: {tgt_file}_exp_svc_{args.kernel}_it{iteration}.joblib")
+        joblib.dump(classifier, f"{tgt_file}_exp_svm_it{iteration}.joblib")
+        print(f"Classifier saved at: {tgt_file}_exp_svm_it{iteration}.joblib")
         preds, labels = [], []
         # SVC eval
         cnt = np.random.randint(args.user_step)
