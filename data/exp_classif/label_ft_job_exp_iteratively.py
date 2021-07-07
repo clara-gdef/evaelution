@@ -26,10 +26,10 @@ def init(args):
 
 
 def main(args):
-    data_train_valid, data_test, (len_train, len_valid), train_lookup, valid_lookup, test_lookup = load_datasets(args)
+    data_train, data_valid, data_test, train_lookup, valid_lookup, test_lookup = load_datasets(args)
     if args.initial_check == "True":
-        check_monotonic_dynamic(data_train_valid, train_lookup, "train")
-        check_monotonic_dynamic(data_train_valid, valid_lookup, "valid")
+        check_monotonic_dynamic(data_train, train_lookup, "train")
+        check_monotonic_dynamic(data_valid, valid_lookup, "valid")
         check_monotonic_dynamic(data_test, test_lookup, "test")
 
     iteration = args.start_iter
@@ -37,22 +37,16 @@ def main(args):
     params = (0.1, 50, 2)
     exp_name = get_exp_name(args)
 
-    all_labels = get_all_labels(data_train_valid, data_test)
-    all_tuples = get_all_tuples(data_train_valid, data_test)
+    all_labels = get_all_labels(data_train, data_valid, data_test)
+    all_tuples = get_all_tuples(data_train, data_valid, data_test)
 
     tgt_file = os.path.join(CFG["modeldir"], exp_name)
-    # all_users = {**train_lookup, **valid_lookup, **test_lookup}
-    offset = len(data_train_valid)
-    offset_test_lookup = {}
-    for k, v in test_lookup.items():
-        offset_test_lookup[k] = [v[0] + offset, v[1] + offset]
-    assert v[1] + offset <= len(data_train_valid) + len(data_test)
-    all_users = {**train_lookup, **offset_test_lookup}
+    all_users = get_all_users(data_train, data_valid, data_test, train_lookup, valid_lookup, test_lookup)
 
-    check_monotonic_dynamic(data_train_valid + data_test, all_users, "all")
+    check_monotonic_dynamic(data_train + data_valid + data_test, all_users, "all")
     print("Features and labels concatenated.")
     while f1 < args.f1_threshold and iteration < args.max_iter:
-        train_valid_file, test_file, user_train = build_ft_txt_file(args, f'_it{iteration}', all_labels, all_users, data_train_valid, data_test)
+        train_valid_file, test_file, user_train = build_ft_txt_file(args, f'_it{iteration}', all_labels, all_users, data_train, data_valid, data_test)
         if iteration == 0:
             class_dist = get_class_dist(all_labels)
             print(f"Initial class dist: {class_dist}")
@@ -107,18 +101,22 @@ def main(args):
     all_results = test_model_on_all_test_data(args, classifier, vectorizer)
 
 
-def get_all_labels(data_train_valid, data_test):
+def get_all_labels(data_train, data_valid, data_test):
     all_labels = []
-    for i in tqdm(data_train_valid.tuples, desc="parsing train tuples ot gather labels..."):
+    for i in tqdm(data_train.tuples, desc="parsing train tuples ot gather labels..."):
+        all_labels.append(i["exp_index"])
+    for i in tqdm(data_valid.tuples, desc="parsing valid tuples ot gather labels..."):
         all_labels.append(i["exp_index"])
     for i in tqdm(data_test.tuples, desc="parsing test tuples ot gather labels..."):
         all_labels.append(i["exp_index"])
     return all_labels
 
 
-def get_all_tuples(data_train_valid, data_test):
+def get_all_tuples(data_train, data_valid, data_test):
     all_tuples = []
-    for i in tqdm(data_train_valid.tuples, desc="parsing train tuples ot gather tupless..."):
+    for i in tqdm(data_train.tuples, desc="parsing train tuples ot gather tupless..."):
+        all_tuples.append(i["words"])
+    for i in tqdm(data_valid.tuples, desc="parsing valid tuples ot gather tupless..."):
         all_tuples.append(i["words"])
     for i in tqdm(data_test.tuples, desc="parsing test tuples ot gather tupless..."):
         all_tuples.append(i["words"])
@@ -141,13 +139,13 @@ def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
     return sub_data, sub_labels, user_train
 
 
-def build_ft_txt_file(args, suffix, all_labels, all_users, dataset_train, dataset_test):
+def build_ft_txt_file(args, suffix, all_labels, all_users, dataset_train, dataset_valid, dataset_test):
     tgt_file = os.path.join(CFG["datadir"],
                             f"ft_classif_supervised_ind20_exp{args.exp_levels}_{args.exp_type}{suffix}.test")
     if os.path.isfile(tgt_file):
         os.system('rm ' + tgt_file)
         print("removing previous file")
-    write_in_file_with_label(args, tgt_file, dataset_test.tuples, f"exp", "test")
+    write_in_file_with_label(args, tgt_file, dataset_test.tuples + dataset_valid.tuples, f"exp", "test")
 
     if args.train_user_len != -1:
         suffix += f"_sub{args.train_user_len}"
@@ -325,44 +323,21 @@ def load_datasets(args):
         suffix = ""
     else:
         suffix = f"_ft_it{args.start_iter}"
-    arguments = {'data_dir': CFG["datadir"],
+    arguments = {'data_dir': CFG["gpudatadir"],
                  "load": args.load_dataset,
                  "subsample": -1,
                  "max_len": args.max_len,
                  "exp_levels": args.exp_levels,
                  "rep_file": CFG['ppl_rep'],
-                 "exp_type": args.exp_type,
                  "suffix": suffix,
+                 "exp_type": args.exp_type,
                  "is_toy": "False"}
     for split in splits:
         datasets.append(StringIndSubDataset(**arguments, split=split))
-    len_train = len(datasets[0])
-    len_valid = len(datasets[1])
-    init_train_lookup = datasets[0].user_lookup
-    init_valid_lookup = datasets[1].user_lookup
-    init_test_lookup = datasets[-1].user_lookup
-
-    offset = len(datasets[0])
-    offset_valid_lookup = {}
-    for k, v in init_valid_lookup.items():
-        offset_valid_lookup[k] = [v[0] + offset, v[1] + offset]
-    datasets[1].user_lookup = offset_valid_lookup
-
-    data_train_valid = datasets[0]
-    data_train_valid.tuples.extend(datasets[1].tuples)
-
-    train_lookup_sub = subsample_user_lookup(args, datasets[0])
-    valid_lookup_sub = subsample_user_lookup(args, datasets[1])
-    test_lookup_sub = subsample_user_lookup(args, datasets[-1])
-
-    data_train_valid.user_lookup = {**train_lookup_sub, **valid_lookup_sub}
-    data_train_valid.check_monotonicity()
-    datasets[-1].user_lookup = test_lookup_sub
-
-    # len_valid = len(datasets[1])
-    # assert len(data_train_valid) == len_train + len_valid
-    return data_train_valid, datasets[-1], (len_train, len_valid), \
-           init_train_lookup, offset_valid_lookup, init_test_lookup
+    train_lookup = datasets[0].user_lookup
+    valid_lookup = datasets[1].user_lookup
+    test_lookup = datasets[-1].user_lookup
+    return datasets[0], datasets[1], datasets[2], train_lookup, valid_lookup, test_lookup
 
 
 def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
@@ -406,6 +381,20 @@ def subsample_user_lookup(args, datasets):
     else:
         print(f"No subsampling of users, returning full lookup of length: {len(datasets.user_lookup)}")
         return datasets.user_lookup
+
+
+def get_all_users(data_train, data_valid, data_test, train_lu, valid_lu, test_lu):
+    offset = len(data_train)
+    offset_valid_lookup = {}
+    for k, v in valid_lu.items():
+        offset_valid_lookup[k] = [v[0] + offset, v[1] + offset]
+    assert v[1] + offset <= len(data_train) + len(data_valid)
+    offset = len(data_train) + len(data_valid)
+    offset_test_lookup = {}
+    for k, v in test_lu.items():
+        offset_test_lookup[k] = [v[0] + offset, v[1] + offset]
+    assert v[1] + offset <= len(data_train) + len(data_valid) + len(data_test)
+    return {**train_lu, **offset_valid_lookup, **offset_test_lookup}
 
 
 if __name__ == "__main__":
