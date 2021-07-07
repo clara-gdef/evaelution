@@ -62,6 +62,7 @@ def main(args):
     all_users = get_all_users(data_train, data_valid, data_test, train_lookup, valid_lookup, test_lookup)
     all_features = np.concatenate((train_features.toarray(), valid_features.toarray(), test_features.toarray()), axis=0)
     all_labels = labels_exp_train
+    all_labels.extend(labels_exp_valid)
     all_labels.extend(labels_exp_test)
     print("--- %s seconds for users, features and labels concatenation ---" % (time.time() - start_time_concatenated))
 
@@ -86,7 +87,7 @@ def main(args):
         seen_users = 0
         for user in tqdm(all_users.keys(), desc="parsing users..."):
             if user not in user_trains and cnt % args.user_step == 0 and user not in faulty_users:
-                seen_users+=1
+                seen_users += 1
                 current_user = all_users[user]
                 exp_seq_pred = [all_labels[current_user[0]]]
                 exp_seq_init = [all_labels[current_user[0]]]
