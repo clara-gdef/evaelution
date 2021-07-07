@@ -56,6 +56,7 @@ def main(args):
                                                wordNgrams=params[2])
         if iteration == 0:
             init_metrics = test_model_on_all_test_data(classifier, test_file)
+            print(f"initial F1 score: {init_metrics['f1_it_0']}%")
         iteration += 1
         classifier.save_model(tgt_file)
         print(f"Model saved at {tgt_file}")
@@ -91,7 +92,7 @@ def main(args):
         metrics = test_model_on_all_test_data(classifier, test_file)
         f1 = metrics[f"f1_it_{iteration}"]
         print(f"Iteration: {iteration}, F1 score: {f1}%")
-        print(f"initial F1 score: {metrics['f1_it_0']}%")
+        print(f"initial F1 score: {init_metrics['f1_it_0']}%")
         pred_class_dist = get_class_dist(preds)
         label_class_dist = get_class_dist(labels)
         print(f"Class distributions in PREDS: {pred_class_dist}")
