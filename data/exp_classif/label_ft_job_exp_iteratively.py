@@ -54,6 +54,7 @@ def main(args):
         print(f"Training classifier on {args.train_user_len} jobs...")
         classifier = fasttext.train_supervised(input=train_valid_file, lr=params[0], epoch=params[1],
                                                wordNgrams=params[2])
+        iteration += 1
         classifier.save_model(tgt_file)
         print(f"Model saved at {tgt_file}")
         preds, labels = [], []
@@ -91,7 +92,6 @@ def main(args):
         label_class_dist = get_class_dist(labels)
         print(f"Class distributions in PREDS: {pred_class_dist}")
         print(f"Class distributions in LABELS: {label_class_dist}")
-        iteration += 1
         word_analysis(args, all_tuples, all_labels, exp_name, iteration)
         save_new_tuples(data_train, data_valid, data_test, all_labels, train_lookup, valid_lookup,
                         test_lookup, iteration)
@@ -238,11 +238,6 @@ def get_jobs_str_per_class(args, all_tuples, all_labels):
         for job_index in v:
             rev_class_index[job_index] = k
     class_txt = {k: "" for k in range(args.exp_levels)}
-    # cnt = np.random.randint(args.user_step)
-    # for num, tup in enumerate(tqdm(all_tuples, desc="sorting jobs by class on all samples...")):
-    # if cnt % 10000:
-    #     class_txt[rev_class_index[num]] += f" {tup}"
-    # cnt += 1
     indices_to_get = range(0, len(all_tuples), 1000)
     for num, ind in enumerate(tqdm(indices_to_get, desc="sorting jobs by class on all samples")):
         class_txt[rev_class_index[num]] += f" {all_tuples[ind]}"
@@ -251,14 +246,21 @@ def get_jobs_str_per_class(args, all_tuples, all_labels):
 
 def save_new_tuples(data_train, data_valid, data_test, all_labels, train_lookup, valid_lookup,
                         test_lookup, iteration):
+    tuples_train = []
     labels_train = all_labels[:len(data_train)]
     for num, label in enumerate(tqdm(labels_train, desc="relabel train tuples...")):
-        data_train[num]["exp_index"] = label
+        new = {"ind_index": data_train.tuples[num]["ind_index"],
+               "exp_index": label,
+               "words": data_train.tuples[num]["words"]}
+        tuples_train.append(new)
 
+    tuples_valid = []
     labels_valid = all_labels[len(data_train):len(data_train) + len(data_valid)]
     for num, label in enumerate(tqdm(labels_valid, desc="relabel valid tuples...")):
-        data_valid[num]["exp_index"] = label
-
+        new = {"ind_index": data_valid.tuples[num]["ind_index"],
+               "exp_index": label,
+               "words": data_valid.tuples[num]["words"]}
+        tuples_valid.append(new)
     offset = len(data_train)
     reset_valid_lookup = {}
     if min(min(valid_lookup.values())) >= offset:
