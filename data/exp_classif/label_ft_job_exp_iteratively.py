@@ -120,6 +120,7 @@ def test_model_on_all_test_data(model, test_file):
             k = 2
             labels.append(int(tmp.split(" ")[0]))
             pred = handle_fb_preds(model.predict(tmp[2:-2], k=k))
+            ipdb.set_trace()
             predictions.append(pred)
     preds = np.stack(predictions)
     metrics_at_1 = get_metrics(preds[:, 0], labels, len(model.labels), "exp")
