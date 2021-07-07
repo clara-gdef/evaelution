@@ -93,7 +93,7 @@ def main(args):
         print(f"Class distributions in LABELS: {label_class_dist}")
         iteration += 1
         word_analysis(args, all_tuples, all_labels, exp_name, iteration)
-        save_new_tuples(data_train_valid, data_test, all_labels, len_train, len_valid, train_lookup, valid_lookup,
+        save_new_tuples(data_train, data_valid, data_test, all_labels, train_lookup, valid_lookup,
                         test_lookup, iteration)
 
     ipdb.set_trace()
@@ -249,47 +249,44 @@ def get_jobs_str_per_class(args, all_tuples, all_labels):
     return class_txt
 
 
-def save_new_tuples(data_train_valid, data_test, all_labels, len_train, len_valid, train_lookup,
-                    valid_lookup, test_lookup, iteration):
-    tuples_train = data_train_valid.tuples[:len_train]
-    labels_train = all_labels[:len_train]
+def save_new_tuples(data_train, data_valid, data_test, all_labels, train_lookup, valid_lookup,
+                        test_lookup, iteration):
+    labels_train = all_labels[:len(data_train)]
     for num, label in enumerate(tqdm(labels_train, desc="relabel train tuples...")):
-        tuples_train[num]["exp_index"] = label
+        data_train[num]["exp_index"] = label
 
-    tuples_valid = data_train_valid.tuples[len_train:]
-    labels_valid = all_labels[len_train:len_train + len_valid]
+    labels_valid = all_labels[len(data_train):len(data_train) + len(data_valid)]
     for num, label in enumerate(tqdm(labels_valid, desc="relabel valid tuples...")):
-        tuples_valid[num]["exp_index"] = label
+        data_valid[num]["exp_index"] = label
 
-    # offset = len_train
-    # reset_valid_lookup = {}
-    # if min(min(valid_lookup.values())) >= offset:
-    #     for k, v in valid_lookup.items():
-    #         assert v[0] - offset >= 0
-    #         reset_valid_lookup[k] = [v[0] - offset, v[1] - offset]
-    # else:
-    #     reset_valid_lookup = valid_lookup
+    offset = len(data_train)
+    reset_valid_lookup = {}
+    if min(min(valid_lookup.values())) >= offset:
+        for k, v in valid_lookup.items():
+            assert v[0] - offset >= 0
+            reset_valid_lookup[k] = [v[0] - offset, v[1] - offset]
+    else:
+        reset_valid_lookup = valid_lookup
 
-    labels_test = all_labels[len_train + len_valid:-1]
+    labels_test = all_labels[len(data_train) + len(data_valid):-1]
     tuples_test = []
     for num, label in enumerate(tqdm(labels_test, desc="relabel test tuples...")):
-        tuples_test[num]["exp_index"] = label
-        # new = {"ind_index": data_test.tuples[num]["ind_index"],
-        #        "exp_index": label,
-        #        "words": data_test.tuples[num]["words"]}
-        # tuples_test.append(new)
+        new = {"ind_index": data_test.tuples[num]["ind_index"],
+               "exp_index": label,
+               "words": data_test.tuples[num]["words"]}
+        tuples_test.append(new)
 
-    # offset = len_train + len_valid
-    # reset_test_lookup = {}
-    # if min(min(test_lookup.values())) >= offset:
-    #     for k, v in test_lookup.items():
-    #         assert v[0] - offset >= 0
-    #         reset_test_lookup[k] = [v[0] - offset, v[1] - offset]
-    # else:
-    #     reset_test_lookup = test_lookup
-    save_new_tuples_per_split(tuples_train, "TRAIN", iteration)
-    save_new_tuples_per_split(tuples_valid, "VALID", iteration)
-    save_new_tuples_per_split(tuples_test, "TEST", iteration)
+    offset = len(data_train) + len(data_valid)
+    reset_test_lookup = {}
+    if min(min(test_lookup.values())) >= offset:
+        for k, v in test_lookup.items():
+            assert v[0] - offset >= 0
+            reset_test_lookup[k] = [v[0] - offset, v[1] - offset]
+    else:
+        reset_test_lookup = test_lookup
+    save_new_tuples_per_split(data_train, train_lookup, "TRAIN", iteration)
+    save_new_tuples_per_split(data_valid, reset_valid_lookup, "VALID", iteration)
+    save_new_tuples_per_split(tuples_test, reset_test_lookup, "TEST", iteration)
 
 
 def save_new_tuples_per_split(tuple_list, split, iteration):
