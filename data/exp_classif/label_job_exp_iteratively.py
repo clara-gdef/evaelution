@@ -291,7 +291,8 @@ def load_datasets(args):
         suffix = f"_it{args.start_iter}"
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": args.load_dataset,
-                 "subsample": args.subsample_jobs,
+                 "subsample": -1,
+                 # "subsample": args.subsample_jobs,
                  "max_len": args.max_len,
                  "exp_levels": args.exp_levels,
                  "rep_file": CFG['ppl_rep'],
@@ -300,8 +301,10 @@ def load_datasets(args):
                  "is_toy": "False"}
     for split in splits:
         datasets.append(StringIndSubDataset(**arguments, split=split))
+
     len_train = len(datasets[0])
     len_valid = len(datasets[1])
+
     init_train_lookup = datasets[0].user_lookup
     init_valid_lookup = datasets[1].user_lookup
     init_test_lookup = datasets[-1].user_lookup
@@ -379,7 +382,7 @@ if __name__ == "__main__":
     parser.add_argument("--DEBUG", type=str, default="True")
     parser.add_argument("--subsample_users", type=int, default=-1)
     parser.add_argument("--load_dataset", type=str, default="True")
-    parser.add_argument("--subsample_jobs", type=int, default=-1)
+    # parser.add_argument("--subsample_jobs", type=int, default=-1)
     parser.add_argument("--train_user_len", type=int, default=5000)
     parser.add_argument("--max_iter", type=int, default=50)
     parser.add_argument("--max_len", type=int, default=32)
