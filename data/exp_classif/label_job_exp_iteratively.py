@@ -63,7 +63,6 @@ def main(args):
 
     check_monotonic_dynamic(data_train_valid + data_test, all_users, "all")
     print(f"Concatenating all {train_features.shape[0] + test_features.shape[0]} features...")
-    ipdb.set_trace()
     start_time_concatenated = time.time()
     all_features = np.concatenate((train_features.toarray(), test_features.toarray()), axis=0)
     print("--- %s seconds for \" np.concatenate\" ---" % (time.time() - start_time_concatenated))
@@ -77,7 +76,7 @@ def main(args):
     all_features = np.zeros((train_features.shape[0] + test_features.shape[0], train_features.shape[-1]))
     start_time_zeros = time.time()
     for i, v in enumerate(chain(train_features, test_features)):
-        all_features[i] = v
+        all_features[i, :] = v.toarray()
     print("--- %s seconds for \" np.zeros to populate\" ---" % (time.time() - start_time_zeros))
     ipdb.set_trace()
     all_labels = labels_exp_train
