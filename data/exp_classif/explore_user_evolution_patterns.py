@@ -20,20 +20,20 @@ def main(args):
         train_lu = data_train.user_lookup
         valid_lu = data_valid.user_lookup
         test_lu = data_test.user_lookup
-        exp_seq = Counter()
-        exp_seq = get_exp_sequence(train_lu, data_train.tuples, 0, exp_seq, "train")
-        exp_seq = get_exp_sequence(valid_lu, data_valid.tuples, 0, exp_seq, "valid")
-        exp_seq = get_exp_sequence(test_lu, data_test.tuples, 0, exp_seq, "test")
+        exp_seq, carreer_len = Counter(), Counter()
+        exp_seq, carreer_len = get_exp_sequence(train_lu, data_train.tuples, exp_seq, carreer_len, "train")
+        exp_seq, carreer_len = get_exp_sequence(valid_lu, data_valid.tuples, exp_seq, carreer_len, "valid")
+        exp_seq, carreer_len = get_exp_sequence(test_lu, data_test.tuples, exp_seq, carreer_len, "test")
         total_users = len(train_lu)+len(valid_lu)+len(test_lu)
         ipdb.set_trace()
         exp_seq.most_common(10)
 
 
-def get_exp_sequence(users, jobs, offset, exp_seq, split):
+def get_exp_sequence(users, jobs, exp_seq, carreer_len, split):
     for num, user in enumerate(tqdm(users, desc=f"parsing users for {split} split...")):
         current_user = users[user]
-        start = current_user[0] + offset
-        end = current_user[1] + offset
+        start = current_user[0]
+        end = current_user[1]
         current_seq = []
         for job in range(start, end):
             if split == "test":
@@ -42,9 +42,10 @@ def get_exp_sequence(users, jobs, offset, exp_seq, split):
                 tmp = jobs[job][-1]
             current_seq.append(tmp)
         if len(current_seq) > 0:
+            carreer_len[len(current_seq)] += 1
             exp_seq[str(current_seq)] += 1
     print(f"Number of sequence acquired: {sum([i for i in exp_seq.values()])}")
-    return exp_seq
+    return exp_seq, carreer_len
 
 
 def get_data(CFG, args):
