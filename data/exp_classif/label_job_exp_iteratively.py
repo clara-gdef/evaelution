@@ -83,12 +83,10 @@ def main(args):
         print(f"Classifier saved at: {tgt_file}_exp_svc_{args.kernel}_it{iteration}.joblib")
         preds, labels = [], []
         # SVC eval
-        with open(os.path.join(CFG["gpudatadir"], "faulty_users.pkl"), 'rb') as f:
-            faulty_users = pkl.load(f)
         cnt = np.random.randint(args.user_step)
         seen_users = 0
         for user in tqdm(all_users.keys(), desc="parsing users..."):
-            if user not in user_trains and cnt % args.user_step == 0 and user not in faulty_users:
+            if user not in user_trains and cnt % args.user_step == 0:
                 seen_users += 1
                 current_user = all_users[user]
                 exp_seq_pred = [all_labels[current_user[0]]]
@@ -109,15 +107,8 @@ def main(args):
                     preds.append(pred)
                     labels.append(all_labels[job])
                     exp_seq_pred.append(all_labels[job])
-                try:
-                    assert all(exp_seq_pred[i] <= exp_seq_pred[i + 1] for i in range(len(exp_seq_pred) - 1))
-                    assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
-                except AssertionError:
-                    faulty_users.append(user)
-                    with open(os.path.join(CFG["gpudatadir"], "faulty_users.pkl"), "wb") as f:
-                        pkl.dump(faulty_users, f)
-                    print(f"New faulty user detected. Total faulty users: {len(faulty_users)}")
-                    print(f"Percentage on user seen: {100 * len(faulty_users) / seen_users} %")
+                assert all(exp_seq_pred[i] <= exp_seq_pred[i + 1] for i in range(len(exp_seq_pred) - 1))
+                assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
 
             cnt += 1
         metrics = get_metrics(preds, labels, args.exp_levels, f"it_{iteration}")
@@ -348,7 +339,7 @@ if __name__ == "__main__":
     parser.add_argument("--train_user_len", type=int, default=5000)
     parser.add_argument("--max_iter", type=int, default=50)
     parser.add_argument("--max_len", type=int, default=32)
-    parser.add_argument("--user_step", type=int, default=100)
+    parser.add_argument("--user_step", type=int, default=10)
     parser.add_argument("--start_iter", type=int, default=0)
     parser.add_argument("--f1_threshold", type=int, default=80)
     parser.add_argument("--exp_type", type=str, default="uniform")

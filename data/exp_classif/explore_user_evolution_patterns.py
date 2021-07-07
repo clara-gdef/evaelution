@@ -27,7 +27,7 @@ def main(args):
         total_users = len(train_lu)+len(valid_lu)+len(test_lu)
         ipdb.set_trace()
         exp_seq.most_common(10)
-
+        carreer_len.most_common(10)
 
 def get_exp_sequence(users, jobs, exp_seq, carreer_len, split):
     for num, user in enumerate(tqdm(users, desc=f"parsing users for {split} split...")):
