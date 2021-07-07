@@ -66,13 +66,13 @@ def main(args):
     start_time_concatenated = time.time()
     all_features = np.concatenate((train_features.toarray(), test_features.toarray()), axis=0)
     print("--- %s seconds for \" np.concatenate\" ---" % (time.time() - start_time_concatenated))
-    all_features_list = []
-    start_time_append = time.time()
-    for i in train_features:
-        all_features_list.append(i.toarray())
-    for j in test_features:
-        all_features_list.append(j.toarray())
-    print("--- %s seconds for \" list.append \" ---" % (time.time() - start_time_append))
+    # all_features_list = []
+    # start_time_append = time.time()
+    # for i in train_features:
+    #     all_features_list.append(i.toarray())
+    # for j in test_features:
+    #     all_features_list.append(j.toarray())
+    # print("--- %s seconds for \" list.append \" ---" % (time.time() - start_time_append))
     all_features = np.zeros((train_features.shape[0] + test_features.shape[0], train_features.shape[-1]))
     start_time_zeros = time.time()
     for i, v in enumerate(chain(train_features, test_features)):
