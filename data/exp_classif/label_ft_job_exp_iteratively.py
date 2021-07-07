@@ -324,7 +324,7 @@ def load_datasets(args):
     if args.start_iter == 0:
         suffix = ""
     else:
-        suffix = f"_it{args.start_iter}"
+        suffix = f"_ft_it{args.start_iter}"
     arguments = {'data_dir': CFG["datadir"],
                  "load": args.load_dataset,
                  "subsample": -1,

@@ -69,7 +69,7 @@ def main(args):
         print(f"Iteration number: {iteration}")
         # svc training
         subset_train_data, subset_train_labels, user_trains = get_subset_data_and_labels(train_features.toarray(), labels_exp_train,
-                                                                             train_lookup.user_lookup,
+                                                                             train_lookup,
                                                                              args.train_user_len)
         print(f"Training classifier on {len(subset_train_data)} jobs...")
         class_weigths = get_class_dist(subset_train_labels)
