@@ -327,6 +327,8 @@ def load_datasets(args):
     datasets = []
     splits = ["TRAIN", "VALID", "TEST"]
     suffix = f"_ft_it{args.start_iter}"
+    if args.user_step != 1:
+        suffix += f"_step{args.user_step}"
     if args.enforce_monotony != "True":
         suffix += f"_NON_MONOTONIC"
     arguments = {'data_dir': CFG["gpudatadir"],
