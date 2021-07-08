@@ -193,7 +193,8 @@ def get_jobs_str_per_class(args, all_features, all_labels, vectorizer):
             rev_class_index[job_index] = k
     rev_voc = {v: k for k, v in vectorizer.vocabulary_.items()}
     class_txt = {k: "" for k in range(args.exp_levels)}
-    for num, feat in enumerate(tqdm(all_features, desc="sorting jobs by class on all features...")):
+    indices_to_get = range(0, len(all_features), 100)
+    for num, feat in enumerate(tqdm(indices_to_get, desc="sorting jobs by class on all features...")):
         defining_index = np.argsort(feat)[::-1][0]
         class_txt[rev_class_index[num]] += f" {rev_voc[defining_index]}"
     return class_txt
