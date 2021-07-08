@@ -16,7 +16,7 @@ from tqdm import tqdm
 from wordcloud import WordCloud
 
 from data.datasets.StringIndSubDataset import StringIndSubDataset
-from utils.bow import train_svm, pre_proc_data
+from utils.bow import train_nb, pre_proc_data
 from utils.models import get_metrics
 
 
@@ -78,9 +78,9 @@ def main(args):
                                                                                          args.train_user_len)
         print(f"Training classifier on {len(subset_train_data)} jobs...")
         class_weigths = get_class_dist(subset_train_labels)
-        classifier = train_svm(subset_train_data, subset_train_labels, class_weigths, args.kernel)
-        joblib.dump(classifier, f"{tgt_file}_exp_svm_it{iteration}.joblib")
-        print(f"Classifier saved at: {tgt_file}_exp_svm_it{iteration}.joblib")
+        classifier = train_nb(subset_train_data, subset_train_labels, class_weigths)
+        joblib.dump(classifier, f"{tgt_file}_exp_nb_it{iteration}.joblib")
+        print(f"Classifier saved at: {tgt_file}_exp_nb_it{iteration}.joblib")
         preds, labels = [], []
         # SVC eval
         changed_this_iter, seen_users = 0, 0
@@ -110,8 +110,8 @@ def main(args):
                     exp_seq_pred.append(all_labels[job])
                 assert all(exp_seq_pred[i] <= exp_seq_pred[i + 1] for i in range(len(exp_seq_pred) - 1))
                 assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
-                print(f"changed this iteration: {changed_this_iter} -- {100*changed_this_iter/seen_users}")
             cnt += 1
+        print(f"changed this iteration: {changed_this_iter} -- {100 * changed_this_iter / seen_users}")
         metrics = get_metrics(preds, labels, args.exp_levels, f"it_{iteration}")
         f1 = metrics[f"f1_it_{iteration}"]
         print(f"Iteration: {iteration}, F1 score: {f1}%")
@@ -155,7 +155,7 @@ def word_analysis(args, all_features, all_labels, vectorizer, exp_name, iteratio
     words_unique_to_class2 = mc_words_per_class[2] - mc_words_per_class[1] - mc_words_per_class[0]
     tmp = [words_unique_to_class0, words_unique_to_class1, words_unique_to_class2]
     for k, word_list in zip(mc_words_per_class.keys(), tmp):
-        get_word_clouds_for_class(word_counter[k], word_list, k, exp_name + f"_svm_it{iteration}")
+        get_word_clouds_for_class(word_counter[k], word_list, k, exp_name + f"_nb_it{iteration}")
     print("word clouds saved!")
 
 
@@ -224,7 +224,7 @@ def save_new_tuples(data_train, data_valid, data_test, all_labels, iteration):
 
 
 def save_new_tuples_per_split(tuple_list, split, iteration):
-    suffix = f"_svm_it{iteration}"
+    suffix = f"_nb_it{iteration}"
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": "False",
                  "subsample": -1,
@@ -232,7 +232,7 @@ def save_new_tuples_per_split(tuple_list, split, iteration):
                  "exp_levels": args.exp_levels,
                  "exp_type": "iter",
                  "rep_file": CFG['ppl_rep'],
-                 "suffix": f"_svm_it{iteration - 1}",
+                 "suffix": f"_nb_it{iteration - 1}",
                  "split": split,
                  "is_toy": "False"}
     tmp = StringIndSubDataset(**arguments)
@@ -263,7 +263,7 @@ def get_class_dist(class_list):
 def load_datasets(args):
     datasets = []
     splits = ["TRAIN", "VALID", "TEST"]
-    suffix = f"_svm_it{args.start_iter}"
+    suffix = f"_nb_it{args.start_iter}"
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": args.load_dataset,
                  "subsample": -1,
@@ -336,7 +336,6 @@ if __name__ == "__main__":
     parser.add_argument("--exp_type", type=str, default="uniform")
     parser.add_argument("--ind_sub", type=str, default="True")
     parser.add_argument("--initial_check", type=str, default="False")
-    parser.add_argument("--kernel", type=str, default="linear")
     parser.add_argument("--tfidf", type=str, default="True")
     parser.add_argument("--exp_levels", type=int, default=3)
     args = parser.parse_args()
