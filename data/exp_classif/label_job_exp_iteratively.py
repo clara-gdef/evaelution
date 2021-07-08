@@ -112,6 +112,7 @@ def main(args):
                 assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
             cnt += 1
         print(f"changed this iteration: {changed_this_iter} -- {100 * changed_this_iter / seen_users}")
+        args.model = "nb"
         metrics = test_for_att(args, class_weigths, "exp", labels_exp_test,
                                 classifier, test_features.todense(), f"it_{iteration}")
         ipdb.set_trace()
@@ -339,6 +340,7 @@ if __name__ == "__main__":
     parser.add_argument("--ind_sub", type=str, default="True")
     parser.add_argument("--initial_check", type=str, default="False")
     parser.add_argument("--tfidf", type=str, default="True")
+    parser.add_argument("--model", type=str, default="nb")
     parser.add_argument("--exp_levels", type=int, default=3)
     args = parser.parse_args()
     init(args)
