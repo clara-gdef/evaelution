@@ -25,9 +25,10 @@ def main(args):
         exp_seq, carreer_len = get_exp_sequence(valid_lu, data_valid.tuples, exp_seq, carreer_len, "valid")
         exp_seq, carreer_len = get_exp_sequence(test_lu, data_test.tuples, exp_seq, carreer_len, "test")
         total_users = len(train_lu)+len(valid_lu)+len(test_lu)
-        ipdb.set_trace()
         exp_seq.most_common(10)
-        carreer_len.most_common(10)
+        prct_exp_seq = [(i, 100*v/total_users) for i, v in exp_seq.most_common(10)]
+        prct_career_len = [(i, 100*v/total_users) for i, v in carreer_len.most_common(10)]
+        ipdb.set_trace()
 
 
 def get_exp_sequence(users, jobs, exp_seq, carreer_len, split):
