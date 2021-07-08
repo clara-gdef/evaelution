@@ -77,7 +77,7 @@ def subsample_users_by_career_len(args, users, jobs, iteration, split):
         end = current_user[1]
         if end - start >= args.min_career_len:
             cnt_end = min(start + end, start + args.max_career_len)
-            retained_users[current_user] = [cnt_strt, cnt_end]
+            retained_users[user] = [cnt_strt, cnt_end]
             for job in range(start, cnt_end):
                 if split == "test" or iteration == 0:
                     tmp = jobs[job]["exp_index"]
