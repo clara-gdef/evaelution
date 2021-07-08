@@ -120,7 +120,7 @@ def main(args):
                                 classifier, test_features.todense(), f"it_{iteration}")
         f1 = metrics[f"f1_exp it_{iteration} NB"]
         print(f"Iteration: {iteration}, F1 score: {f1}%")
-        print(f"initial F1 score: {init_metrics[0]['f1_exp it_0 NB']}%")
+        print(f"initial F1 score: {init_metrics['f1_exp it_0 NB']}%")
         pred_class_dist = get_class_dist(preds)
         label_class_dist = get_class_dist(labels)
         print(f"Class distributions in PREDS: {pred_class_dist}")
@@ -308,6 +308,8 @@ def get_exp_name(args):
     exp_name = f"label_iter_{args.exp_levels}exp_{args.exp_type}_train{args.train_user_len}"
     if args.subsample_users != -1:
         exp_name += f"_eval{args.subsample_users}"
+    if args.user_step != 1:
+        exp_name += f"_step{args.user_step}"
     if args.tfidf == "True":
         exp_name += "_tfidf"
     return exp_name
