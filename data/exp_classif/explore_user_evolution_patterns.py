@@ -27,6 +27,10 @@ def main(args):
         total_users = len(train_lu)+len(valid_lu)+len(test_lu)
         exp_seq.most_common(10)
         prct_exp_seq = [(i, 100*v/total_users) for i, v in exp_seq.most_common(10)]
+        prct_exp_seq_seq = [i[0] for i in prct_exp_seq]
+        prct_exp_seq_value = [str(i[1]) for i in prct_exp_seq]
+        print('\n'.join(prct_exp_seq_seq))
+        print('\n'.join(prct_exp_seq_value))
         prct_career_len = [(i, 100*v/total_users) for i, v in carreer_len.most_common(10)]
         ipdb.set_trace()
 
