@@ -83,8 +83,9 @@ def main(args):
                         # relabel current tuple according to evolution constraint
                         exp_seq_init.append(all_labels[job])
                         if prev_exp <= pred <= next_exp:
+                            if all_labels[job] != pred:
+                                changed_this_iter += 1
                             all_labels[job] = pred
-                            changed_this_iter += 1
                     else:
                         tmp = handle_fb_preds(classifier.predict(all_tuples[job], k=3))
                         pred = int(tmp[0])
