@@ -149,8 +149,10 @@ def train_nb(data, labels, class_weights):
 
 
 def test_for_att(args, class_dict, att_type, labels, model, features, split):
-    num_c = len(class_dict[att_type])
-    handle = f"{att_type} {split} {args.model}"
+    #num_c = len(class_dict[att_type])
+    num_c = 3
+    # handle = f"{att_type} {split} {args.model}"
+    handle = f"{att_type} {split} NB"
     preds, preds_at_k, k = get_predictions(args, model, features, labels, att_type)
     res_at_1 = eval_model(labels, preds, num_c, handle)
     res_at_k = eval_model(labels, preds_at_k, num_c, f"{handle}_@{k}")

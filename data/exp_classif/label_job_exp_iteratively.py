@@ -46,7 +46,7 @@ def main(args):
     cleaned_profiles_valid, labels_exp_valid, _ = pre_proc_data(data_valid, tokenizer, stop_words)
     cleaned_profiles_test, labels_exp_test, _ = pre_proc_data(data_test, tokenizer, stop_words)
     vectorizer = TfidfVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None,
-                                 max_df=.8, min_df=1e-4, max_features=50000)
+                                 max_df=.6, min_df=1e-3, max_features=12000)
     print("Fitting vectorizer...")
     train_features = vectorizer.fit_transform(cleaned_profiles_train)
     print("Vectorizer Fitted.")
