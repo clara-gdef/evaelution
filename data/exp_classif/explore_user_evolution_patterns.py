@@ -3,6 +3,7 @@ from collections import Counter
 
 import ipdb
 import yaml
+import numpy as np
 from tqdm import tqdm
 
 from data.datasets.StringIndSubDataset import StringIndSubDataset
@@ -25,7 +26,7 @@ def main(args):
         sub_user_valid, sub_tup_valid = subsample_users_by_career_len(args, valid_lu, data_valid.tuples, args.iteration, "valid")
         sub_user_test, sub_tup_test = subsample_users_by_career_len(args, test_lu, data_test.tuples, args.iteration, "test")
 
-        turn_exp_sequence_into_jump_seq(args, sub_user_train, sub_tup_train)
+        turn_exp_sequence_into_jump_seq(args, sub_user_train, sub_tup_train, exp_seq, "train")
 
         exp_seq, carreer_len = get_exp_sequence(sub_user_train, sub_tup_train, exp_seq, carreer_len, args.iteration,
                                                 args.mod_type, "train")
@@ -43,8 +44,24 @@ def main(args):
         prct_career_len = [(i, 100 * v / total_users) for i, v in carreer_len.most_common(10)]
         ipdb.set_trace()
 
-def turn_exp_sequence_into_jump_seq(args, users, tuples):
+
+def turn_exp_sequence_into_jump_seq(args, users, tuples, exp_seq, split):
+    new_users = {}
+    for num, user in enumerate(tqdm(users, desc=f"parsing users for {split} split...")):
+        current_user = users[user]
+        start = current_user[0]
+        end = current_user[1]
+        user_rep = np.zeros(args.max_career_len)
+        prev_exp = tuples[start]["exp_index"]
+        for num, job in enumerate(range(start+1, end)):
+            current_exp = tuples[job]["exp_index"]
+            if current_exp > prev_exp:
+                user_rep[num] = 1.
+            prev_exp = current_exp
+        new_users[user] = user_rep
+        exp_seq[int(sum(new_users))] += 1
     ipdb.set_trace()
+    return new_users
 
 
 def get_exp_sequence(users, jobs, exp_seq, carreer_len, iteration, mod_type, split):
