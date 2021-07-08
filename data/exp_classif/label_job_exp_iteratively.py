@@ -16,7 +16,7 @@ from tqdm import tqdm
 from wordcloud import WordCloud
 
 from data.datasets.StringIndSubDataset import StringIndSubDataset
-from utils.bow import train_nb, pre_proc_data
+from utils.bow import train_nb, pre_proc_data, test_for_att
 from utils.models import get_metrics
 
 
@@ -113,6 +113,9 @@ def main(args):
             cnt += 1
         print(f"changed this iteration: {changed_this_iter} -- {100 * changed_this_iter / seen_users}")
         metrics = get_metrics(preds, labels, args.exp_levels, f"it_{iteration}")
+        metrics = test_for_att(args, class_weigths, "exp", data_test[f"labels_exp"],
+                                classifier, test_features.todense(), f"it_{iteration}")
+        ipdb.set_trace()
         f1 = metrics[f"f1_it_{iteration}"]
         print(f"Iteration: {iteration}, F1 score: {f1}%")
         pred_class_dist = get_class_dist(preds)
