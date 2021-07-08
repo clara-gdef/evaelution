@@ -98,8 +98,8 @@ def main(args):
                 if args.enforce_monotony == "True":
                     assert all(exp_seq_pred[i] <= exp_seq_pred[i + 1] for i in range(len(exp_seq_pred) - 1))
                     assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
-            print(f"changed this iteration: {changed_this_iter} -- {100*changed_this_iter/num_seen} % of the jobs seen")
             cnt += 1
+        print(f"changed this iteration: {changed_this_iter} -- {100 * changed_this_iter / num_seen} % of the jobs seen")
         # metrics = get_metrics(preds, labels, args.exp_levels, f"it_{iteration}")
         metrics = test_model_on_all_test_data(classifier, test_file)
         f1 = metrics[0]["f1_exp"]
