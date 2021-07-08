@@ -83,8 +83,8 @@ def main(args):
         print(f"Classifier saved at: {tgt_file}_exp_svm_it{iteration}.joblib")
         preds, labels = [], []
         # SVC eval
+        changed_this_iter, seen_users = 0, 0
         cnt = np.random.randint(args.user_step)
-        seen_users = 0
         for user in tqdm(all_users.keys(), desc="parsing users..."):
             if user not in user_trains and cnt % args.user_step == 0:
                 seen_users += 1
@@ -102,6 +102,7 @@ def main(args):
                     # relabel current tuple according to evolution constraint
                     exp_seq_init.append(all_labels[job])
                     if prev_exp <= pred <= next_exp:
+                        changed_this_iter += 1
                         all_labels[job] = pred
                     # keep predictions for evaluation of convergence
                     preds.append(pred)
@@ -109,7 +110,7 @@ def main(args):
                     exp_seq_pred.append(all_labels[job])
                 assert all(exp_seq_pred[i] <= exp_seq_pred[i + 1] for i in range(len(exp_seq_pred) - 1))
                 assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
-
+                print(f"changed this iteration: {changed_this_iter} -- {100*changed_this_iter/seen_users}")
             cnt += 1
         metrics = get_metrics(preds, labels, args.exp_levels, f"it_{iteration}")
         f1 = metrics[f"f1_it_{iteration}"]
@@ -119,8 +120,7 @@ def main(args):
         print(f"Class distributions in PREDS: {pred_class_dist}")
         print(f"Class distributions in LABELS: {label_class_dist}")
         word_analysis(args, all_features, all_labels, vectorizer, exp_name, iteration)
-        save_new_tuples(data_train, data_valid, data_test, all_labels, train_lookup, valid_lookup,
-                        test_lookup, iteration)
+        save_new_tuples(data_train, data_valid, data_test, all_labels, iteration)
 
     # the model converged, we test it on the whole dataset
     all_results = test_model_on_all_test_data(args, classifier, vectorizer, tokenizer, stop_words)
@@ -193,23 +193,22 @@ def get_jobs_str_per_class(args, all_features, all_labels, vectorizer):
     return class_txt
 
 
-def save_new_tuples(data_train, data_valid, data_test, all_labels, train_lookup, valid_lookup, test_lookup, iteration):
+def save_new_tuples(data_train, data_valid, data_test, all_labels, iteration):
+    tuples_train = []
     labels_train = all_labels[:len(data_train)]
     for num, label in enumerate(tqdm(labels_train, desc="relabel train tuples...")):
-        data_train[num]["exp_index"] = label
+        new = {"ind_index": data_train.tuples[num]["ind_index"],
+               "exp_index": label,
+               "words": data_train.tuples[num]["words"]}
+        tuples_train.append(new)
 
+    tuples_valid = []
     labels_valid = all_labels[len(data_train):len(data_train) + len(data_valid)]
     for num, label in enumerate(tqdm(labels_valid, desc="relabel valid tuples...")):
-        data_valid[num]["exp_index"] = label
-
-    offset = len(data_train)
-    reset_valid_lookup = {}
-    if min(min(valid_lookup.values())) >= offset:
-        for k, v in valid_lookup.items():
-            assert v[0] - offset >= 0
-            reset_valid_lookup[k] = [v[0] - offset, v[1] - offset]
-    else:
-        reset_valid_lookup = valid_lookup
+        new = {"ind_index": data_valid.tuples[num]["ind_index"],
+               "exp_index": label,
+               "words": data_valid.tuples[num]["words"]}
+        tuples_valid.append(new)
 
     labels_test = all_labels[len(data_train) + len(data_valid):-1]
     tuples_test = []
@@ -219,20 +218,12 @@ def save_new_tuples(data_train, data_valid, data_test, all_labels, train_lookup,
                "words": data_test.tuples[num]["words"]}
         tuples_test.append(new)
 
-    offset = len(data_train) + len(data_valid)
-    reset_test_lookup = {}
-    if min(min(test_lookup.values())) >= offset:
-        for k, v in test_lookup.items():
-            assert v[0] - offset >= 0
-            reset_test_lookup[k] = [v[0] - offset, v[1] - offset]
-    else:
-        reset_test_lookup = test_lookup
-    save_new_tuples_per_split(data_train, train_lookup, "TRAIN", iteration)
-    save_new_tuples_per_split(data_valid, reset_valid_lookup, "VALID", iteration)
-    save_new_tuples_per_split(tuples_test, reset_test_lookup, "TEST", iteration)
+    save_new_tuples_per_split(data_train, "TRAIN", iteration)
+    save_new_tuples_per_split(data_valid, "VALID", iteration)
+    save_new_tuples_per_split(tuples_test, "TEST", iteration)
 
 
-def save_new_tuples_per_split(tuple_list, lookup, split, iteration):
+def save_new_tuples_per_split(tuple_list, split, iteration):
     suffix = f"_svm_it{iteration}"
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": "False",

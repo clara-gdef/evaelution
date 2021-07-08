@@ -45,7 +45,8 @@ def main(args):
 
     check_monotonic_dynamic(data_train + data_valid + data_test, all_users, "all")
     print("Features and labels concatenated.")
-    while f1 < args.f1_threshold and iteration < args.max_iter:
+    changed_this_iter = 1000
+    while f1 < args.f1_threshold and iteration < args.max_iter and changed_this_iter > 0:
         train_file, test_file = build_ft_txt_file(args, f'_it{iteration}', data_train, data_valid, data_test)
         print(f"Iteration number: {iteration}")
         print(f"Training classifier on {len(data_train) + len(data_valid)} jobs...")
@@ -62,9 +63,11 @@ def main(args):
         preds, labels = [], []
         # FT eval
         # this allows to cover different users from one loop to the next, even if we skip some every loop
+        changed_this_iter, num_seen = 0, 0
         cnt = np.random.randint(args.user_step)
         for user in tqdm(all_users.keys(), desc="parsing users..."):
             if cnt % args.user_step == 0:
+                num_seen += 1
                 current_user = all_users[user]
                 exp_seq_pred = [all_labels[current_user[0]]]
                 exp_seq_init = [all_labels[current_user[0]]]
@@ -81,9 +84,12 @@ def main(args):
                         exp_seq_init.append(all_labels[job])
                         if prev_exp <= pred <= next_exp:
                             all_labels[job] = pred
+                            changed_this_iter += 1
                     else:
                         tmp = handle_fb_preds(classifier.predict(all_tuples[job], k=3))
                         pred = int(tmp[0])
+                        if all_labels[job] != pred:
+                            changed_this_iter += 1
                         all_labels[job] = pred
                     # keep predictions for evaluation of convergence
                     preds.append(pred)
@@ -92,6 +98,7 @@ def main(args):
                 if args.enforce_monotony == "True":
                     assert all(exp_seq_pred[i] <= exp_seq_pred[i + 1] for i in range(len(exp_seq_pred) - 1))
                     assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
+                print(f"changed this iteration: {changed_this_iter} -- {100*changed_this_iter/num_seen}")
             cnt += 1
         # metrics = get_metrics(preds, labels, args.exp_levels, f"it_{iteration}")
         metrics = test_model_on_all_test_data(classifier, test_file)
