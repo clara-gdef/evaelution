@@ -69,9 +69,8 @@ def main(args):
 
     print("Features and labels concatenated.")
     while f1 < args.f1_threshold and iteration < args.max_iter:
-        iteration += 1
         print(f"Iteration number: {iteration}")
-        # svc training
+        # nb training
         subset_train_data, subset_train_labels, user_trains = get_subset_data_and_labels(train_features.toarray(),
                                                                                          labels_exp_train,
                                                                                          train_lookup,
@@ -79,6 +78,10 @@ def main(args):
         print(f"Training classifier on {len(subset_train_data)} jobs...")
         class_weigths = get_class_dist(subset_train_labels)
         classifier = train_nb(subset_train_data, subset_train_labels, class_weigths)
+        if iteration == 0:
+            init_metrics = test_for_att(args, class_weigths, "exp", labels_exp_test,
+                                   classifier, test_features.todense(), f"it_{iteration}")
+        iteration += 1
         joblib.dump(classifier, f"{tgt_file}_exp_nb_it{iteration}.joblib")
         print(f"Classifier saved at: {tgt_file}_exp_nb_it{iteration}.joblib")
         preds, labels = [], []
@@ -115,9 +118,9 @@ def main(args):
         args.model = "nb"
         metrics = test_for_att(args, class_weigths, "exp", labels_exp_test,
                                 classifier, test_features.todense(), f"it_{iteration}")
-        ipdb.set_trace()
-        f1 = metrics[f"f1_it_{iteration}"]
+        f1 = metrics[f"f1_exp it_{iteration} NB"]
         print(f"Iteration: {iteration}, F1 score: {f1}%")
+        print(f"initial F1 score: {init_metrics[0]['f1_exp it_0 NB']}%")
         pred_class_dist = get_class_dist(preds)
         label_class_dist = get_class_dist(labels)
         print(f"Class distributions in PREDS: {pred_class_dist}")
