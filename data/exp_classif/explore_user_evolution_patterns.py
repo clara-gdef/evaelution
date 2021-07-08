@@ -29,6 +29,7 @@ def main(args):
         exp_seq.most_common(10)
         carreer_len.most_common(10)
 
+
 def get_exp_sequence(users, jobs, exp_seq, carreer_len, split):
     for num, user in enumerate(tqdm(users, desc=f"parsing users for {split} split...")):
         current_user = users[user]
@@ -50,6 +51,8 @@ def get_exp_sequence(users, jobs, exp_seq, carreer_len, split):
 
 def get_data(CFG, args):
     suffix = f"_{args.mod_type}_it{args.iteration}"
+    if args.enforce_monotony != "True":
+        suffix += f"_NON_MONOTONIC"
     print("Building datasets...")
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": args.load_dataset,
@@ -73,7 +76,8 @@ if __name__ == "__main__":
     parser.add_argument("--subsample", type=int, default=-1)
     parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--exp_levels", type=int, default=3)
-    parser.add_argument("--iteration", type=int, default=38)
+    parser.add_argument("--iteration", type=int, default=100)
+    parser.add_argument("--enforce_monotony", type=str, default="True")
     parser.add_argument("--exp_type", type=str, default="iter")
     args = parser.parse_args()
     main(args)
