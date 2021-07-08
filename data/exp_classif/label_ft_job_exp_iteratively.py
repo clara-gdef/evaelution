@@ -61,17 +61,17 @@ def main(args):
         classifier.save_model(tgt_file)
         print(f"Model saved at {tgt_file}")
         preds, labels = [], []
+        changed_this_iter, num_seen = 0, 0
         # FT eval
         # this allows to cover different users from one loop to the next, even if we skip some every loop
-        changed_this_iter, num_seen = 0, 0
         cnt = np.random.randint(args.user_step)
         for user in tqdm(all_users.keys(), desc="parsing users..."):
             if cnt % args.user_step == 0:
-                num_seen += 1
                 current_user = all_users[user]
                 exp_seq_pred = [all_labels[current_user[0]]]
                 exp_seq_init = [all_labels[current_user[0]]]
                 for job in range(current_user[0] + 1, current_user[1]):
+                    num_seen += 1
                     if args.enforce_monotony == "True":
                         prev_exp = all_labels[job - 1]
                         if job == current_user[1] - 1:
@@ -98,7 +98,7 @@ def main(args):
                 if args.enforce_monotony == "True":
                     assert all(exp_seq_pred[i] <= exp_seq_pred[i + 1] for i in range(len(exp_seq_pred) - 1))
                     assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
-            print(f"changed this iteration: {changed_this_iter} -- {100*changed_this_iter/num_seen}")
+            print(f"changed this iteration: {changed_this_iter} -- {100*changed_this_iter/num_seen} % of the jobs seen")
             cnt += 1
         # metrics = get_metrics(preds, labels, args.exp_levels, f"it_{iteration}")
         metrics = test_model_on_all_test_data(classifier, test_file)
