@@ -54,9 +54,9 @@ def turn_exp_sequence_into_jump_seq(args, users, tuples, exp_seq, split):
         start = current_user[0]
         end = current_user[1]
         user_rep = np.zeros(args.max_career_len)
-        prev_exp = tuples[start]["exp_index"]
+        prev_exp = tuples[start][-1]
         for num, job in enumerate(range(start+1, end)):
-            current_exp = tuples[job]["exp_index"]
+            current_exp = tuples[job][-1]
             if current_exp > prev_exp:
                 user_rep[num] = 1.
             prev_exp = current_exp
