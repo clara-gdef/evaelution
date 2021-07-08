@@ -26,7 +26,9 @@ def main(args):
         sub_user_valid, sub_tup_valid = subsample_users_by_career_len(args, valid_lu, data_valid.tuples, args.iteration, "valid")
         sub_user_test, sub_tup_test = subsample_users_by_career_len(args, test_lu, data_test.tuples, args.iteration, "test")
 
-        turn_exp_sequence_into_jump_seq(args, sub_user_train, sub_tup_train, exp_seq, "train")
+        new_users_train, exp_seq = turn_exp_sequence_into_jump_seq(args, sub_user_train, sub_tup_train, exp_seq, "train")
+        new_users_valid, exp_seq = turn_exp_sequence_into_jump_seq(args, sub_user_valid, sub_tup_valid, exp_seq, "valid")
+        new_users_test, exp_seq = turn_exp_sequence_into_jump_seq(args, sub_user_test, sub_tup_test, exp_seq, "test")
 
         exp_seq, carreer_len = get_exp_sequence(sub_user_train, sub_tup_train, exp_seq, carreer_len, args.iteration,
                                                 args.mod_type, "train")
@@ -61,7 +63,7 @@ def turn_exp_sequence_into_jump_seq(args, users, tuples, exp_seq, split):
         new_users[user] = user_rep
         exp_seq[int(sum(new_users))] += 1
     ipdb.set_trace()
-    return new_users
+    return new_users, exp_seq
 
 
 def get_exp_sequence(users, jobs, exp_seq, carreer_len, iteration, mod_type, split):
