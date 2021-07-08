@@ -43,7 +43,7 @@ def get_exp_sequence(users, jobs, exp_seq, carreer_len, iteration, mod_type, spl
         end = current_user[1]
         current_seq = []
         for job in range(start, end):
-            if split == "test" or iteration == 0 or (mod_type == "nb" and split != "valid"):
+            if split == "test" or iteration == 0:
                 tmp = jobs[job]["exp_index"]
             else:
                 tmp = jobs[job][-1]
