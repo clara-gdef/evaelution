@@ -79,8 +79,8 @@ def main(args):
         class_weigths = get_class_dist(subset_train_labels)
         classifier = train_nb(subset_train_data, subset_train_labels, class_weigths)
         if iteration == 0:
-            init_metrics = test_for_att(args, class_weigths, "exp", labels_exp_test,
-                                   classifier, test_features.todense(), f"it_{iteration}")
+            init_metrics = test_for_att(args, class_weigths, "exp", all_labels,
+                                classifier, all_features, f"it_{iteration}")
         iteration += 1
         joblib.dump(classifier, f"{tgt_file}_exp_nb_it{iteration}.joblib")
         print(f"Classifier saved at: {tgt_file}_exp_nb_it{iteration}.joblib")
@@ -116,8 +116,8 @@ def main(args):
             cnt += 1
         print(f"changed this iteration: {changed_this_iter} -- {100 * changed_this_iter / seen_users}")
         args.model = "nb"
-        metrics = test_for_att(args, class_weigths, "exp", labels_exp_test,
-                                classifier, test_features.todense(), f"it_{iteration}")
+        metrics = test_for_att(args, class_weigths, "exp", all_labels,
+                                classifier, all_features, f"it_{iteration}")
         f1 = metrics[f"f1_exp it_{iteration} NB"]
         print(f"Iteration: {iteration}, F1 score: {f1}%")
         print(f"initial F1 score: {init_metrics['f1_exp it_0 NB']}%")
