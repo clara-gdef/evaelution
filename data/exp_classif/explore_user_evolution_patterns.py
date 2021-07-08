@@ -76,7 +76,7 @@ def get_data(CFG, args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mod_type", type=str, default="ft") # svm or ft
+    parser.add_argument("--mod_type", type=str, default="ft") # nb or ft
     parser.add_argument("--load_dataset", type=str, default="True")
     parser.add_argument("--subsample", type=int, default=-1)
     parser.add_argument("--max_len", type=int, default=32)
