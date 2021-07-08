@@ -87,11 +87,11 @@ def main(args):
         cnt = np.random.randint(args.user_step)
         for user in tqdm(all_users.keys(), desc="parsing users..."):
             if user not in user_trains and cnt % args.user_step == 0:
-                seen_users += 1
                 current_user = all_users[user]
                 exp_seq_pred = [all_labels[current_user[0]]]
                 exp_seq_init = [all_labels[current_user[0]]]
                 for job in range(current_user[0] + 1, current_user[1]):
+                    seen_users += 1
                     prev_exp = all_labels[job - 1]
                     if job == current_user[1] - 1:
                         next_exp = 2  # max possible
@@ -112,8 +112,7 @@ def main(args):
                 assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
             cnt += 1
         print(f"changed this iteration: {changed_this_iter} -- {100 * changed_this_iter / seen_users}")
-        metrics = get_metrics(preds, labels, args.exp_levels, f"it_{iteration}")
-        metrics = test_for_att(args, class_weigths, "exp", data_test[f"labels_exp"],
+        metrics = test_for_att(args, class_weigths, "exp", labels_exp_test,
                                 classifier, test_features.todense(), f"it_{iteration}")
         ipdb.set_trace()
         f1 = metrics[f"f1_it_{iteration}"]
