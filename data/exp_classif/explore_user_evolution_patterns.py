@@ -20,22 +20,23 @@ def main(args):
         valid_lu = data_valid.user_lookup
         test_lu = data_test.user_lookup
 
-        exp_seq, carreer_len = Counter(), Counter()
+        jump_num, exp_seq = Counter(), Counter()
 
         sub_user_train, sub_tup_train = subsample_users_by_career_len(args, train_lu, data_train.tuples, args.iteration, "train")
         sub_user_valid, sub_tup_valid = subsample_users_by_career_len(args, valid_lu, data_valid.tuples, args.iteration, "valid")
         sub_user_test, sub_tup_test = subsample_users_by_career_len(args, test_lu, data_test.tuples, args.iteration, "test")
 
-        new_users_train, exp_seq = turn_exp_sequence_into_jump_seq(args, sub_user_train, sub_tup_train, exp_seq, "train")
-        new_users_valid, exp_seq = turn_exp_sequence_into_jump_seq(args, sub_user_valid, sub_tup_valid, exp_seq, "valid")
-        new_users_test, exp_seq = turn_exp_sequence_into_jump_seq(args, sub_user_test, sub_tup_test, exp_seq, "test")
+        new_users_train, jump_num, exp_seq = turn_exp_sequence_into_jump_seq(args, sub_user_train, sub_tup_train, jump_num, exp_seq, "train")
+        new_users_valid, jump_num, exp_seq = turn_exp_sequence_into_jump_seq(args, sub_user_valid, sub_tup_valid, jump_num, exp_seq, "valid")
+        new_users_test, jump_num, exp_seq = turn_exp_sequence_into_jump_seq(args, sub_user_test, sub_tup_test, jump_num, exp_seq, "test")
+        ipdb.set_trace()
 
-        exp_seq, carreer_len = get_exp_sequence(sub_user_train, sub_tup_train, exp_seq, carreer_len, args.iteration,
-                                                args.mod_type, "train")
-        exp_seq, carreer_len = get_exp_sequence(sub_user_valid, sub_tup_valid, exp_seq, carreer_len, args.iteration,
-                                                args.mod_type, "valid")
-        exp_seq, carreer_len = get_exp_sequence(sub_user_test, sub_tup_test, exp_seq, carreer_len, args.iteration,
-                                                args.mod_type, "test")
+        # exp_seq, carreer_len = get_exp_sequence(sub_user_train, sub_tup_train, exp_seq, carreer_len, args.iteration,
+        #                                         args.mod_type, "train")
+        # exp_seq, carreer_len = get_exp_sequence(sub_user_valid, sub_tup_valid, exp_seq, carreer_len, args.iteration,
+        #                                         args.mod_type, "valid")
+        # exp_seq, carreer_len = get_exp_sequence(sub_user_test, sub_tup_test, exp_seq, carreer_len, args.iteration,
+        #                                         args.mod_type, "test")
         total_users = len(train_lu) + len(valid_lu) + len(test_lu)
         exp_seq.most_common(10)
         prct_exp_seq = [(i, 100 * v / total_users) for i, v in exp_seq.most_common(10)]
@@ -47,9 +48,9 @@ def main(args):
         ipdb.set_trace()
 
 
-def turn_exp_sequence_into_jump_seq(args, users, tuples, exp_seq, split):
+def turn_exp_sequence_into_jump_seq(args, users, tuples, jump_num, exp_seq, split):
     new_users = {}
-    for num, user in enumerate(tqdm(users, desc=f"parsing users for {split} split...")):
+    for num, user in enumerate(tqdm(users, desc=f"turning exp seq into jump seq for {split} split...")):
         current_user = users[user]
         start = current_user[0]
         end = current_user[1]
@@ -63,29 +64,29 @@ def turn_exp_sequence_into_jump_seq(args, users, tuples, exp_seq, split):
                 user_rep[num] = 1.
             prev_exp = current_exp
         new_users[user] = user_rep
-        exp_seq[int(sum(new_users))] += 1
-    ipdb.set_trace()
-    return new_users, exp_seq
+        jump_num[int(sum(user_rep))] += 1
+        exp_seq[str(user_rep)] += 1
+    return new_users, jump_num, exp_seq
 
 
-def get_exp_sequence(users, jobs, exp_seq, carreer_len, iteration, mod_type, split):
-    for num, user in enumerate(tqdm(users, desc=f"parsing users for {split} split...")):
-        current_user = users[user]
-        start = current_user[0]
-        end = current_user[1]
-        current_seq = []
-        for job in range(start, end):
-            if split == "test" or iteration == 0:
-                tmp = jobs[job]["exp_index"]
-            else:
-                tmp = jobs[job][-1]
-            current_seq.append(tmp)
-        if len(current_seq) > 0:
-            carreer_len[len(current_seq)] += 1
-            exp_seq[str(current_seq)] += 1
-        ipdb.set_trace()
-    print(f"Number of sequence acquired: {sum([i for i in exp_seq.values()])}")
-    return exp_seq, carreer_len
+# def get_exp_sequence(users, jobs, exp_seq, carreer_len, iteration, mod_type, split):
+#     for num, user in enumerate(tqdm(users, desc=f"parsing users for {split} split...")):
+#         current_user = users[user]
+#         start = current_user[0]
+#         end = current_user[1]
+#         current_seq = []
+#         for job in range(start, end):
+#             if split == "test" or iteration == 0:
+#                 tmp = jobs[job]["exp_index"]
+#             else:
+#                 tmp = jobs[job][-1]
+#             current_seq.append(tmp)
+#         if len(current_seq) > 0:
+#             carreer_len[len(current_seq)] += 1
+#             exp_seq[str(current_seq)] += 1
+#         ipdb.set_trace()
+#     print(f"Number of sequence acquired: {sum([i for i in exp_seq.values()])}")
+#     return exp_seq, carreer_len
 
 
 def subsample_users_by_career_len(args, users, jobs, iteration, split):
