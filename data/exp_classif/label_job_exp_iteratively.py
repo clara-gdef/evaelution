@@ -97,7 +97,7 @@ def main(args):
                         next_exp = 2  # max possible
                     else:
                         next_exp = all_labels[job + 1]
-                    tmp = classifier.decision_function(all_features[job].reshape(1, -1))[0]
+                    tmp = classifier.predict_proba(all_features[job].reshape(1, -1))[0]
                     pred = np.argsort(tmp)[::-1][0]
                     # relabel current tuple according to evolution constraint
                     exp_seq_init.append(all_labels[job])
@@ -328,7 +328,7 @@ if __name__ == "__main__":
     parser.add_argument("--load_dataset", type=str, default="True")
     # parser.add_argument("--subsample_jobs", type=int, default=-1)
     parser.add_argument("--train_user_len", type=int, default=2000)
-    parser.add_argument("--max_iter", type=int, default=50)
+    parser.add_argument("--max_iter", type=int, default=100)
     parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--user_step", type=int, default=10)
     parser.add_argument("--start_iter", type=int, default=0)
