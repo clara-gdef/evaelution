@@ -46,7 +46,7 @@ def main(args):
     cleaned_profiles_valid, labels_exp_valid, _ = pre_proc_data(data_valid, tokenizer, stop_words)
     cleaned_profiles_test, labels_exp_test, _ = pre_proc_data(data_test, tokenizer, stop_words)
     vectorizer = TfidfVectorizer(analyzer="word", tokenizer=None, preprocessor=None, stop_words=None,
-                                 max_df=.6, min_df=1e-3, max_features=12000)
+                                 max_df=1.0, min_df=1, max_features=12000)
     print("Fitting vectorizer...")
     train_features = vectorizer.fit_transform(cleaned_profiles_train)
     print("Vectorizer Fitted.")
@@ -306,7 +306,7 @@ def get_subset_data_and_labels(features, labels, user_lookup, train_user_len):
 
 
 def get_exp_name(args):
-    exp_name = f"label_iter_{args.exp_levels}exp_{args.exp_type}_train{args.train_user_len}"
+    exp_name = f"label_iter_loose_{args.exp_levels}exp_{args.exp_type}_train{args.train_user_len}"
     if args.subsample_users != -1:
         exp_name += f"_eval{args.subsample_users}"
     if args.user_step != 1:
