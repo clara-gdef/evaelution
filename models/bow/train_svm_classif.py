@@ -27,6 +27,7 @@ def main(args, data_train, data_test, class_dict):
         print("subsample_according_to_class_weight...")
         data_train, data_test = subsample_according_to_class_weight(args, data_train, data_test, class_dict, args.subsample)
     train_features, vectorizer = fit_vectorizer(args, data_train["jobs"])
+    print(f"NUM FEATURES: {len(vectorizer.vocabulary_)}")
     ipdb.set_trace()
     exp_name = get_exp_name(args)
     tgt_file = os.path.join(CFG["modeldir"], exp_name)
