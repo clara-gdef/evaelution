@@ -226,8 +226,8 @@ def save_new_tuples(data_train, data_valid, data_test, all_labels, iteration):
                "words": data_test.tuples[num]["words"]}
         tuples_test.append(new)
 
-    save_new_tuples_per_split(data_train, "TRAIN", iteration)
-    save_new_tuples_per_split(data_valid, "VALID", iteration)
+    save_new_tuples_per_split(tuples_train, "TRAIN", iteration)
+    save_new_tuples_per_split(tuples_valid, "VALID", iteration)
     save_new_tuples_per_split(tuples_test, "TEST", iteration)
 
 
