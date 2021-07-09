@@ -32,8 +32,6 @@ def main(args, data_train, data_test, class_dict):
     if args.load_model == "True":
         model = joblib.load(f"{tgt_file}_{args.att_type}.joblib")
         vectorizer = joblib.load(f"{tgt_file}_vectorizer_{args.model}_{args.kernel}.joblib")
-        print(f"NUM FEATURES: {model.coef_.shape[1]}")
-        ipdb.set_trace()
     else:
         if args.model == "svm":
             model = train_svm(train_features[:args.subsample], data_train[f"labels_{args.att_type}"][:args.subsample], class_dict[args.att_type], args.kernel)
@@ -44,6 +42,8 @@ def main(args, data_train, data_test, class_dict):
         if args.save_model == "True":
             joblib.dump(model, f"{tgt_file}_{args.att_type}.joblib")
             joblib.dump(vectorizer, f"{tgt_file}_vectorizer_{args.model}_{args.kernel}.joblib")
+    print(f"NUM FEATURES: {model.coef_.shape[1]}")
+    ipdb.set_trace()
     # TEST
     test_features = vectorizer.transform(data_test["jobs"])
     res_test = test_for_att(args, class_dict, args.att_type, data_test[f"labels_{args.att_type}"][:args.subsample], model, test_features[:args.subsample].todense(), "TEST")
