@@ -27,6 +27,7 @@ def main(args, data_train, data_test, class_dict):
         print("subsample_according_to_class_weight...")
         data_train, data_test = subsample_according_to_class_weight(args, data_train, data_test, class_dict, args.subsample)
     train_features, vectorizer = fit_vectorizer(args, data_train["jobs"])
+    ipdb.set_trace()
     exp_name = get_exp_name(args)
     tgt_file = os.path.join(CFG["modeldir"], exp_name)
     if args.load_model == "True":
@@ -42,8 +43,6 @@ def main(args, data_train, data_test, class_dict):
         if args.save_model == "True":
             joblib.dump(model, f"{tgt_file}_{args.att_type}.joblib")
             joblib.dump(vectorizer, f"{tgt_file}_vectorizer_{args.model}_{args.kernel}.joblib")
-    print(f"NUM FEATURES: {model.coef_.shape[1]}")
-    ipdb.set_trace()
     # TEST
     test_features = vectorizer.transform(data_test["jobs"])
     res_test = test_for_att(args, class_dict, args.att_type, data_test[f"labels_{args.att_type}"][:args.subsample], model, test_features[:args.subsample].todense(), "TEST")
