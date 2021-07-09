@@ -109,7 +109,7 @@ def subsample_according_to_class_weight(args, data_train, data_test, class_dict,
 
 
 def get_exp_name(args):
-    exp_name = f"DEBUG{args.model}_{args.exp_levels}exp_{args.exp_type}_maxlen{args.max_len}"
+    exp_name = f"{args.model}_{args.exp_levels}exp_{args.exp_type}_maxlen{args.max_len}"
     if args.tfidf == "True":
         exp_name += "_tfidf"
     if args.add_ind_name == "True":
