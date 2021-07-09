@@ -32,6 +32,8 @@ def main(args, data_train, data_test, class_dict):
     if args.load_model == "True":
         model = joblib.load(f"{tgt_file}_{args.att_type}.joblib")
         vectorizer = joblib.load(f"{tgt_file}_vectorizer_{args.model}_{args.kernel}.joblib")
+        print(f"NUM FEATURES: {model.coef_.shape[1]}")
+        ipdb.set_trace()
     else:
         if args.model == "svm":
             model = train_svm(train_features[:args.subsample], data_train[f"labels_{args.att_type}"][:args.subsample], class_dict[args.att_type], args.kernel)
@@ -107,7 +109,7 @@ def subsample_according_to_class_weight(args, data_train, data_test, class_dict,
 
 
 def get_exp_name(args):
-    exp_name = f"{args.model}_{args.exp_levels}exp_{args.exp_type}_maxlen{args.max_len}"
+    exp_name = f"DEBUG{args.model}_{args.exp_levels}exp_{args.exp_type}_maxlen{args.max_len}"
     if args.tfidf == "True":
         exp_name += "_tfidf"
     if args.add_ind_name == "True":
@@ -122,10 +124,10 @@ if __name__ == "__main__":
     parser.add_argument("--model", type=str, default="svm") # svm or nb
     parser.add_argument("--max_df", type=float, default=0.6)
     parser.add_argument("--max_features", type=int, default=12000)
-    parser.add_argument("--subsample", type=int, default=1000)
+    parser.add_argument("--subsample", type=int, default=-1)
     parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--save_model", default="True")
-    parser.add_argument("--load_model", type=str, default="False")
+    parser.add_argument("--load_model", type=str, default="True")
     parser.add_argument("--toy_dataset", type=str, default="False")
     parser.add_argument("--dataset_suffix", type=str, default="")
     parser.add_argument("--sub_ind", type=str, default="True")
