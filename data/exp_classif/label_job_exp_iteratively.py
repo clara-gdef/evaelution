@@ -16,7 +16,7 @@ from tqdm import tqdm
 from wordcloud import WordCloud
 
 from data.datasets.StringIndSubDataset import StringIndSubDataset
-from utils.bow import train_nb, pre_proc_data, test_for_att
+from utils.bow import train_nb, test_for_att
 from utils.models import get_metrics
 
 
@@ -315,6 +315,16 @@ def get_exp_name(args):
     if args.tfidf == "True":
         exp_name += "_tfidf"
     return exp_name
+
+
+def pre_proc_data(data, tokenizer, stop_words):
+    labels_exp, labels_ind, jobs = [], [], []
+    for job in tqdm(data, desc="Parsing profiles..."):
+        labels_exp.append(int(job[2]))
+        labels_ind.append(int(job[1]))
+        cleaned_ab = [w.lower() for w in tokenizer.tokenize(job[0]) if (w not in stop_words) and (w != "")]
+        jobs.append(" ".join(cleaned_ab))
+    return jobs, labels_exp, labels_ind
 
 
 def get_all_users(data_train, data_valid, data_test, train_lu, valid_lu, test_lu):

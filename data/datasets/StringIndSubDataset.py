@@ -1,11 +1,10 @@
 import os
 import pickle as pkl
 
-import ipdb
 import numpy as np
-from tqdm import tqdm
-from torch.utils.data import Dataset
 from nltk.tokenize import word_tokenize
+from torch.utils.data import Dataset
+from tqdm import tqdm
 
 
 class StringIndSubDataset(Dataset):
@@ -55,15 +54,22 @@ class StringIndSubDataset(Dataset):
         return len(self.tuples)
 
     def __getitem__(self, idx):
-        return self.tuples[idx]["words"], \
-            self.tuples[idx]["ind_index"], \
-            self.tuples[idx]["exp_index"]
+        try:
+            return self.tuples[idx]["words"], \
+                   self.tuples[idx]["ind_index"], \
+                   self.tuples[idx]["exp_index"]
+        except TypeError:
+            return self.tuples[idx][0], \
+                   self.tuples[idx][1], \
+                   self.tuples[idx][2]
 
     def save_new_tuples(self, tuple_list, suffix):
-        self.tuples = tuple_list
-        # for person_id, (start, end) in tqdm(lookup.items(), desc=f"Changing {len(lookup)} tuples inx split {self.split}..."):
-        #     for num, i in enumerate(range(start, end)):
-        #         self.tuples[i] = tuple_list[num].copy()
+        self.tuples = []
+        for tup in tqdm(tuple_list, desc=f"building new tuples list from input..."):
+            tmp = {"ind_index": tup[1],
+                   "exp_index": tup[2],
+                   "words": tup[0]}
+            self.tuples.append(tmp)
         self.save_dataset(suffix, -1)
 
     def save_dataset(self, suffix, subsample):
@@ -112,7 +118,7 @@ class StringIndSubDataset(Dataset):
                 if self.exp_type == "uniform":
                     exp = self.get_uniform_experience(len(sorted_jobs))
                 elif self.exp_type == "iter":
-                    exp = self.get_uniform_experience(len(sorted_jobs)) # will be overwritten later
+                    exp = self.get_uniform_experience(len(sorted_jobs))  # will be overwritten later
                 else:
                     raise Exception("exp_type provided not supported. "
                                     "Can only support uniform or iteratively labelled exp atm.")
@@ -122,7 +128,7 @@ class StringIndSubDataset(Dataset):
                     if self.exp_type == "uniform":
                         new_job["exp_index"] = exp[num]
                     elif self.exp_type == "iter":
-                        new_job["exp_index"] = exp[num] # will be overwritten later
+                        new_job["exp_index"] = exp[num]  # will be overwritten later
                     else:
                         raise Exception("exp_type provided not supported. "
                                         "Can only support uniform or iteratively labelled exp atm.")
@@ -165,12 +171,11 @@ class StringIndSubDataset(Dataset):
 
     def check_monotonicity(self):
         all_labels = [i["exp_index"] for i in self.tuples]
-        for cnt, user in enumerate(tqdm(self.user_lookup.keys(), desc=f"Checking monotonicity of experience for users...")):
+        for cnt, user in enumerate(
+                tqdm(self.user_lookup.keys(), desc=f"Checking monotonicity of experience for users...")):
             current_user = self.user_lookup[user]
             exp_seq_init = []
             for job in range(current_user[0], current_user[1]):
                 exp_seq_init.append(all_labels[job])
             assert all(exp_seq_init[i] <= exp_seq_init[i + 1] for i in range(len(exp_seq_init) - 1))
         print("all experience are monotonic")
-
-
