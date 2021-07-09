@@ -127,7 +127,7 @@ if __name__ == "__main__":
     parser.add_argument("--subsample", type=int, default=-1)
     parser.add_argument("--max_len", type=int, default=32)
     parser.add_argument("--save_model", default="True")
-    parser.add_argument("--load_model", type=str, default="True")
+    parser.add_argument("--load_model", type=str, default="False")
     parser.add_argument("--toy_dataset", type=str, default="False")
     parser.add_argument("--dataset_suffix", type=str, default="")
     parser.add_argument("--sub_ind", type=str, default="True")
