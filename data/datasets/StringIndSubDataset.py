@@ -66,9 +66,9 @@ class StringIndSubDataset(Dataset):
     def save_new_tuples(self, tuple_list, suffix):
         self.tuples = []
         for tup in tqdm(tuple_list, desc=f"building new tuples list from input..."):
-            tmp = {"ind_index": tup[1],
-                   "exp_index": tup[2],
-                   "words": tup[0]}
+            tmp = {"ind_index": tup["ind_index"],
+                   "exp_index": tup["exp_index"],
+                   "words": tup["words"]}
             self.tuples.append(tmp)
         self.save_dataset(suffix, -1)
 
