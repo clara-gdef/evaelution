@@ -32,7 +32,7 @@ def init(args):
 
 
 def main(args):
-    data_train, data_valid, data_test, train_lookup, valid_lookup, test_lookup = load_datasets(args)
+    data_train, data_valid, data_test, train_lookup, valid_lookup, test_lookup = load_datasets(args, args.start_iter)
     if args.initial_check == "True":
         check_monotonic_dynamic(data_train, train_lookup, "train")
         check_monotonic_dynamic(data_valid, valid_lookup, "valid")
@@ -78,7 +78,7 @@ def main(args):
         print(f"Training classifier on {len(subset_train_data)} jobs...")
         class_weigths = get_class_dist(subset_train_labels)
         classifier = train_nb(subset_train_data, subset_train_labels, class_weigths)
-        if iteration == 0:
+        if iteration == args.start_iter:
             init_metrics = test_for_att(args, class_weigths, "exp", all_labels,
                                 classifier, all_features, f"it_{iteration}")
         iteration += 1
@@ -130,7 +130,7 @@ def main(args):
         save_new_tuples(data_train, data_valid, data_test, all_labels, iteration)
 
     # the model converged, we test it on the whole dataset
-    all_results = test_model_on_all_test_data(args, classifier, vectorizer, tokenizer, stop_words)
+    all_results = test_model_on_all_test_data(args, classifier, vectorizer, tokenizer, stop_words, iteration)
     ipdb.set_trace()
 
 
@@ -248,8 +248,8 @@ def save_new_tuples_per_split(tuple_list, split, iteration):
     tmp.save_new_tuples(tuple_list, suffix)
 
 
-def test_model_on_all_test_data(args, model, vectorizer, tokenizer, stop_words):
-    data_train, data_valid, data_test, train_lookup, valid_lookup, test_lookup = load_datasets(args)
+def test_model_on_all_test_data(args, model, vectorizer, tokenizer, stop_words, iteration):
+    data_train, data_valid, data_test, train_lookup, valid_lookup, test_lookup = load_datasets(args, iteration)
     cleaned_profiles_test, labels_exp_test, _ = pre_proc_data(data_test, tokenizer, stop_words)
     test_features = vectorizer.transform(cleaned_profiles_test)
     preds = model.predict(test_features.toarray())
@@ -268,10 +268,10 @@ def get_class_dist(class_list):
     return cnt
 
 
-def load_datasets(args):
+def load_datasets(args, iteration):
     datasets = []
     splits = ["TRAIN", "VALID", "TEST"]
-    suffix = f"_nb_it{args.start_iter}"
+    suffix = f"_nb_it{iteration}"
     arguments = {'data_dir': CFG["gpudatadir"],
                  "load": args.load_dataset,
                  "subsample": -1,
