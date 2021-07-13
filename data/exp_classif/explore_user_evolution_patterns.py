@@ -36,7 +36,7 @@ def main(args):
         prct_exp_seq_seq = [i[0] for i in prct_exp_seq]
         prct_exp_seq_value = [i[1] for i in prct_exp_seq]
         for i, j in zip(prct_exp_seq_seq, prct_exp_seq_value):
-            print(f'{i} ' +'{0:.2f}'.format(j) + '\n')
+            print(f'{i} ' +'{0:.2f}'.format(j) + '%')
         print('\n'.join(prct_exp_seq_seq))
         print('\n'.join(prct_exp_seq_value))
         ipdb.set_trace()
