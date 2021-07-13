@@ -29,16 +29,16 @@ def main(args):
         new_users_train, jump_num, exp_seq = turn_exp_sequence_into_jump_seq(args, sub_user_train, sub_tup_train, jump_num, exp_seq, "train")
         new_users_valid, jump_num, exp_seq = turn_exp_sequence_into_jump_seq(args, sub_user_valid, sub_tup_valid, jump_num, exp_seq, "valid")
         new_users_test, jump_num, exp_seq = turn_exp_sequence_into_jump_seq(args, sub_user_test, sub_tup_test, jump_num, exp_seq, "test")
-        ipdb.set_trace()
 
         total_users = len(train_lu) + len(valid_lu) + len(test_lu)
         exp_seq.most_common(10)
-        prct_exp_seq = [(i, 100 * v / total_users) for i, v in exp_seq.most_common(10)]
+        prct_exp_seq = [(i, 100 * v / total_users) for i, v in exp_seq.most_common(5)]
         prct_exp_seq_seq = [i[0] for i in prct_exp_seq]
-        prct_exp_seq_value = [str(i[1]) for i in prct_exp_seq]
+        prct_exp_seq_value = [i[1] for i in prct_exp_seq]
+        for i, j in zip(prct_exp_seq_seq, prct_exp_seq_value):
+            print(f'{i} ' +'{0:.2f}'.format(j) + '\n')
         print('\n'.join(prct_exp_seq_seq))
         print('\n'.join(prct_exp_seq_value))
-        prct_career_len = [(i, 100 * v / total_users) for i, v in carreer_len.most_common(10)]
         ipdb.set_trace()
 
 
